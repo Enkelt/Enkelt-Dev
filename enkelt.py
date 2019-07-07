@@ -51,6 +51,8 @@ def parse(code, token_index):
 		if len(code)-1 >= token_index+1:
 			if code[token_index+1][0] == 'OPERATOR':
 				return token_val+str(parse(code, token_index+1))
+			else:
+				return token_val
 		else:
 			return token_val
 	elif token_type == 'PNUMBER' or token_type == 'NNUMBER':
@@ -73,16 +75,15 @@ def parse(code, token_index):
 		elif token_val == 'Falskt':
 			return False
 	elif token_type == 'OPERATOR':
-		if token_val == '+':
-			if len(code)-1 >= token_index+1:
-				return parse(code, token_index+1)
+		if token_val == '+' and len(code)-1 >= token_index+1:
+			return parse(code, token_index+1)
 	elif token_type == 'LIST_START':
-		print ('gg')
+		print('list starts here')
 
 
 def lex(line):
 	functions = ['skriv', 'matte', 'till', 'bort', 'töm', 'om', 'annars', 'anom', 'längd']
-	operators = ['+','-','*','/','%','<','>','=','!', '.', ',']
+	operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',']
 	tmp = ''
 	is_string = False
 	is_var = False
@@ -172,33 +173,36 @@ def lex(line):
 								if tmp == 'Sant' or tmp == 'Falskt':
 									data.append(['BOOL', tmp])
 									tmp = ''
+
 	return data
 
 
-def main(source):
-	for statement in source:
-		if statement[0] != '#':
-			statement = statement.replace('\n', '').replace('\t', '').replace("'", '"')
-			current_line = ''
-			is_string = False
-			for chr_index, chr in enumerate(statement):
-				if chr == ' ' and is_string:
-					current_line += chr
-				elif chr == ' ' and is_string is False:
-					continue
-				elif chr == '"' and is_string:
-					is_string = False
-					current_line += chr
-				elif chr == '"' and is_string is False:
-					is_string = True
-					current_line += chr
-				else:
-					current_line += chr
+def main(statement):
+	if statement[0] != '#':
+		statement = statement.replace('\n', '').replace('\t', '').replace("'", '"')
+		current_line = ''
+		is_string = False
+		for chr_index, chr in enumerate(statement):
+			if chr == ' ' and is_string:
+				current_line += chr
+			elif chr == ' ' and is_string is False:
+				continue
+			elif chr == '"' and is_string:
+				is_string = False
+				current_line += chr
+			elif chr == '"' and is_string is False:
+				is_string = True
+				current_line += chr
+			else:
+				current_line += chr
 
-			data = lex(current_line)
-			parse(data, 0)
+		return current_line
 
 
 variables = {}
-with open('test.e', 'r') as f:
-	main(f.readlines())
+with open('EX/test.e', 'r') as f:
+	data = f.readlines()
+for line in data:
+	data = main(line)
+	data = lex(data)
+	parse(data, 0)

@@ -1,0 +1,2 @@
+$var = Sant
+skriv ($var)
