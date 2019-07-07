@@ -1,2 +1,3 @@
-# Enkelt-Dev
-Enkelt development
+# Enkelt
+
+Enkelt är världens första svenska programmeringsspråk
