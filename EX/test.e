@@ -1,2 +1,2 @@
-$var = Sant
-skriv ($var)
+$namn = "Edvard"
+skriv ("Hej "+$namn+"!")

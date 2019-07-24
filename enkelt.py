@@ -66,7 +66,12 @@ def parse(code, token_index):
 			if code[token_index+1][0] == 'OPERATOR' and code[token_index+1][1] == '=':
 				variables[token_val] = parse(code, token_index+2)
 			else:
-				return variables[token_val]
+				return_val = variables[token_val]
+				token_index += 1
+				while len(code)-1 >= token_index and code[token_index][1] == '+':
+					return_val += str(parse(code, token_index+1))
+					token_index += 1
+				return return_val
 		else:
 			return variables[token_val]
 	elif token_type == 'BOOL':
@@ -99,7 +104,7 @@ def lex(line):
 			data.append(['END', chr])
 		elif chr == '#' and is_string is False:
 			break
-		elif chr.isdigit() and is_string is False and is_var is False:
+		elif chr.isdigit() and is_string is False:
 			if might_be_negative_num or last_action == 'NNUMBER':
 				if last_action == 'NNUMBER':
 					data[data_index-1] = ['NNUMBER', data[data_index-1][1]+chr]

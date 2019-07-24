@@ -2,6 +2,7 @@ import unittest
 
 from enkelt import lex
 from enkelt import main
+from enkelt import parse
 
 
 class TestEnkelt(unittest.TestCase):
