@@ -14,7 +14,6 @@ class TestEnkelt(unittest.TestCase):
         self.assertEqual(main("skriv  ('hej')"), 'skriv("hej")')
         self.assertEqual(main("skriv   ('hej')"), 'skriv("hej")')
         self.assertEqual(main("skriv    ('hej')\n"), 'skriv("hej")')
-        self.assertEqual(main("# test"), None)
 
     def test_lex(self):
         # Tests functions, data-types, vars, bools, operators and others tokenized output.
