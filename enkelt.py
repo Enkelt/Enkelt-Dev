@@ -183,31 +183,31 @@ def lex(line):
 
 
 def main(statement):
-	if statement[0] != '#':
-		statement = statement.replace('\n', '').replace('\t', '').replace("'", '"')
-		current_line = ''
-		is_string = False
-		for chr_index, chr in enumerate(statement):
-			if chr == ' ' and is_string:
-				current_line += chr
-			elif chr == ' ' and is_string is False:
-				continue
-			elif chr == '"' and is_string:
-				is_string = False
-				current_line += chr
-			elif chr == '"' and is_string is False:
-				is_string = True
-				current_line += chr
-			else:
-				current_line += chr
+	statement = statement.replace('\n', '').replace('\t', '').replace("'", '"')
+	current_line = ''
+	is_string = False
+	for chr_index, chr in enumerate(statement):
+		if chr == ' ' and is_string:
+			current_line += chr
+		elif chr == ' ' and is_string is False:
+			continue
+		elif chr == '"' and is_string:
+			is_string = False
+			current_line += chr
+		elif chr == '"' and is_string is False:
+			is_string = True
+			current_line += chr
+		else:
+			current_line += chr
 
-		return current_line
+	return current_line
 
 
 variables = {}
 with open('EX/test.e', 'r') as f:
 	data = f.readlines()
 for line in data:
-	data = main(line)
-	data = lex(data)
-	parse(data, 0)
+	if line != '\n' and line[0] != '#':
+		data = main(line)
+		data = lex(data)
+		parse(data, 0)
