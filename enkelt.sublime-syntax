@@ -1,0 +1,69 @@
+%YAML 1.2
+---
+name: Enkelt
+file_extensions: [e, enkelt]
+scope: example.e
+
+contexts:
+  main:
+    # Strings begin and end with quotes, and use backslashes as an escape
+    # character
+    - match: '"'
+      scope: punctuation.definition.string.begin
+      push: double_quoted_string
+
+    - match: "'"
+      scope: punctuation.definition.string.begin
+      push: single_quoted_string
+
+    # Comments begin with a '//' and finish at the end of the line
+    - match: '#'
+      scope: punctuation.definition.comment
+      push: line_comment
+
+    - match: ':|,'
+      scope: punctuation
+
+    - match: \$[A-Za-z][A-Za-z0-9_]+
+      scope: variable.function
+
+    - match: '\=|\<|>|\!|\-|\+|\*|\%'
+      scope: keyword
+
+    - match: '\{|\}|\(|\)|\[|\]'
+      scope: meta.braces
+
+    # other.
+    - match: '\b(skriv|om|annars|matte|till|bort)\b'
+      scope: keyword.control
+
+    - match: '\b(Sant|Falskt)\b'
+      scope: storage.type
+
+    - match: '\b(in)\b'
+      scope: variable.function
+
+    # Numbers
+    - match: '\b(-)?[0-9.]+\b'
+      scope: constant.numeric
+
+  double_quoted_string:
+    - meta_scope: string.quoted.double
+    - match: '\\.'
+      scope: constant.character.escape
+    - match: '"'
+      scope: punctuation.definition.string.end
+      pop: true
+
+  single_quoted_string:
+    - meta_scope: string.quoted.single
+    - match: '\\.'
+      scope: constant.character.escape
+    - match: "'"
+      scope: punctuation.definition.string.end
+      pop: true
+
+  line_comment:
+    - meta_scope: comment.line.
+    - match: $
+      pop: true
