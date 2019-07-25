@@ -47,6 +47,18 @@ def parse(code, token_index):
 					break
 
 			return calculation
+		elif token_val == 'in':
+			if len(code)-1 >= token_index+1:
+				title = parse(code, token_index+1)
+				return input(title)
+			else:
+				return input()
+		elif token_val == 'längd':
+			if len(code)-1 >= token_index+1:
+				data = parse(code, token_index+1)
+				return len(data)
+			else:
+				return None
 	elif token_type == 'STRING':
 		if len(code)-1 >= token_index+1:
 			if code[token_index+1][0] == 'OPERATOR':
@@ -87,7 +99,7 @@ def parse(code, token_index):
 
 
 def lex(line):
-	functions = ['skriv', 'matte', 'till', 'bort', 'töm', 'om', 'annars', 'anom', 'längd']
+	functions = ['skriv', 'matte', 'till', 'bort', 'töm', 'om', 'annars', 'anom', 'längd', 'in']
 	operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',']
 	tmp = ''
 	is_string = False
