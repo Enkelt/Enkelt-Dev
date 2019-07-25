@@ -145,6 +145,12 @@ class TestEnkelt(unittest.TestCase):
 			self.assertEqual(lex(operator), [
 				['OPERATOR', operator]
 			])
-
-
-
+		self.assertEqual(lex('längd("hej")'), [
+			['FUNCTION', 'längd'],
+			['STRING', 'hej']
+		])
+		self.assertEqual(lex('skriv(längd("x"))'), [
+			['FUNCTION', 'skriv'],
+			['FUNCTION', 'längd'],
+			['STRING', 'x']
+		])
