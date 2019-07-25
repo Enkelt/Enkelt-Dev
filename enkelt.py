@@ -43,6 +43,12 @@ def parse(code, token_index):
 						elif last_action == '*':
 							calculation = calculation * int(code[token_index][1])
 							last_action = ''
+						elif last_action == '/':
+							calculation = calculation / int(code[token_index][1])
+							last_action = ''
+						elif last_action == '%':
+							calculation = calculation % int(code[token_index][1])
+							last_action = ''
 				else:
 					break
 
@@ -56,7 +62,7 @@ def parse(code, token_index):
 		elif token_val == 'längd':
 			if len(code)-1 >= token_index+1:
 				data = parse(code, token_index+1)
-				return len(data)
+				return len(str(data))
 			else:
 				return None
 	elif token_type == 'STRING':
