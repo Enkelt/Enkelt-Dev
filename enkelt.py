@@ -77,6 +77,8 @@ def parse(code, token_index):
 		if len(code) - 1 >= token_index + 1:
 			if code[token_index + 1][0] == 'OPERATOR':
 				return token_val + str(parse(code, token_index + 1))
+			else:
+				return int(token_val)
 		else:
 			return token_val
 	elif token_type == 'VAR':
@@ -101,7 +103,14 @@ def parse(code, token_index):
 		if token_val == '+' and len(code)-1 >= token_index+1:
 			return parse(code, token_index+1)
 	elif token_type == 'LIST_START':
-		print('list starts here')
+		tmp_list = []
+		token_index += 1
+		while len(code)-1 >= token_index and code[token_index][0] != 'LIST_END':
+			if code[token_index][0] != 'OPERATOR' and code[token_index][1] != ',':
+				tmp_list.append(parse(code, token_index))
+
+			token_index += 1
+		return tmp_list
 
 
 def lex(line):
@@ -111,12 +120,15 @@ def lex(line):
 	is_string = False
 	is_var = False
 	is_list = False
+	is_list_index = False
 	data = []
 	last_action = ''
 	might_be_negative_num = False
 	data_index = -1
 	for chr_index, chr in enumerate(line):
-		if chr == '{':
+		if is_list_index and chr.isdigit():
+			tmp += chr
+		elif chr == '{':
 			data.append(['START', chr])
 		elif chr == '}':
 			data.append(['END', chr])
@@ -158,6 +170,10 @@ def lex(line):
 					data.append(['LIST_START', '['])
 				elif chr == ']' and is_list:
 					is_list = False
+					if is_var:
+						data.append(['VAR', tmp])
+						is_var = False
+						tmp = ''
 					data.append(['LIST_END', ']'])
 				else:
 					if chr == '$':
@@ -172,14 +188,9 @@ def lex(line):
 							data.append(['OPERATOR', chr])
 							tmp = ''
 					elif chr in operators:
-						if is_var:
-							is_var = False
-							data.append(['VAR', tmp])
-							tmp = ''
-						elif is_list and chr == ',':
+						if is_list:
 							continue
-						else:
-							data.append(['OPERATOR', chr])
+						data.append(['OPERATOR', chr])
 					else:
 						if tmp == 'Sant' or tmp == 'Falskt':
 							data.append(['BOOL', tmp])
