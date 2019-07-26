@@ -3,7 +3,68 @@
 Enkelt är världens första svenska programmeringsspråk
 
 ## Information om Enkelt-Dev
-Enkelt-Dev är var Enkelt utvecklas, Enkelt är just nu i mitten av en total omskriving och bl.a. därför sker utveckling i en skild repo från den officiella Enkelt repon.
+Enkelt-Dev är var Enkelt utvecklas.
+Enkelt är just nu i mitten av en total omskriving och bl.a. därför sker utveckling i enskild repo från den officiella Enkelt repon.
+
+<details>
+  <summary><h3>Dokumentation</h3></summary>
+  <br>
+  Här är dukomentationen för nya Enkelt
+
+  #### Skriv()
+  - skriv ("Sträng")
+  - skriv (1)
+  - skriv ($variabel)
+  - skriv ("Sträng"+$variabel+1)
+  - skriv (funktion(parametrar))
+  - skriv ($lista\[0])
+  
+  #### Matte()
+  - matte(1+1)
+  - matte(1-1)
+  - matte(1*1)
+  - matte(1/1)
+  - matte(1%1)
+  - matte($var+1)
+  - matte(funktion(parametrar)+1)
+  
+  #### Längd()
+  - längd("Sträng")
+  - längd(10)
+  - längd($variabel)
+  - längd(funktion(parametrar))
+  
+  #### Töm()
+  - töm()
+  
+  #### Variabler
+  - $variabel = "Sträng"
+  - $variabel = 1
+  - $variabel = -1
+  - $variabel = funktion(parametrar)
+  - $variabel = \["a", "b", "c"]
+  - $variabel = $variabel
+  
+  #### Listor
+  - $lista = \[]
+  - \["Sträng", 1, $variabel, funktion(parameterar)]
+  - $lista.till("Sträng")
+  - $lista.till(1)
+  - $lista.till($variabel)
+  - $lista.till(funktion(parametrar))
+  - $lista.bort(0)
+  - $lista.bort($variabel)
+  - $lista.bort(funktion(parametrar))
+  
+  #### Boolesk
+  - $variabel = Sant
+  - $variabel = Falskt
+  
+  #### Kommentarer
+  - \# Kommentar
+  - skriv ("Sträng") # Kommentar
+  
+</details>
 
 <details>
   <summary><h3>Vill du bidra?</h3></summary>
@@ -24,5 +85,5 @@ Enkelt-Dev är var Enkelt utvecklas, Enkelt är just nu i mitten av en total oms
   <br>
   (lägg till ditt namn om du jobbar på enkelt)
 
-  ### Edvard Busck-Nielsen
+  #### Edvard Busck-Nielsen
 </details>
