@@ -27,27 +27,51 @@ def parse(code, token_index):
 				if code[token_index+1][0] == 'PNUMBER' or code[token_index+1][0] == 'NNUMBER' or code[token_index+1][0] == 'OPERATOR':
 					token_index += 1
 					if last_action == '' and calculation == 0:
-						calculation = int(code[token_index][1])
+						if type(code[token_index][1]) is str:
+							value = int(code[token_index][1])
+						else:
+							value = code[token_index][1]
+						calculation = value
 					elif last_action == '' and code[token_index][0] != 'OPERATOR':
-						tmp_calculation = str(calculation)+code[token_index][1]
+						tmp_calculation = int(calculation)+int(code[token_index][1])
 						calculation = int(tmp_calculation)
 					elif code[token_index][0] == 'OPERATOR':
 						last_action = code[token_index][1]
 					elif code[token_index][0] == 'PNUMBER':
 						if last_action == '+':
-							calculation = calculation + int(code[token_index][1])
+							if type(code[token_index][1]) is str:
+								value = int(code[token_index][1])
+							else:
+								value = code[token_index][1]
+							calculation = calculation + value
 							last_action = ''
 						elif last_action == '-':
-							calculation = calculation - int(code[token_index][1])
+							if type(code[token_index][1]) is str:
+								value = int(code[token_index][1])
+							else:
+								value = code[token_index][1]
+							calculation = calculation - value
 							last_action = ''
 						elif last_action == '*':
-							calculation = calculation * int(code[token_index][1])
+							if type(code[token_index][1]) is str:
+								value = int(code[token_index][1])
+							else:
+								value = code[token_index][1]
+							calculation = calculation * value
 							last_action = ''
 						elif last_action == '/':
-							calculation = calculation / int(code[token_index][1])
+							if type(code[token_index][1]) is str:
+								value = int(code[token_index][1])
+							else:
+								value = code[token_index][1]
+							calculation = calculation / value
 							last_action = ''
 						elif last_action == '%':
-							calculation = calculation % int(code[token_index][1])
+							if type(code[token_index][1]) is str:
+								value = int(code[token_index][1])
+							else:
+								value = code[token_index][1]
+							calculation = calculation % value
 							last_action = ''
 				else:
 					break
@@ -85,6 +109,8 @@ def parse(code, token_index):
 		if len(code)-1 >= token_index+1:
 			if code[token_index+1][0] == 'OPERATOR' and code[token_index+1][1] == '=':
 				variables[token_val] = parse(code, token_index+2)
+			elif code[token_index+1][0] == 'LIST_INDEX':
+				return variables[token_val][int(parse(code, token_index+1))]
 			else:
 				return_val = variables[token_val]
 				token_index += 1
@@ -111,23 +137,31 @@ def parse(code, token_index):
 
 			token_index += 1
 		return tmp_list
+	elif token_type == 'LIST_INDEX':
+		if token_val.isdigit():
+			return int(token_val)
+		else:
+			data = lex(token_val)
+			return parse(data, 0)
 
 
 def lex(line):
 	functions = ['skriv', 'matte', 'till', 'bort', 'töm', 'om', 'annars', 'anom', 'längd', 'in']
 	operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',']
 	tmp = ''
+	list_index = ''
 	is_string = False
 	is_var = False
 	is_list = False
 	is_list_index = False
 	data = []
 	last_action = ''
+	var_tmp_name = ''
 	might_be_negative_num = False
 	data_index = -1
 	for chr_index, chr in enumerate(line):
-		if is_list_index and chr.isdigit():
-			tmp += chr
+		if is_list_index and chr != ']':
+			list_index += chr
 		elif chr == '{':
 			data.append(['START', chr])
 		elif chr == '}':
@@ -165,10 +199,10 @@ def lex(line):
 			elif is_string:
 				tmp += chr
 			else:
-				if chr == '[' and is_list is False:
+				if chr == '[' and is_list is False and is_var is False:
 					is_list = True
 					data.append(['LIST_START', '['])
-				elif chr == ']' and is_list:
+				elif chr == ']' and is_list and is_var is False:
 					is_list = False
 					if is_var:
 						data.append(['VAR', tmp])
@@ -180,12 +214,30 @@ def lex(line):
 						is_var = True
 						tmp = ''
 					elif is_var:
-						if chr != ' ' and chr != '=' and chr not in operators and chr != ')':
+						if chr != ' ' and chr != '=' and chr not in operators and chr != ')' and chr != '[' and chr != ']':
 							tmp += chr
+							if len(line)-1 == chr_index:
+								is_var = False
+								data.append(['VAR', tmp])
+								data.append(['OPERATOR', chr])
+								tmp = ''
 						elif chr == '=' or chr == ')' or chr in operators:
 							is_var = False
 							data.append(['VAR', tmp])
 							data.append(['OPERATOR', chr])
+							tmp = ''
+						elif chr == '[' and is_list is False:
+							is_list_index = True
+							var_tmp_name = tmp
+							list_index = ''
+							tmp = ''
+						elif chr == ']' and is_list_index:
+							is_var = False
+							is_list_index = False
+							data.append(['VAR', var_tmp_name])
+							data.append(['LIST_INDEX', list_index])
+							list_index = ''
+							var_tmp_name = ''
 							tmp = ''
 					elif chr in operators:
 						if is_list:

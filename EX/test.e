@@ -1,3 +1,3 @@
-$var = "q"
-$lista = ["x", "y", "z", 1, 2, -3, $var, "a"]
-skriv ($lista)
+$var = ["a", "b", "c"]
+$index = matte(10-8)
+skriv($var[$index])
