@@ -111,6 +111,12 @@ def parse(code, token_index):
 				variables[token_val] = parse(code, token_index+2)
 			elif code[token_index+1][0] == 'LIST_INDEX':
 				return variables[token_val][int(parse(code, token_index+1))]
+			elif code[token_index+1][0] == 'OPERATOR' and code[token_index+1][1] == '.':
+				token_index += 1
+				if code[token_index+1][0] == 'FUNCTION' and code[token_index+1][1] == 'till':
+					variables[token_val].append(parse(code, token_index+2))
+				if code[token_index+1][0] == 'FUNCTION' and code[token_index+1][1] == 'bort':
+					variables[token_val].pop(int(parse(code, token_index+2)))
 			else:
 				return_val = variables[token_val]
 				token_index += 1
