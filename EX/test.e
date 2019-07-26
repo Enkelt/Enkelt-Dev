@@ -1,3 +1,3 @@
 $var = ["a", "b", "c"]
-$index = matte(10-8)
-skriv($var[$index])
+$var.bort(1)
+skriv ($var)
