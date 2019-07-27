@@ -86,7 +86,10 @@ def parse(code, token_index):
 		elif token_val == 'längd':
 			if len(code)-1 >= token_index+1:
 				data = parse(code, token_index+1)
-				return len(str(data))
+				if isinstance(data, list):
+					return len(data)
+				else:
+					return len(str(data))
 			else:
 				return None
 	elif token_type == 'STRING':
