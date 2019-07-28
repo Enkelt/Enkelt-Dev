@@ -1,6 +1,9 @@
 def parse(code, token_index):
 	import os
+
 	global variables
+	global is_list
+
 	token_type = code[token_index][0]
 	token_val = code[token_index][1]
 
@@ -137,15 +140,28 @@ def parse(code, token_index):
 	elif token_type == 'OPERATOR':
 		if token_val == '+' and len(code)-1 >= token_index+1:
 			return parse(code, token_index+1)
-	elif token_type == 'LIST_START':
+	elif token_type == 'LIST_START' and is_list is False:
+		is_list = True
 		tmp_list = []
 		token_index += 1
 		while len(code)-1 >= token_index and code[token_index][0] != 'LIST_END':
 			if code[token_index][0] != 'OPERATOR' and code[token_index][1] != ',':
 				tmp_list.append(parse(code, token_index))
+				if str(tmp_list[-1])[0] == '[' and str(tmp_list[-1])[-1] == ']':
+					token_index += len(tmp_list[-1])+1
 
 			token_index += 1
+		is_list = False
 		return tmp_list
+	elif token_type == 'LIST_START' and is_list:
+		list_in_list = []
+		token_index += 1
+		while len(code) - 1 >= token_index and code[token_index][0] != 'LIST_END':
+			if code[token_index][0] != 'OPERATOR' and code[token_index][1] != ',':
+				list_in_list.append(parse(code, token_index))
+
+			token_index += 1
+		return list_in_list
 	elif token_type == 'LIST_INDEX':
 		if token_val.isdigit():
 			return int(token_val)
@@ -162,6 +178,7 @@ def lex(line):
 	is_string = False
 	is_var = False
 	is_list = False
+	is_list_in_list = False
 	is_list_index = False
 	data = []
 	last_action = ''
@@ -211,12 +228,18 @@ def lex(line):
 				if chr == '[' and is_list is False and is_var is False:
 					is_list = True
 					data.append(['LIST_START', '['])
-				elif chr == ']' and is_list and is_var is False:
+				elif chr == ']' and is_list and is_var is False and is_list_in_list is False:
 					is_list = False
 					if is_var:
 						data.append(['VAR', tmp])
 						is_var = False
 						tmp = ''
+					data.append(['LIST_END', ']'])
+				elif chr == '[' and is_list and is_var is False:
+					data.append(['LIST_START', '['])
+					is_list_in_list = True
+				elif chr == ']' and is_list_in_list and is_var is False:
+					is_list_in_list = False
 					data.append(['LIST_END', ']'])
 				else:
 					if chr == '$':
@@ -294,7 +317,9 @@ def main(statement):
 
 
 variables = {}
-with open('EX/test.e', 'r') as f:
+is_list = False
+
+with open('Exempel/test.e', 'r') as f:
 	data = f.readlines()
 for line in data:
 	if line != '\n' and line[0] != '#':
