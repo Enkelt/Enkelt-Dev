@@ -129,6 +129,17 @@ class TestEnkelt(unittest.TestCase):
 			['PNUMBER', '1'],
 			['LIST_END', ']']
 		])
+		self.assertEqual(lex('$var=["a",["b"], 1]'), [
+			['VAR', 'var'],
+			['OPERATOR', '='],
+			['LIST_START', '['],
+			['STRING', 'a'],
+			['LIST_START', '['],
+			['STRING', 'b'],
+			['LIST_END', ']'],
+			['PNUMBER', '1'],
+			['LIST_END', ']']
+		])
 		self.assertEqual(lex('om($var="a"){'), [
 			['FUNCTION', 'om'],
 			['VAR', 'var'],
