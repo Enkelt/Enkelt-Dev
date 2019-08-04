@@ -513,8 +513,8 @@ version = 2.5
 final = []
 variables = []
 
-# Change this value to True when running unittest
-is_dev = False
+# Gets an env. variable to check if it's a test run.
+is_dev = os.getenv('ENKELT_DEV', False)
 
 # ----- START -----
 
@@ -528,5 +528,3 @@ if not is_dev:
 		variables = []
 		final = []
 		start_console(True)
-else:
-	run('skriv ("Hej, Världen!")')
