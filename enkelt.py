@@ -1,215 +1,233 @@
-def parse(code, token_index):
-	import os
+import sys
+import re
+import os
 
-	global variables
-	global is_list
 
-	token_type = code[token_index][0]
-	token_val = code[token_index][1]
+def check_for_updates(version):
+	import urllib.request
+	import json
+	
+	url = 'https://raw.githubusercontent.com/Buscedv/Enkelt/master/VERSION.json'
+	
+	response = urllib.request.urlopen(url)
+	
+	data_store = json.loads(response.read())
+	
+	if data_store['version'] > float(version):
+		print ('Uppdatering tillgänglig! Du har version '+version+' men du kan uppdatera till Enkelt version '+str(data_store['version']))
 
-	calculation = 0
-	last_action = ''
 
-	if token_type == 'FUNCTION':
+def has_numbers(input_string):
+	return any(char.isdigit() for char in input_string)
+
+
+class ErrorClass:
+	
+	def __init__(self, error_msg):
+		self.error = error_msg
+		self.error_list = error_msg.split()
+		self.errors = {
+			'SyntaxError': 'Syntaxfel',
+			'IndexError': 'Indexfel',
+			'TypeError': 'Typfel',
+			'ValueError': 'Värdefel',
+			'NameError': 'Namnfel',
+			'ZeroDivisionError': 'Nolldelningsfel',
+		}
+		
+	def set_error(self, new_error_msg):
+		self.error = new_error_msg
+	
+	def get_error_type(self):
+		for part in self.errors:
+			if 'Error' in part:
+				return self.errors[part]
+		return ''
+
+	def get_error_message_data(self):
+		from googletrans import Translator
+		
+		translator = Translator()
+		
+		error_type = self.get_error_type()
+		
+		if error_type == '':
+			self.set_error(self.error.replace("Traceback (most recent call last):", ''))
+			self.set_error(self.error.replace('File "tmp.py", ', ''))
+			self.set_error(self.error.replace(", in <module>", ''))
+			return translator.translate(self.error, dest = 'sv').text.replace('linje', 'rad')
+		
+		# Get line number
+		for index, item in enumerate(self.error_list):
+			if 'line' in item and has_numbers(self.error_list[index+1]):
+				line_index = index+1
+				return error_type + " (rad " + self.error_list[line_index]
+		else:
+			return error_type
+
+
+def parse(lexed, token_index):
+	global source_code
+	global indent_layers
+	global is_if
+	global is_math
+	global is_for
+	
+	is_comment = False
+	
+	forbidden = ['in', 'str', 'int']
+	
+	token_type = str(lexed[token_index][0])
+	token_val = lexed[token_index][1]
+	
+	if indent_layers:
+		for indent in indent_layers:
+			source_code.append('\t')
+	
+	if token_type == 'COMMENT':
+		source_code.append(token_val)
+		is_comment = True
+	elif token_type == 'FUNCTION':
 		if token_val == 'skriv':
-			output = str(parse(code, token_index+1))
-			if output is None:
-				print('Ogiltig')
-			elif output is True:
-				print('Sant')
-			elif output is False:
-				print('Falskt')
-			else:
-				print(output)
-		elif token_val == 'töm':
-			os.system('clear')
+			source_code.append('print(')
 		elif token_val == 'matte':
-			calculation = 0
-			last_action = ''
-			while len(code)-1 >= token_index+1:
-				if code[token_index+1][0] == 'PNUMBER' or code[token_index+1][0] == 'NNUMBER' or code[token_index+1][0] == 'OPERATOR':
-					token_index += 1
-					if last_action == '' and calculation == 0:
-						if type(code[token_index][1]) is str:
-							value = int(code[token_index][1])
-						else:
-							value = code[token_index][1]
-						calculation = value
-					elif last_action == '' and code[token_index][0] != 'OPERATOR':
-						tmp_calculation = int(calculation)+int(code[token_index][1])
-						calculation = int(tmp_calculation)
-					elif code[token_index][0] == 'OPERATOR':
-						last_action = code[token_index][1]
-					elif code[token_index][0] == 'PNUMBER':
-						if last_action == '+':
-							if type(code[token_index][1]) is str:
-								value = int(code[token_index][1])
-							else:
-								value = code[token_index][1]
-							calculation = calculation + value
-							last_action = ''
-						elif last_action == '-':
-							if type(code[token_index][1]) is str:
-								value = int(code[token_index][1])
-							else:
-								value = code[token_index][1]
-							calculation = calculation - value
-							last_action = ''
-						elif last_action == '*':
-							if type(code[token_index][1]) is str:
-								value = int(code[token_index][1])
-							else:
-								value = code[token_index][1]
-							calculation = calculation * value
-							last_action = ''
-						elif last_action == '/':
-							if type(code[token_index][1]) is str:
-								value = int(code[token_index][1])
-							else:
-								value = code[token_index][1]
-							calculation = calculation / value
-							last_action = ''
-						elif last_action == '%':
-							if type(code[token_index][1]) is str:
-								value = int(code[token_index][1])
-							else:
-								value = code[token_index][1]
-							calculation = calculation % value
-							last_action = ''
-				else:
-					break
-
-			return calculation
+			is_math = True
 		elif token_val == 'in':
-			if len(code)-1 >= token_index+1:
-				title = parse(code, token_index+1)
-				return input(title)
-			else:
-				return input()
+			source_code.append('input(')
+		elif token_val == 'om':
+			source_code.append('if ')
+			is_if = True
+		elif token_val == 'anom':
+			source_code.append('elif ')
+			is_if = True
+		elif token_val == 'Text':
+			source_code.append('str(')
+		elif token_val == 'Nummer':
+			source_code.append('int(')
 		elif token_val == 'längd':
-			if len(code)-1 >= token_index+1:
-				data = parse(code, token_index+1)
-				if isinstance(data, list):
-					return len(data)
-				else:
-					return len(str(data))
-			else:
-				return None
-	elif token_type == 'STRING':
-		if len(code)-1 >= token_index+1:
-			if code[token_index+1][0] == 'OPERATOR':
-				return token_val+str(parse(code, token_index+1))
-			else:
-				return token_val
-		else:
-			return token_val
-	elif token_type == 'PNUMBER' or token_type == 'NNUMBER':
-		if len(code) - 1 >= token_index + 1:
-			if code[token_index + 1][0] == 'OPERATOR':
-				return token_val + str(parse(code, token_index + 1))
-			else:
-				return int(token_val)
-		else:
-			return token_val
+			source_code.append('len(')
+		elif token_val == 'töm':
+			source_code.append('os.system("clear"')
+		elif token_val == 'till':
+			source_code.append('append(')
+		elif token_val == 'bort':
+			source_code.append('pop(')
+		elif token_val == 'området':
+			source_code.append('range(')
 	elif token_type == 'VAR':
-		if len(code)-1 >= token_index+1:
-			if code[token_index+1][0] == 'OPERATOR' and code[token_index+1][1] == '=':
-				variables[token_val] = parse(code, token_index+2)
-			elif code[token_index+1][0] == 'LIST_INDEX':
-				return variables[token_val][int(parse(code, token_index+1))]
-			elif code[token_index+1][0] == 'OPERATOR' and code[token_index+1][1] == '.':
-				token_index += 1
-				if code[token_index+1][0] == 'FUNCTION' and code[token_index+1][1] == 'till':
-					variables[token_val].append(parse(code, token_index+2))
-				if code[token_index+1][0] == 'FUNCTION' and code[token_index+1][1] == 'bort':
-					variables[token_val].pop(int(parse(code, token_index+2)))
-			else:
-				return_val = variables[token_val]
-				token_index += 1
-				while len(code)-1 >= token_index and code[token_index][1] == '+':
-					return_val += str(parse(code, token_index+1))
-					token_index += 1
-				return return_val
+		if token_val not in forbidden:
+			source_code.append(token_val)
 		else:
-			return variables[token_val]
+			print('Error namnet ' + token_val + " är inte tillåtet som variabelnamn!")
+	elif token_type == 'STRING':
+		source_code.append('"' + token_val + '"')
+	elif token_type == 'PNUMBER' or token_type == 'NNUMBER':
+		source_code.append(token_val)
+	elif token_type == 'OPERATOR':
+		if is_if and token_val == ')':
+			source_code.append('')
+			is_if = False
+		elif is_math and token_val == ')':
+			is_math = False
+		elif is_for and token_val == ',':
+			is_for = False
+		else:
+			source_code.append(token_val)
+	elif token_type == 'LIST_START':
+		source_code.append('[')
+	elif token_type == 'LIST_END':
+		source_code.append(']')
+	elif token_type == 'START':
+		if len(lexed)-1 == token_index:
+			source_code.append(':')
+		else:
+			source_code.append(':' + '\n')
+		indent_layers.append(True)
+	elif token_type == 'END':
+		indent_layers.pop(-1)
+		if len(lexed)-1 == token_index:
+			source_code.append('')
+		else:
+			source_code.append('\n')
 	elif token_type == 'BOOL':
 		if token_val == 'Sant':
-			return True
+			source_code.append('True')
 		elif token_val == 'Falskt':
-			return False
-	elif token_type == 'OPERATOR':
-		if token_val == '+' and len(code)-1 >= token_index+1:
-			return parse(code, token_index+1)
-	elif token_type == 'LIST_START' and is_list is False:
-		is_list = True
-		tmp_list = []
-		token_index += 1
-		while len(code)-1 >= token_index and code[token_index][0] != 'LIST_END':
-			if code[token_index][0] != 'OPERATOR' and code[token_index][1] != ',':
-				tmp_list.append(parse(code, token_index))
-				if str(tmp_list[-1])[0] == '[' and str(tmp_list[-1])[-1] == ']':
-					token_index += len(tmp_list[-1])+1
-
-			token_index += 1
-		is_list = False
-		return tmp_list
-	elif token_type == 'LIST_START' and is_list:
-		list_in_list = []
-		token_index += 1
-		while len(code) - 1 >= token_index and code[token_index][0] != 'LIST_END':
-			if code[token_index][0] != 'OPERATOR' and code[token_index][1] != ',':
-				list_in_list.append(parse(code, token_index))
-
-			token_index += 1
-		return list_in_list
-	elif token_type == 'LIST_INDEX':
-		if token_val.isdigit():
-			return int(token_val)
-		else:
-			data = lex(token_val)
-			return parse(data, 0)
+			source_code.append('False')
+	elif token_type == 'KEYWORD':
+		if token_val == 'för':
+			source_code.append('for ')
+			is_for = True
+		elif token_val == 'inom':
+			source_code.append(' in ')
+		elif token_val == 'medan':
+			source_code.append('while ')
+		elif token_val == 'bryt':
+			source_code.append('break')
+		elif token_val == 'fortsätt':
+			source_code.append('continue')
+		elif token_val == 'returnera':
+			source_code.append('return')
+		elif token_val == 'inte':
+			source_code.append('not ')
+		elif token_val == 'töm':
+			source_code.append('os.system("clear")')
+		elif token_val == 'annars':
+			source_code.append('else')
+	elif token_type == 'USER_FUNCTION':
+		source_code.append('def ' + token_val + '(')
+	elif token_type == 'USER_FUNCTION_CALL':
+		source_code.append(token_val + '(')
+	
+	if len(lexed) - 1 >= token_index + 1 and is_comment is False:
+		parse(lexed, token_index + 1)
 
 
 def lex(line):
-	functions = ['skriv', 'matte', 'till', 'bort', 'töm', 'om', 'annars', 'anom', 'längd', 'in']
-	operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',']
+	if line[0] == '#':
+		return ['COMMENT', line]
+	
+	global functions
+	global user_functions
+	operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')']
 	tmp = ''
-	list_index = ''
 	is_string = False
 	is_var = False
-	is_list = False
-	is_list_in_list = False
-	is_list_index = False
-	data = []
+	is_function = False
+	lexed_data = []
 	last_action = ''
-	var_tmp_name = ''
 	might_be_negative_num = False
 	data_index = -1
 	for chr_index, chr in enumerate(line):
-		if is_list_index and chr != ']':
-			list_index += chr
+		if is_function and chr not in operators and chr != '(':
+			tmp += chr
+		elif is_function and chr == '(':
+			lexed_data.append(['USER_FUNCTION', tmp])
+			user_functions.append(tmp)
+			tmp = ''
+			is_function = False
 		elif chr == '{':
-			data.append(['START', chr])
+			lexed_data.append(['START', chr])
 		elif chr == '}':
-			data.append(['END', chr])
+			lexed_data.append(['END', chr])
 		elif chr == '#' and is_string is False:
 			break
-		elif chr.isdigit() and is_string is False:
+		elif chr.isdigit() and is_string is False and is_var is False:
 			if might_be_negative_num or last_action == 'NNUMBER':
 				if last_action == 'NNUMBER':
-					data[data_index-1] = ['NNUMBER', data[data_index-1][1]+chr]
+					lexed_data[data_index - 1] = ['NNUMBER', lexed_data[data_index - 1][1] + chr]
 				else:
-					data.append(['NNUMBER', '-'+chr])
+					lexed_data.append(['NNUMBER', '-' + chr])
 					data_index += 1
 				last_action = 'NNUMBER'
 				might_be_negative_num = False
 			else:
 				if last_action == 'PNUMBER':
-					data[data_index-1] = ['PNUMBER', data[data_index-1][1]+chr]
+					lexed_data[-1] = ['PNUMBER', lexed_data[-1][1] + chr]
 				else:
-					data.append(['PNUMBER', chr])
+					lexed_data.append(['PNUMBER', chr])
 					data_index += 1
-
+				
 				last_action = 'PNUMBER'
 		elif chr == '-' and is_string is False:
 			might_be_negative_num = True
@@ -220,27 +238,15 @@ def lex(line):
 				tmp = ''
 			elif chr == '"' and is_string:
 				is_string = False
-				data.append(['STRING', tmp])
+				lexed_data.append(['STRING', tmp])
 				tmp = ''
 			elif is_string:
 				tmp += chr
 			else:
-				if chr == '[' and is_list is False and is_var is False:
-					is_list = True
-					data.append(['LIST_START', '['])
-				elif chr == ']' and is_list and is_var is False and is_list_in_list is False:
-					is_list = False
-					if is_var:
-						data.append(['VAR', tmp])
-						is_var = False
-						tmp = ''
-					data.append(['LIST_END', ']'])
-				elif chr == '[' and is_list and is_var is False:
-					data.append(['LIST_START', '['])
-					is_list_in_list = True
-				elif chr == ']' and is_list_in_list and is_var is False:
-					is_list_in_list = False
-					data.append(['LIST_END', ']'])
+				if chr == '[' and is_var is False:
+					lexed_data.append(['LIST_START', '['])
+				elif chr == ']' and is_var is False:
+					lexed_data.append(['LIST_END', ']'])
 				else:
 					if chr == '$':
 						is_var = True
@@ -248,81 +254,279 @@ def lex(line):
 					elif is_var:
 						if chr != ' ' and chr != '=' and chr not in operators and chr != ')' and chr != '[' and chr != ']':
 							tmp += chr
-							if len(line)-1 == chr_index:
+							if len(line) - 1 == chr_index:
 								is_var = False
-								data.append(['VAR', tmp])
-								data.append(['OPERATOR', chr])
+								lexed_data.append(['VAR', tmp])
+								lexed_data.append(['FUNCTION', tmp])
 								tmp = ''
 						elif chr == '=' or chr == ')' or chr in operators:
 							is_var = False
-							data.append(['VAR', tmp])
-							data.append(['OPERATOR', chr])
+							lexed_data.append(['VAR', tmp])
+							lexed_data.append(['OPERATOR', chr])
 							tmp = ''
-						elif chr == '[' and is_list is False:
-							is_list_index = True
-							var_tmp_name = tmp
-							list_index = ''
-							tmp = ''
-						elif chr == ']' and is_list_index:
+						elif chr == '[':
 							is_var = False
-							is_list_index = False
-							data.append(['VAR', var_tmp_name])
-							data.append(['LIST_INDEX', list_index])
-							list_index = ''
-							var_tmp_name = ''
+							lexed_data.append(['VAR', tmp])
+							lexed_data.append(['LIST_START', '['])
+							tmp = ''
+						elif chr == ']':
+							is_var = False
+							lexed_data.append(['VAR', tmp])
+							lexed_data.append(['LIST_END', '['])
+							tmp = ''
+						elif chr == '{':
+							is_var = False
+							lexed_data.append(['VAR', tmp])
+							lexed_data.append(['START', chr])
 							tmp = ''
 					elif chr in operators:
-						if is_list:
-							continue
-						data.append(['OPERATOR', chr])
+						lexed_data.append(['OPERATOR', chr])
 					else:
 						if tmp == 'Sant' or tmp == 'Falskt':
-							data.append(['BOOL', tmp])
+							lexed_data.append(['BOOL', tmp])
 							tmp = ''
 						else:
-							if chr == "(" and tmp in functions:
-								data.append(['FUNCTION', tmp])
-								tmp = ""
-							elif chr == "(" and tmp not in functions:
-								print("ERROR! Funktionen "+tmp+" hittades inte!")
-								tmp = ""
+							if chr == '(' and tmp in functions:
+								if tmp == 'matte':
+									tmp = 'Nummer'
+								lexed_data.append(['FUNCTION', tmp])
+								tmp = ''
+							elif chr == '(' and tmp not in functions and tmp not in user_functions:
+								print('ERROR! Funktionen ' + tmp + ' hittades inte!')
+								tmp = ''
+							elif chr == '(' and tmp in user_functions:
+								lexed_data.append(['USER_FUNCTION_CALL', tmp])
+								tmp = ''
 							else:
 								tmp += chr
 								if tmp == 'Sant' or tmp == 'Falskt':
-									data.append(['BOOL', tmp])
+									lexed_data.append(['BOOL', tmp])
 									tmp = ''
-
-	return data
+								else:
+									if tmp == 'annars':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ""
+									elif tmp == 'inom':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									elif tmp == 'för':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									elif tmp == 'medan':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									elif tmp == 'bryt':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									elif tmp == 'fortsätt':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									elif tmp == 'def':
+										is_function = True
+										tmp = ''
+									elif tmp == 'returnera':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									elif tmp == 'var' or tmp == 'num':
+										is_var = True
+										tmp = ''
+									elif tmp == 'inte':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									elif tmp == 'töm' and line[-3:] == 'töm':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									
+	return lexed_data
 
 
 def main(statement):
 	statement = statement.replace('\n', '').replace('\t', '').replace("'", '"')
 	current_line = ''
 	is_string = False
-	for chr_index, chr in enumerate(statement):
-		if chr == ' ' and is_string:
-			current_line += chr
-		elif chr == ' ' and is_string is False:
+	for chr_index, char in enumerate(statement):
+		if char == ' ' and is_string:
+			current_line += char
+		elif char == ' ' and is_string is False:
 			continue
-		elif chr == '"' and is_string:
+		elif char == '"' and is_string:
 			is_string = False
-			current_line += chr
-		elif chr == '"' and is_string is False:
+			current_line += char
+		elif char == '"' and is_string is False:
 			is_string = True
-			current_line += chr
+			current_line += char
 		else:
-			current_line += chr
-
+			current_line += char
+			
+	# Legacy removals
+	if '.bort[' in current_line:
+		current_line = current_line.replace('.bort[', '.bort(')
+		
+		tmp = ''
+		is_index = False
+		
+		current_line = list(current_line)
+		
+		for index, text in enumerate(current_line):
+			if '.bort(' in tmp and is_index is False:
+				tmp = ''
+				is_index = True
+			elif is_index and text == ']':
+				is_index = False
+				current_line[index] = ')'
+				current_line = ''.join(current_line)
+				break
+			else:
+				tmp += text
+				
 	return current_line
 
 
-variables = {}
-is_list = False
+def execute():
+	global final
+	global is_developer_mode
+	
+	# Turn = = into == and ! = into !=
+	final = list(''.join(final).replace('= =', '==').replace('! =', '=='))
+	
+	# Remove empty lines from final
+	final = list(re.sub(r'\n\s*\n', '\n\n', ''.join(final)))
+	
+	code = ''.join(final)
+	
+	if is_developer_mode:
+		print(code)
+	
+	# Executes the code transpiled to python and catches Exceptions
+	try:
+		exec(code)
+	except Exception as e:
+		if is_developer_mode:
+			print(e)
+		
+		# Print out error(s) if any
+		error = ErrorClass(str(e).replace('(<string>, ', '('))
+		print(error.get_error_message_data())
 
-with open('Exempel/test.e', 'r') as f:
-	data = f.readlines()
-for line in data:
-	if line != '\n' and line[0] != '#':
+
+def run(line):
+	global source_code
+	global is_developer_mode
+	global final
+	global variables
+	
+	if line != '\n':
 		data = main(line)
 		data = lex(data)
+		
+		if is_developer_mode:
+			print(data)
+			
 		parse(data, 0)
+		final.append(''.join(source_code))
+		final.append('\n')
+		if data[0][0] == 'VAR':
+			variables.append(''.join(source_code))
+		source_code = []
+	
+	
+def run_with_file():
+	global is_developer_mode
+	global final
+	
+	source_file = sys.argv[1]
+	if len(sys.argv) >= 3:
+		if sys.argv[2] == '--d':
+			is_developer_mode = True
+	
+	if source_file == '':
+		print('Error! Ingen fil specificerad!')
+	
+	else:
+		with open(source_file, 'r') as f:
+			data = f.readlines()
+			
+		for line_to_run in data:
+			run(line_to_run)
+		execute()
+
+
+def start_console(first):
+	global version
+	global final
+	global variables
+	
+	if first:  # is first console run
+		# Checks for updates:
+		check_for_updates(version)
+		# Print info
+		print('Enkelt ' + str(version) + ' © 2018-2019 Edvard Busck-Nielsen' + ". GNU GPL v.3")
+		print ('Tryck Ctrl+C för att avsluta')
+	
+	code_line = input('Enkelt >> ')
+	
+	if code_line != 'töm' and code_line != 'töm()':
+	
+		run(code_line)
+		for var in variables[::-1]:
+			final.insert(0, var+'\n')
+		execute()
+		with open('tmp.py', 'w+')as f:
+			f.writelines(final)
+	else:
+		os.system('clear')
+		
+	final = []
+	start_console(False)
+	
+	
+# ----- SETUP -----
+
+# Global variable setup
+is_list = False
+is_if = False
+is_math = False
+is_for = False
+
+source_code = []
+indent_layers = []
+
+functions = [
+	'skriv',
+	'matte',
+	'till', 'bort',
+	'töm',
+	'om',
+	'anom',
+	'längd',
+	'in',
+	'Text',
+	'Nummer',
+	'området',
+
+]
+user_functions = []
+
+is_developer_mode = False
+version = 2.5
+
+final = []
+variables = []
+
+# Change this value to True when running unittest
+is_dev = True
+
+# ----- START -----
+
+if not is_dev:
+	# Runs code from file or console-style
+	if len(sys.argv) >= 2:
+		run_with_file()
+		# Checks for updates:
+		check_for_updates(version)
+	else:
+		variables = []
+		final = []
+		start_console(True)
+else:
+	run('skriv ("Hej, Världen!")')

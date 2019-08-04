@@ -1,2 +1,1 @@
-$nu = ["ute", ["inne", "innetvå"], "utetvå", "utetre"]
-skriv ($nu)
+skriv ("Hej, Världen!")
