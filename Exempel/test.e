@@ -1,4 +1,1 @@
-$var = Sant
-om ($var) {
-	skriv ("Sant!")
-}
+skriv ("hej")
