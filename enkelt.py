@@ -105,6 +105,8 @@ def parse(lexed, token_index):
 			source_code.append('str(')
 		elif token_val == 'Nummer':
 			source_code.append('int(')
+		elif token_val == 'Flyt':
+			source_code.append('float(')
 		elif token_val == 'längd':
 			source_code.append('len(')
 		elif token_val == 'töm':
@@ -528,6 +530,7 @@ functions = [
 	'in',
 	'Text',
 	'Nummer',
+	'Flyt',
 	'området',
 	'sortera',
 	'slumpval',
