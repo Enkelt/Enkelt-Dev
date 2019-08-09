@@ -1,1 +1,1 @@
-skriv ("Hej, Världen!")
+skriv (slumpval([1, 2, 3]))
