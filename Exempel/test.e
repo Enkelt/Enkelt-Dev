@@ -1,2 +1,4 @@
-$lista = [1, 2, 3]
-skriv ($lista[::-1])
+$var = Sant
+om ($var) {
+	skriv ("Sant!")
+}
