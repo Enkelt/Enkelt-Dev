@@ -490,7 +490,7 @@ def start_console(first):
 		# Checks for updates:
 		check_for_updates(version)
 		# Print info
-		print('Enkelt ' + str(version) + ' (C) 2018-2019 Edvard Busck-Nielsen' + ". GNU GPL v.3")
+		print('Enkelt ' + str(version) + ' © 2018-2019 Edvard Busck-Nielsen' + ". GNU GPL v.3")
 		print('Tryck Ctrl+C för att avsluta')
 	
 	code_line = input('Enkelt >> ')
