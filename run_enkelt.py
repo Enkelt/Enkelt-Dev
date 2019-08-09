@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sys
 import re
 import os
@@ -16,7 +18,7 @@ def check_for_updates(version_nr):
 	data_store = json.loads(response.read())
 	
 	if data_store['version'] > float(version_nr):
-		print('Uppdatering tillgänglig! Du har version ' + version_nr + ' men du kan uppdatera till Enkelt version ' + str(
+		print('Uppdatering tillgänglig! Du har version ' + str(version_nr) + ' men du kan uppdatera till Enkelt version ' + str(
 			data_store['version']))
 
 
@@ -545,7 +547,7 @@ functions = [
 user_functions = []
 
 is_developer_mode = False
-version = 3.0
+version = 2.3
 repo_location = 'https://raw.githubusercontent.com/Buscedv/Enkelt/'
 
 final = []
