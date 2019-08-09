@@ -547,7 +547,7 @@ functions = [
 user_functions = []
 
 is_developer_mode = False
-version = 2.3
+version = 3.0
 repo_location = 'https://raw.githubusercontent.com/Buscedv/Enkelt/'
 
 final = []
