@@ -86,4 +86,5 @@ Enkelt är just nu i mitten av en total omskriving och bl.a. därför sker utvec
   (lägg till ditt namn om du jobbar på enkelt)
 
   #### Edvard Busck-Nielsen
+  #### Morgan Williams
 </details>

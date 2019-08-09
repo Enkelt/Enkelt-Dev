@@ -75,7 +75,7 @@ def parse(lexed, token_index):
 	
 	is_comment = False
 	
-	forbidden = ['in', 'str', 'int']
+	forbidden = ['in', 'str', 'int', 'list']
 	
 	token_type = str(lexed[token_index][0])
 	token_val = lexed[token_index][1]
@@ -107,7 +107,10 @@ def parse(lexed, token_index):
 		elif token_val == 'längd':
 			source_code.append('len(')
 		elif token_val == 'töm':
-			source_code.append('os.system("clear"')
+			if not os.name == 'nt':
+				source_code.append('os.system("clear")')
+			else:
+				source_code.append('os.system("cls")')
 		elif token_val == 'till':
 			source_code.append('append(')
 		elif token_val == 'bort':
@@ -115,17 +118,17 @@ def parse(lexed, token_index):
 		elif token_val == 'sortera':
 			source_code.append('sorted(')
 		elif token_val == 'slump':
-			if "import random as rnd" not in source_code:
-				source_code.insert(0, "import random as rnd\n")
-			source_code.append('rnd.randint(')
+			source_code.append('__import__("random").randint(')
 		elif token_val == 'slumpval':
-			if "import random as rnd" not in source_code:
-				source_code.insert(0, "import random as rnd\n")
-			source_code.append('rnd.choice(')
+			source_code.append('__import__("random").choice(')
+		elif token_val == 'blanda':
+			source_code.append('__import__("random").shuffle(')
 		elif token_val == 'området':
 			source_code.append('range(')
 		elif token_val == 'abs':
 			source_code.append('abs(')
+		elif token_val == 'lista':
+			source_code.append('list(')
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
@@ -182,6 +185,8 @@ def parse(lexed, token_index):
 			source_code.append('return')
 		elif token_val == 'inte':
 			source_code.append('not ')
+		elif token_val == 'passera':
+			source_code.append('pass')
 		elif token_val == 'töm':
 			if not os.name == 'nt':
 				source_code.append('os.system("clear")')
@@ -346,6 +351,9 @@ def lex(line):
 										is_var = True
 										tmp = ''
 									elif tmp == 'inte':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									elif tmp == 'passera':
 										lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
 									elif tmp == 'töm' and line[-3:] == 'töm':
@@ -526,6 +534,8 @@ functions = [
 	'slumpval',
 	'slump',
 	'abs',
+	'lista',
+	'blanda',
 
 ]
 user_functions = []
