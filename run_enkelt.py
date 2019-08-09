@@ -1,10 +1,9 @@
 import sys
 import re
 import os
-import subprocess
 
 
-def check_for_updates(version):
+def check_for_updates(version_nr):
 	import urllib.request
 	import json
 	
@@ -16,8 +15,8 @@ def check_for_updates(version):
 	
 	data_store = json.loads(response.read())
 	
-	if data_store['version'] > float(version):
-		print('Uppdatering tillgänglig! Du har version ' + version + ' men du kan uppdatera till Enkelt version ' + str(
+	if data_store['version'] > float(version_nr):
+		print('Uppdatering tillgänglig! Du har version ' + version_nr + ' men du kan uppdatera till Enkelt version ' + str(
 			data_store['version']))
 
 
@@ -76,7 +75,6 @@ def parse(lexed, token_index):
 	global is_if
 	global is_math
 	global is_for
-	global is_module_call
 	
 	is_comment = False
 	
@@ -94,8 +92,6 @@ def parse(lexed, token_index):
 		is_comment = True
 	elif token_type == 'FUNCTION':
 		if token_val == 'skriv':
-			# source_code.append('print(str(__import__("EnkeltModules").skriv(\'print(')
-			# is_module_call = True
 			source_code.append('print(')
 		elif token_val == 'matte':
 			is_math = True
@@ -144,10 +140,7 @@ def parse(lexed, token_index):
 		else:
 			print('Error namnet ' + token_val + " är inte tillåtet som variabelnamn!")
 	elif token_type == 'STRING':
-		if is_module_call:
-			source_code.append('\\\'' + token_val + '\\\'')
-		else:
-			source_code.append('"' + token_val + '"')
+		source_code.append('"' + token_val + '"')
 	elif token_type == 'PNUMBER' or token_type == 'NNUMBER':
 		source_code.append(token_val)
 	elif token_type == 'OPERATOR':
@@ -158,9 +151,6 @@ def parse(lexed, token_index):
 			is_math = False
 		elif is_for and token_val == ',':
 			is_for = False
-		# elif is_module_call and token_val == ')' and token_index == len(lexed)-1:
-		# 	is_module_call = False
-		# 	source_code.append(')\')))')
 		else:
 			source_code.append(token_val)
 	elif token_type == 'LIST_START':
@@ -526,7 +516,6 @@ is_list = False
 is_if = False
 is_math = False
 is_for = False
-is_module_call = False
 
 source_code = []
 indent_layers = []
