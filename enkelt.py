@@ -1,6 +1,7 @@
 # coding=utf-8
 import sys
 import subprocess
+import os
 
 
 try:
@@ -17,16 +18,20 @@ try:
 		for arg in sys_args:
 			run_command += arg + ' '
 		
-		process = subprocess.Popen(run_command, stdout = subprocess.PIPE, stderr = None, shell = True).communicate()[
-			0].decode('utf-8').split('\n')
+		if '.e' in run_command:
 		
-		for index, line in enumerate(process):
-			if line == 'True':
-				process[index] = 'Sant'
-			elif line == 'False':
-				process[index] = 'Falskt'
-		
-		process = '\n'.join(process)
-		print(process)
+			process = subprocess.Popen(run_command, stdout = subprocess.PIPE, stderr = None, shell = True).communicate()[
+				0].decode('utf-8').split('\n')
+			
+			for index, line in enumerate(process):
+				if line == 'True':
+					process[index] = 'Sant'
+				elif line == 'False':
+					process[index] = 'Falskt'
+			
+			process = '\n'.join(process)
+			print(process)
+		else:
+			os.system('python3 run_enkelt.py')
 except Exception as e:
 	print(e)
