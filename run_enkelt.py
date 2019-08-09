@@ -111,6 +111,8 @@ def parse(lexed, token_index):
 			source_code.append('int(')
 		elif token_val == 'Flyt':
 			source_code.append('float(')
+		elif token_val == 'Bool':
+			source_code.append('bool(')
 		elif token_val == 'längd':
 			source_code.append('len(')
 		elif token_val == 'töm':
@@ -136,6 +138,8 @@ def parse(lexed, token_index):
 			source_code.append('abs(')
 		elif token_val == 'lista':
 			source_code.append('list(')
+		elif token_val == 'runda':
+			source_code.append('round(')
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
@@ -535,6 +539,7 @@ functions = [
 	'Text',
 	'Nummer',
 	'Flyt',
+	'Bool',
 	'området',
 	'sortera',
 	'slumpval',
@@ -542,6 +547,7 @@ functions = [
 	'abs',
 	'lista',
 	'blanda',
+	'runda',
 
 ]
 user_functions = []
