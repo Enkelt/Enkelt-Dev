@@ -6,8 +6,9 @@ import os
 def check_for_updates(version):
 	import urllib.request
 	import json
+	global repo_location
 	
-	url = 'https://raw.githubusercontent.com/Buscedv/Enkelt/master/VERSION.json'
+	url = repo_location+'/master/VERSION.json'
 	
 	response = urllib.request.urlopen(url)
 	
@@ -486,8 +487,6 @@ def start_console(first):
 		for var in variables[::-1]:
 			final.insert(0, var+'\n')
 		execute()
-		with open('tmp.py', 'w+')as f:
-			f.writelines(final)
 	else:
 		if not os.name == 'nt':
 			os.system('clear')
@@ -531,7 +530,8 @@ functions = [
 user_functions = []
 
 is_developer_mode = False
-version = 2.5
+version = 3.0
+repo_location = 'https://raw.githubusercontent.com/Buscedv/Enkelt/'
 
 final = []
 variables = []
