@@ -112,8 +112,20 @@ def parse(lexed, token_index):
 			source_code.append('append(')
 		elif token_val == 'bort':
 			source_code.append('pop(')
+		elif token_val == 'sortera':
+			source_code.append('sorted(')
+		elif token_val == 'slump':
+			if "import random as rnd" not in source_code:
+				source_code.insert(0, "import random as rnd\n")
+			source_code.append('rnd.randint(')
+		elif token_val == 'slumpval':
+			if "import random as rnd" not in source_code:
+				source_code.insert(0, "import random as rnd\n")
+			source_code.append('rnd.choice(')
 		elif token_val == 'området':
 			source_code.append('range(')
+		elif token_val == 'abs':
+			source_code.append('abs(')
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
@@ -171,7 +183,10 @@ def parse(lexed, token_index):
 		elif token_val == 'inte':
 			source_code.append('not ')
 		elif token_val == 'töm':
-			source_code.append('os.system("clear")')
+			if not os.name == 'nt':
+				source_code.append('os.system("clear")')
+			else:
+				source_code.append('os.system("cls")')
 		elif token_val == 'annars':
 			source_code.append('else')
 	elif token_type == 'USER_FUNCTION':
@@ -474,7 +489,10 @@ def start_console(first):
 		with open('tmp.py', 'w+')as f:
 			f.writelines(final)
 	else:
-		os.system('clear')
+		if not os.name == 'nt':
+			os.system('clear')
+		else:
+			os.system('cls')
 		
 	final = []
 	start_console(False)
@@ -494,7 +512,8 @@ indent_layers = []
 functions = [
 	'skriv',
 	'matte',
-	'till', 'bort',
+	'till',
+	'bort',
 	'töm',
 	'om',
 	'anom',
@@ -503,6 +522,10 @@ functions = [
 	'Text',
 	'Nummer',
 	'området',
+	'sortera',
+	'slumpval',
+	'slump',
+	'abs',
 
 ]
 user_functions = []
