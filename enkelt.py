@@ -114,11 +114,11 @@ def parse(lexed, token_index):
 			source_code.append('pop(')
 		elif token_val == 'sortera':
 			source_code.append('sorted(')
-		elif token_val == 'slumpmässigtnum':
+		elif token_val == 'slump':
 			if "import random as rnd" not in source_code:
 				source_code.insert(0, "import random as rnd\n")
 			source_code.append('rnd.randint(')
-		elif token_val == 'slumpmässigtval':
+		elif token_val == 'slumpval':
 			if "import random as rnd" not in source_code:
 				source_code.insert(0, "import random as rnd\n")
 			source_code.append('rnd.choice(')
@@ -512,7 +512,8 @@ indent_layers = []
 functions = [
 	'skriv',
 	'matte',
-	'till', 'bort', 'sortera', 'slumpmässigtval',
+	'till',
+	'bort',
 	'töm',
 	'om',
 	'anom',
@@ -521,7 +522,9 @@ functions = [
 	'Text',
 	'Nummer',
 	'området',
-	'slumpmässigtnum',
+	'sortera',
+	'slumpval',
+	'slump',
 	'abs',
 
 ]
