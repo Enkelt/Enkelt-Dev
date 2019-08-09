@@ -212,7 +212,7 @@ def lex(line):
 	
 	global functions
 	global user_functions
-	operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')']
+	operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':']
 	tmp = ''
 	is_string = False
 	is_var = False
