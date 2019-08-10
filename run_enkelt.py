@@ -459,33 +459,36 @@ def run(line):
 		parse(data, 0)
 		final.append(''.join(source_code))
 		final.append('\n')
+		if data[0][0] == 'VAR':
+			variables.append(''.join(source_code))
 		source_code = []
 
 
-def run_with_file(data):
+def run_with_file():
 	global is_developer_mode
 	global final
-	global variables
 	
-	if is_developer_mode is False and len(sys.argv) >= 3:
-		# Variable setup
-		variables_tmp = sys.argv[2][1:-1]
-		variables_tmp = variables_tmp.split(',')
+	source_file = sys.argv[1]
+	if len(sys.argv) >= 3:
+		if sys.argv[2] == '--d':
+			is_developer_mode = True
+	
+	if source_file == '':
+		print('Error! Ingen fil specificerad!')
+	
+	else:
+		with open(source_file, 'r') as f:
+			data = f.readlines()
 		
-		variables = variables_tmp
-		for var in variables[::-1]:
-			final.insert(0, var + '\n')
-			
-	for line_to_run in data:
-		run(line_to_run)
-	execute()
+		for line_to_run in data:
+			run(line_to_run)
+		execute()
 
-		
+
 def start_console(first):
 	global version
-	global is_developer_mode
+	global final
 	global variables
-	global source_code
 	
 	if first:  # is first console run
 		# Checks for updates:
@@ -495,25 +498,20 @@ def start_console(first):
 		print('Tryck Ctrl+C för att avsluta')
 	
 	code_line = input('Enkelt >> ')
-	test = main(code_line)
-	test = lex(test)
 	
-	if code_line != 'töm' and code_line != 'töm()' and code_line != 'töm ()' and test[0][0] != 'VAR':
-		is_developer_mode = False
-		code_line = [code_line]
-		cmd = 'python3 enkelt.py ' + str([','.join(code_line)]) + ' ' + str([','.join(variables)])
-		os.system(cmd)
+	if code_line != 'töm' and code_line != 'töm()':
 		
-	elif code_line == 'töm' or code_line == 'töm()' or code_line == 'töm ()':
+		run(code_line)
+		for var in variables[::-1]:
+			final.insert(0, var + '\n')
+		execute()
+	else:
 		if not os.name == 'nt':
 			os.system('clear')
 		else:
 			os.system('cls')
-	else:
-		parse(test, 0)
-		variables.append(''.join(source_code))
-		
-	source_code = []
+	
+	final = []
 	start_console(False)
 
 
@@ -569,9 +567,7 @@ is_dev = os.getenv('ENKELT_DEV', False)
 if not is_dev:
 	# Runs code from file or console-style
 	if len(sys.argv) >= 2:
-		tmp = sys.argv[1][1:-1]
-		tmp = tmp.split(',')
-		run_with_file(tmp)
+		run_with_file()
 		# Checks for updates:
 		check_for_updates(version)
 	else:
