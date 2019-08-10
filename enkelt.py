@@ -46,6 +46,8 @@ try:
 					with open(sys_args[i], 'r+') as f:
 						data = f.readlines()
 						break
+			for x, line in enumerate(data):
+				data[x] = line.replace('\n', '').replace('\t', '').replace("'", '"').replace(',', '£')
 			run_enkelt(data, {})
 		else:
 			if not sys_args:
@@ -53,6 +55,7 @@ try:
 			else:
 				run_command = 'python3 run_enkelt.py '
 				tmp_to_run = sys_args[0][1:-1]
+				tmp_to_run = tmp_to_run.replace("'", '"')
 				tmp_to_run = tmp_to_run.split(',')
 				
 				tmp_variables = sys_args[1][1:-1]
