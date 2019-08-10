@@ -1,1 +1,2 @@
 skriv ("hej")
+skriv ("test")
