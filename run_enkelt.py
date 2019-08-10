@@ -80,7 +80,7 @@ def parse(lexed, token_index):
 	
 	is_comment = False
 	
-	forbidden = ['in', 'str', 'int', 'list']
+	forbidden = ['in', 'str', 'int', 'list', 'num']
 	
 	token_type = str(lexed[token_index][0])
 	token_val = lexed[token_index][1]
@@ -283,14 +283,14 @@ def lex(line):
 						is_var = True
 						tmp = ''
 					elif is_var:
-						if chr != ' ' and chr != '=' and chr not in operators and chr != ')' and chr != '[' and chr != ']':
+						if chr != ' ' and chr != '=' and chr not in operators and chr != '[' and chr != ']':
 							tmp += chr
 							if len(line) - 1 == chr_index:
 								is_var = False
 								lexed_data.append(['VAR', tmp])
 								lexed_data.append(['FUNCTION', tmp])
 								tmp = ''
-						elif chr == '=' or chr == ')' or chr in operators:
+						elif chr == '=' or chr in operators:
 							is_var = False
 							lexed_data.append(['VAR', tmp])
 							lexed_data.append(['OPERATOR', chr])
@@ -412,13 +412,24 @@ def main(statement):
 				break
 			else:
 				tmp += text
-	
 	return current_line
 
 
 def execute():
 	global final
 	global is_developer_mode
+	
+	# Removes unnecessary tabs
+	for line_index, line in enumerate(final):
+		tmp_line = list(line)
+		chars_started = False
+		for char_index, char in enumerate(tmp_line):
+			if char != '\t' and char != '\n' and chars_started is False:
+				chars_started = True
+			elif chars_started and char == '\t' and char_index > 0:
+				tmp_line[char_index] = ' '
+				
+		final[line_index] = ''.join(tmp_line)
 	
 	# Turn = = into == and ! = into !=
 	final = list(''.join(final).replace('= =', '==').replace('! =', '=='))
@@ -477,6 +488,7 @@ def run_with_file(data):
 			final.insert(0, var + '\n')
 			
 	for line_to_run in data:
+		line_to_run = line_to_run.replace('£', ',')
 		run(line_to_run)
 	execute()
 
