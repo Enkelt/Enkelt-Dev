@@ -38,6 +38,7 @@ class ErrorClass:
 			'ValueError': 'Värdefel',
 			'NameError': 'Namnfel',
 			'ZeroDivisionError': 'Nolldelningsfel',
+			'AttributeError': 'Attributfel'
 		}
 	
 	def set_error(self, new_error_msg):
@@ -50,6 +51,7 @@ class ErrorClass:
 		return ''
 	
 	def get_error_message_data(self):
+		
 		from googletrans import Translator
 		
 		translator = Translator()
@@ -473,7 +475,19 @@ def run(line):
 		source_code = []
 
 
-def run_with_file(data):
+def execute_run_with_code(data):
+	global variables
+	
+	for var in variables[::-1]:
+		final.insert(0, var + '\n')
+	
+	for line_to_run in data:
+		line_to_run = line_to_run.replace('£', ',')
+		run(line_to_run)
+	execute()
+	
+
+def run_with_code(data):
 	global is_developer_mode
 	global final
 	global variables
@@ -482,17 +496,21 @@ def run_with_file(data):
 		# Variable setup
 		variables_tmp = sys.argv[2][1:-1]
 		variables_tmp = variables_tmp.split(',')
-		
 		variables = variables_tmp
-		for var in variables[::-1]:
-			final.insert(0, var + '\n')
 			
-	for line_to_run in data:
-		line_to_run = line_to_run.replace('£', ',')
-		run(line_to_run)
-	execute()
+	execute_run_with_code(data)
 
-		
+
+def console_line_runner(code):
+	global variables
+	global is_developer_mode
+	
+	is_developer_mode = False
+	code_line = [code]
+	cmd = 'python3 enkelt.py ' + str([','.join(code_line)]) + ' ' + str([','.join(variables)])
+	os.system(cmd)
+	
+	
 def start_console(first):
 	global version
 	global is_developer_mode
@@ -511,10 +529,7 @@ def start_console(first):
 	test = lex(test)
 	
 	if code_line != 'töm' and code_line != 'töm()' and code_line != 'töm ()' and test[0][0] != 'VAR':
-		is_developer_mode = False
-		code_line = [code_line]
-		cmd = 'python3 enkelt.py ' + str([','.join(code_line)]) + ' ' + str([','.join(variables)])
-		os.system(cmd)
+		console_line_runner(code_line)
 		
 	elif code_line == 'töm' or code_line == 'töm()' or code_line == 'töm ()':
 		if not os.name == 'nt':
@@ -529,6 +544,18 @@ def start_console(first):
 	start_console(False)
 
 
+def web_editor_runner(event):
+	global variables
+	
+	data = ''
+	# These lines should be commented-out
+	# data = document["inputCode"].value
+	# data = data.split('\n')
+	
+	variables = []
+	execute_run_with_code(data)
+
+
 # ----- SETUP -----
 
 # Global variable setup
@@ -536,6 +563,10 @@ is_list = False
 is_if = False
 is_math = False
 is_for = False
+
+# --- SPECIAL --->
+is_web_editor = False
+# --- DO NOT CHANGE! --->
 
 source_code = []
 indent_layers = []
@@ -573,20 +604,21 @@ repo_location = 'https://raw.githubusercontent.com/Buscedv/Enkelt/'
 final = []
 variables = []
 
-# Gets an env. variable to check if it's a test run.
-is_dev = os.getenv('ENKELT_DEV', False)
 
-# ----- START -----
-
-if not is_dev:
-	# Runs code from file or console-style
-	if len(sys.argv) >= 2:
-		tmp = sys.argv[1][1:-1]
-		tmp = tmp.split(',')
-		run_with_file(tmp)
-		# Checks for updates:
-		check_for_updates(version)
-	else:
-		variables = []
-		final = []
-		start_console(True)
+if is_web_editor is False:
+	# Gets an env. variable to check if it's a test run.
+	is_dev = os.getenv('ENKELT_DEV', False)
+	
+	# ----- START -----
+	if not is_dev:
+		# Runs code from file or console-style
+		if len(sys.argv) >= 2:
+			tmp = sys.argv[1][1:-1]
+			tmp = tmp.split(',')
+			run_with_code(tmp)
+			# Checks for updates:
+			check_for_updates(version)
+		else:
+			variables = []
+			final = []
+			start_console(True)
