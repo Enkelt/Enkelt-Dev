@@ -443,6 +443,10 @@ def execute():
 	global final
 	global is_developer_mode
 	
+	# Inserts necessary code to make importing a temporary python file work.
+	code_to_append = "def __Enkelt__():\n\tprint('')\n\n"
+	final.insert(0, code_to_append)
+	
 	# Removes unnecessary tabs
 	for line_index, line in enumerate(final):
 		tmp_line = list(line)
@@ -460,15 +464,20 @@ def execute():
 	
 	# Remove empty lines from final
 	final = list(re.sub(r'\n\s*\n', '\n\n', ''.join(final)))
-	
+
 	code = ''.join(final)
 	
 	if is_developer_mode:
 		print(code)
 	
+	# Writes the transpiled code to a file temporarily.
+	with open('final_transpiled.py', 'w+')as f:
+		f.writelines(code)
+	
 	# Executes the code transpiled to python and catches Exceptions
 	try:
-		exec(code)
+		import final_transpiled
+		final_transpiled.__Enkelt__()
 	except Exception as e:
 		if is_developer_mode:
 			print(e)
@@ -476,6 +485,10 @@ def execute():
 		# Print out error(s) if any
 		error = ErrorClass(str(e).replace('(<string>, ', '('))
 		print(error.get_error_message_data())
+	
+	# Removes the temporary python code
+	with open('final_transpiled.py', 'w+')as f:
+		f.writelines('')
 
 
 def run(line):
