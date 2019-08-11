@@ -22,9 +22,9 @@ def run_enkelt(to_run, variables):
 		elif line == '<class \'float\'>':
 			process[index] = 'flyt'
 		elif line == '<class \'str\'>':
-			process[index] = 'text'
+			process[index] = 'sträng'
 		elif line == '<class \'int\'>':
-			process[index] = 'nummer'
+			process[index] = 'heltal'
 		elif line == '<class \'list\'>':
 			process[index] = 'lista'
 	
