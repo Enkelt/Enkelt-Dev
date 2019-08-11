@@ -221,10 +221,12 @@ def parse(lexed, token_index):
 		elif token_val == 'passera':
 			source_code.append('pass')
 		elif token_val == 'töm':
-			if not os.name == 'nt':
-				source_code.append('os.system("clear")')
-			else:
+			if os.name == 'nt':
 				source_code.append('os.system("cls")')
+			elif os.name == 'posix':
+				source_code.append('print("\x1b[3J\x1b[H\x1b[2J")')
+			else:
+				source_code.append('os.system("clear")')
 		elif token_val == 'annars':
 			source_code.append('else')
 	elif token_type == 'USER_FUNCTION':
