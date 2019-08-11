@@ -499,12 +499,12 @@ def run_with_code(data):
 	global is_developer_mode
 	global final
 	global variables
+	global tmp_variables
 	
-	if is_developer_mode is False and len(sys.argv) >= 3:
+	if is_developer_mode is False and tmp_variables != []:
 		# Variable setup
-		variables_tmp = sys.argv[2][1:-1]
-		variables_tmp = variables_tmp.split(',')
-		variables = variables_tmp
+		variables = tmp_variables
+		tmp_variables = []
 			
 	execute_run_with_code(data)
 
@@ -514,9 +514,11 @@ def console_line_runner(code):
 	global is_developer_mode
 	
 	is_developer_mode = False
-	code_line = [code]
-	cmd = 'python3 enkelt.py ' + str([','.join(code_line)]) + ' ' + str([','.join(variables)])
-	os.system(cmd)
+	
+	with open('.enkelt_tmp_source.txt', 'w+')as f:
+		f.writelines(str([[code], variables]))
+
+	os.system('python3 run_enkelt.py  --run')
 	
 	
 def start_console(first):
@@ -533,21 +535,22 @@ def start_console(first):
 		print('Tryck Ctrl+C för att avsluta')
 	
 	code_line = input('Enkelt >> ')
-	test = main(code_line)
-	test = lex(test)
-	
-	if code_line != 'töm' and code_line != 'töm()' and code_line != 'töm ()' and test[0][0] != 'VAR':
-		console_line_runner(code_line)
+	if code_line != '':
+		test = main(code_line)
+		test = lex(test)
 		
-	elif code_line == 'töm' or code_line == 'töm()' or code_line == 'töm ()':
-		if not os.name == 'nt':
-			os.system('clear')
+		if code_line != 'töm' and code_line != 'töm()' and code_line != 'töm ()' and test[0][0] != 'VAR':
+			console_line_runner(code_line)
+			
+		elif code_line == 'töm' or code_line == 'töm()' or code_line == 'töm ()':
+			if not os.name == 'nt':
+				os.system('clear')
+			else:
+				os.system('cls')
 		else:
-			os.system('cls')
-	else:
-		parse(test, 0)
-		variables.append(''.join(source_code))
-		
+			parse(test, 0)
+			variables.append(''.join(source_code))
+			
 	source_code = []
 	start_console(False)
 
@@ -616,6 +619,8 @@ repo_location = 'https://raw.githubusercontent.com/Buscedv/Enkelt/'
 final = []
 variables = []
 
+tmp_variables = []
+
 
 if is_web_editor is False:
 	# Gets an env. variable to check if it's a test run.
@@ -625,9 +630,20 @@ if is_web_editor is False:
 	if not is_dev:
 		# Runs code from file or console-style
 		if len(sys.argv) >= 2:
-			tmp = sys.argv[1][1:-1]
-			tmp = tmp.split(',')
-			run_with_code(tmp)
+			tmp = ''
+			with open('.enkelt_tmp_source.txt', 'r+')as f:
+				tmp = f.readlines()[0]
+				
+			with open('.enkelt_tmp_source.txt', 'w+')as f:
+				f.writelines('')
+			
+			import ast
+			
+			tmp = ast.literal_eval(tmp)
+			tmp_code_to_run = tmp[0]
+			tmp_variables = tmp[1]
+			
+			run_with_code(tmp_code_to_run)
 			# Checks for updates:
 			check_for_updates(version)
 		else:

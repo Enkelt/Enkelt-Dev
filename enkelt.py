@@ -8,8 +8,11 @@ import os
 def run_enkelt(to_run, variables):
 	global run_command
 	
-	run_command = run_command + str([','.join(to_run)]) + ' ' + str(variables)
-	process = subprocess.Popen(run_command, stdout = subprocess.PIPE, stderr = None, shell = True).communicate()[0].decode('utf-8').split('\n')
+	with open('.enkelt_tmp_source.txt', 'w+')as f:
+		f.writelines(str([to_run, variables]))
+	
+	tmp_run_command = run_command+' '+'--run'
+	process = subprocess.Popen(tmp_run_command, stdout = subprocess.PIPE, stderr = None, shell = True).communicate()[0].decode('utf-8').split('\n')
 	
 	for index, line in enumerate(process):
 		if line == 'True':
@@ -48,7 +51,7 @@ try:
 						break
 			for x, line in enumerate(data):
 				data[x] = line.replace('\n', '').replace('\t', '').replace("'", '"').replace(',', '£')
-			run_enkelt(data, {})
+			run_enkelt(data, [])
 		else:
 			if not sys_args:
 				os.system('python3 run_enkelt.py')
