@@ -126,6 +126,8 @@ def parse(lexed, token_index):
 			source_code.append('append(')
 		elif token_val == 'bort':
 			source_code.append('pop(')
+		elif token_val == 'ärnum':
+			source_code.append('isdigit(')
 		elif token_val == 'sortera':
 			source_code.append('sorted(')
 		elif token_val == 'slump':
@@ -142,6 +144,12 @@ def parse(lexed, token_index):
 			source_code.append('list(')
 		elif token_val == 'runda':
 			source_code.append('round(')
+		elif token_val == 'versal':
+			source_code.append('upper(')
+		elif token_val == 'gemen':
+			source_code.append('lower(')
+		elif token_val == 'ersätt':
+			source_code.append('replace(')
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
@@ -593,6 +601,10 @@ functions = [
 	'lista',
 	'blanda',
 	'runda',
+	'versal',
+	'gemen',
+	'ärnum',
+	'ersätt',
 
 ]
 user_functions = []
