@@ -658,7 +658,7 @@ if is_web_editor is False:
 			tmp_code_to_run = tmp[0]
 			tmp_variables = tmp[1]
 			
-			if '' in tmp_code_to_run:
+			while '' in tmp_code_to_run:
 				tmp_code_to_run.pop(tmp_code_to_run.index(''))
 
 			run_with_code(tmp_code_to_run)
