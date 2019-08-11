@@ -176,8 +176,6 @@ def parse(lexed, token_index):
 			source_code.append('__import__("time").ctime(')
 		elif token_val == 'nu':
 			source_code.append('__import__("time").ctime(__import__("time").time()')
-		#elif token_val == 'vänta':
-			#source_code.append('__import__("time").sleep(')
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
@@ -653,7 +651,6 @@ functions = [
 	'epok',
 	'tid',
 	'nu',
-	#'vänta',
 
 ]
 user_functions = []
