@@ -150,6 +150,14 @@ def parse(lexed, token_index):
 			source_code.append('lower(')
 		elif token_val == 'ersätt':
 			source_code.append('replace(')
+		elif token_val == 'infoga':
+			source_code.append('insert(')
+		elif token_val == 'index':
+			source_code.append('index(')
+		elif token_val == 'dela':
+			source_code.append('split(')
+		elif token_val == 'foga':
+			source_code.append('join(')
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
@@ -608,6 +616,10 @@ functions = [
 	'gemen',
 	'ärnum',
 	'ersätt',
+	'infoga',
+	'index',
+	'dela',
+	'foga',
 
 ]
 user_functions = []
