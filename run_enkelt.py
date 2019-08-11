@@ -158,6 +158,8 @@ def parse(lexed, token_index):
 			source_code.append('split(')
 		elif token_val == 'foga':
 			source_code.append('join(')
+		elif token_val == 'typ':
+			source_code.append('type(')
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
@@ -620,6 +622,7 @@ functions = [
 	'index',
 	'dela',
 	'foga',
+	'typ',
 
 ]
 user_functions = []
