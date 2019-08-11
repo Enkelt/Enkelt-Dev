@@ -19,6 +19,14 @@ def run_enkelt(to_run, variables):
 			process[index] = 'Sant'
 		elif line == 'False':
 			process[index] = 'Falskt'
+		elif line == '<class \'float\'>':
+			process[index] = 'flyt'
+		elif line == '<class \'str\'>':
+			process[index] = 'text'
+		elif line == '<class \'int\'>':
+			process[index] = 'nummer'
+		elif line == '<class \'list\'>':
+			process[index] = 'lista'
 	
 	process = '\n'.join(process)
 	print(process)
