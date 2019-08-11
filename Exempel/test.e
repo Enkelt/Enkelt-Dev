@@ -1,7 +1,5 @@
-def andra($text) {
-	skriv ($text)
+$i = 0
+medan ($i < 11) {
+	skriv ($i)
+	$i += 1
 }
-def first($test) {
-	andra($test)
-}
-first("Hej")
