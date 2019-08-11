@@ -118,10 +118,12 @@ def parse(lexed, token_index):
 		elif token_val == 'längd':
 			source_code.append('len(')
 		elif token_val == 'töm':
-			if not os.name == 'nt':
-				source_code.append('os.system("clear")')
+			if os.name == 'nt':
+				source_code.append('os.system("cls"')
+			elif os.name == 'posix':
+				source_code.append('print("\x1b[3J\x1b[H\x1b[2J"')
 			else:
-				source_code.append('os.system("cls")')
+				source_code.append('os.system("clear"')
 		elif token_val == 'till':
 			source_code.append('append(')
 		elif token_val == 'bort':
