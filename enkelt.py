@@ -26,8 +26,6 @@ def run_enkelt(to_run, variables):
 			process[index] = 'heltal'
 		elif line == '<class \'list\'>':
 			process[index] = 'lista'
-		elif line == '**********':
-			process[index] = '\x1b[3J\x1b[H\x1b[2J\x1b[3J\x1b[H\x1b[2J'
 
 	process = '\n'.join(process)
 	print(process)
