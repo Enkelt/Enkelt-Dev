@@ -126,6 +126,8 @@ def parse(lexed, token_index):
 			source_code.append('append(')
 		elif token_val == 'bort':
 			source_code.append('pop(')
+		elif token_val == 'ärnum':
+			source_code.append('isdigit(')
 		elif token_val == 'sortera':
 			source_code.append('sorted(')
 		elif token_val == 'slump':
@@ -599,6 +601,7 @@ functions = [
 	'runda',
 	'versal',
 	'gemen',
+	'ärnum',
 
 ]
 user_functions = []
