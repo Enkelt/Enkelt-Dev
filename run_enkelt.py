@@ -148,6 +148,8 @@ def parse(lexed, token_index):
 			source_code.append('upper(')
 		elif token_val == 'gemen':
 			source_code.append('lower(')
+		elif token_val == 'ersätt':
+			source_code.append('replace(')
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
@@ -602,6 +604,7 @@ functions = [
 	'versal',
 	'gemen',
 	'ärnum',
+	'ersätt',
 
 ]
 user_functions = []
