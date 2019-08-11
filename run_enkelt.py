@@ -170,6 +170,12 @@ def parse(lexed, token_index):
 		elif token_val == 'medan':
 			source_code.append('while ')
 			look_for_loop_ending = True
+		elif token_val == 'epok':
+			source_code.append('__import__("time").time(')
+		elif token_val == 'tid':
+			source_code.append('__import__("time").ctime(')
+		elif token_val == 'nu':
+			source_code.append('__import__("time").ctime(__import__("time").time()')
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
@@ -642,7 +648,9 @@ functions = [
 	'typ',
 	'för',
 	'medan',
-	
+	'epok',
+	'tid',
+	'nu',
 
 ]
 user_functions = []
