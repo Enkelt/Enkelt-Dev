@@ -118,10 +118,13 @@ def parse(lexed, token_index):
 		elif token_val == 'längd':
 			source_code.append('len(')
 		elif token_val == 'töm':
+			'''
 			if not os.name == 'nt':
-				source_code.append('os.system("clear")')
+				source_code.append('__import__("os").system("clear"')
 			else:
-				source_code.append('os.system("cls")')
+				source_code.append('__import__("os").system("cls"')
+				'''
+			source_code.append('print("**********"')
 		elif token_val == 'till':
 			source_code.append('append(')
 		elif token_val == 'bort':
@@ -220,9 +223,9 @@ def parse(lexed, token_index):
 			source_code.append('pass')
 		elif token_val == 'töm':
 			if not os.name == 'nt':
-				source_code.append('os.system("clear")')
+				source_code.append('__import__("os").system("clear")')
 			else:
-				source_code.append('os.system("cls")')
+				source_code.append('__import__("os").system("cls")')
 		elif token_val == 'annars':
 			source_code.append('else')
 	elif token_type == 'USER_FUNCTION':
@@ -390,7 +393,6 @@ def lex(line):
 									elif tmp == 'töm' and line[-3:] == 'töm':
 										lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
-	
 	return lexed_data
 
 
