@@ -83,7 +83,7 @@ def parse(lexed, token_index):
 	
 	is_comment = False
 	
-	forbidden = ['in', 'str', 'int', 'list', 'num']
+	forbidden = ['in', 'str', 'int', 'list', 'num', 'e', 'pi']
 	
 	token_type = str(lexed[token_index][0])
 	token_val = lexed[token_index][1]
@@ -163,6 +163,34 @@ def parse(lexed, token_index):
 			source_code.append('join(')
 		elif token_val == 'typ':
 			source_code.append('type(')
+		elif token_val == 'sin':
+			source_code.append('__import__("math").sin(')
+		elif token_val == 'cos':
+			source_code.append('__import__("math").cos(')
+		elif token_val == 'tan':
+			source_code.append('__import__("math").tan(')
+		elif token_val == 'potens':
+			source_code.append('__import__("math").pow(')
+		elif token_val == 'asin':
+			source_code.append('__import__("math").asin(')
+		elif token_val == 'acos':
+			source_code.append('__import__("math").acos(')
+		elif token_val == 'atan':
+			source_code.append('__import__("math").atan(')
+		elif token_val == 'tak':
+			source_code.append('__import__("math").ceil(')
+		elif token_val == 'golv':
+			source_code.append('__import__("math").floor(')
+		elif token_val == 'log':
+			source_code.append('__import__("math").log(')
+		elif token_val == 'kvadratrot':
+			source_code.append('__import__("math").sqrt(')
+		elif token_val == 'grader':
+			source_code.append('__import__("math").degrees(')
+		elif token_val == 'radianer':
+			source_code.append('__import__("math").radians(')
+		elif token_val == 'fakultet':
+			source_code.append('__import__("math").factorial(')
 		elif token_val == 'för':
 			source_code.append('for ')
 			is_for = True
@@ -233,6 +261,10 @@ def parse(lexed, token_index):
 			source_code.append('not ')
 		elif token_val == 'passera':
 			source_code.append('pass')
+		elif token_val == 'e':
+			source_code.append('__import__("math").e')
+		elif token_val == 'pi':
+			source_code.append('__import__("math").pi')
 		elif token_val == 'töm':
 			if os.name == 'nt':
 				source_code.append('os.system("cls")')
@@ -396,6 +428,10 @@ def lex(line):
 										lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
 									elif tmp == 'passera':
+										lexed_data.append(['KEYWORD', tmp])
+									elif tmp == 'e':
+										lexed_data.append(['KEYWORD', tmp])
+									elif tmp == 'pi':
 										lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
 									elif tmp == 'töm' and line[-3:] == 'töm':
@@ -654,6 +690,20 @@ functions = [
 	'tid',
 	'nu',
 	#'vänta',
+	'sin',
+	'cos',
+	'tan',
+	'asin',
+	'acos',
+	'atan',
+	'potens',
+	'tak',
+	'golv',
+	'fakultet',
+	'kvadratrot',
+	'log',
+	'grader',
+	'radianer',
 
 ]
 user_functions = []
