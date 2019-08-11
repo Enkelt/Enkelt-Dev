@@ -142,6 +142,10 @@ def parse(lexed, token_index):
 			source_code.append('list(')
 		elif token_val == 'runda':
 			source_code.append('round(')
+		elif token_val == 'versal':
+			source_code.append('upper(')
+		elif token_val == 'gemen':
+			source_code.append('lower(')
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
@@ -593,6 +597,8 @@ functions = [
 	'lista',
 	'blanda',
 	'runda',
+	'versal',
+	'gemen',
 
 ]
 user_functions = []
