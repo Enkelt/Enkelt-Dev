@@ -79,6 +79,7 @@ def parse(lexed, token_index):
 	global is_if
 	global is_math
 	global is_for
+	global look_for_loop_ending
 	
 	is_comment = False
 	
@@ -162,6 +163,13 @@ def parse(lexed, token_index):
 			source_code.append('join(')
 		elif token_val == 'typ':
 			source_code.append('type(')
+		elif token_val == 'för':
+			source_code.append('for ')
+			is_for = True
+			look_for_loop_ending = True
+		elif token_val == 'medan':
+			source_code.append('while ')
+			look_for_loop_ending = True
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
@@ -179,6 +187,8 @@ def parse(lexed, token_index):
 			is_math = False
 		elif is_for and token_val == ',':
 			is_for = False
+		elif look_for_loop_ending and token_val == ')':
+			look_for_loop_ending = False
 		else:
 			source_code.append(token_val)
 	elif token_type == 'LIST_START':
@@ -203,13 +213,8 @@ def parse(lexed, token_index):
 		elif token_val == 'Falskt':
 			source_code.append('False')
 	elif token_type == 'KEYWORD':
-		if token_val == 'för':
-			source_code.append('for ')
-			is_for = True
-		elif token_val == 'inom':
+		if token_val == 'inom':
 			source_code.append(' in ')
-		elif token_val == 'medan':
-			source_code.append('while ')
 		elif token_val == 'bryt':
 			source_code.append('break')
 		elif token_val == 'fortsätt':
@@ -364,12 +369,6 @@ def lex(line):
 									elif tmp == 'inom':
 										lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
-									elif tmp == 'för':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'medan':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
 									elif tmp == 'bryt':
 										lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
@@ -459,8 +458,8 @@ def execute():
 				
 		final[line_index] = ''.join(tmp_line)
 	
-	# Turn = = into == and ! = into !=
-	final = list(''.join(final).replace('= =', '==').replace('! =', '=='))
+	# Turn = = into == and ! = into != and + = into +=
+	final = list(''.join(final).replace('= =', '==').replace('! =', '==').replace('+ =', '+='))
 	
 	# Remove empty lines from final
 	final = list(re.sub(r'\n\s*\n', '\n\n', ''.join(final)))
@@ -601,6 +600,7 @@ is_list = False
 is_if = False
 is_math = False
 is_for = False
+look_for_loop_ending = False
 
 # --- SPECIAL --->
 is_web_editor = False
@@ -640,6 +640,9 @@ functions = [
 	'dela',
 	'foga',
 	'typ',
+	'för',
+	'medan',
+	
 
 ]
 user_functions = []
