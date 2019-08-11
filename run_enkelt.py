@@ -658,6 +658,9 @@ if is_web_editor is False:
 			tmp_code_to_run = tmp[0]
 			tmp_variables = tmp[1]
 			
+			while '' in tmp_code_to_run:
+				tmp_code_to_run.pop(tmp_code_to_run.index(''))
+
 			run_with_code(tmp_code_to_run)
 			# Checks for updates:
 			check_for_updates(version)
