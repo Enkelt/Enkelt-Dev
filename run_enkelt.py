@@ -501,11 +501,11 @@ def lex(line):
 										lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
 									elif tmp == 'mikrosekund':
-                    lexed_data.append(['KEYWORD', tmp])
+                    								lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
 									elif tmp == 'matte_e':
 										lexed_data.append(['KEYWORD', tmp])
-                    tmp = ''
+                    								tmp = ''
 									elif tmp == 'matte_pi':
 										lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
