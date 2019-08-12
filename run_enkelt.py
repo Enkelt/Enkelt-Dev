@@ -328,6 +328,7 @@ def parse(lexed, token_index):
 			source_code.append('else')
 	elif token_type == 'USER_FUNCTION':
 		source_code.append('def ' + token_val + '(')
+		needs_start = True
 	elif token_type == 'USER_FUNCTION_CALL':
 		source_code.append(token_val + '(')
 	
@@ -341,7 +342,9 @@ def lex(line):
 	
 	global functions
 	global user_functions
-	operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':', ';']
+	global keywords
+	global operators
+	
 	tmp = ''
 	is_string = False
 	is_var = False
@@ -455,59 +458,14 @@ def lex(line):
 									lexed_data.append(['BOOL', tmp])
 									tmp = ''
 								else:
-									if tmp == 'annars':
+									if tmp in keywords:
 										lexed_data.append(['KEYWORD', tmp])
 										tmp = ""
-									elif tmp == 'inom':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'bryt':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'fortsätt':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
 									elif tmp == 'def':
 										is_function = True
 										tmp = ''
-									elif tmp == 'returnera':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
 									elif tmp == 'var':
 										is_var = True
-										tmp = ''
-									elif tmp == 'inte':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'passera':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'år':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'månad':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'dag':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'timme':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'minut':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'sekund':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'mikrosekund':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'matte_e':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'matte_pi':
-										lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
 									elif tmp == 'töm' and line[-3:] == 'töm':
 										lexed_data.append(['KEYWORD', tmp])
@@ -787,6 +745,27 @@ functions = [
 	'numrera'
 ]
 user_functions = []
+keywords = [
+	'annars',
+	'inom',
+	'bryt',
+	'fortsätt',
+	'returnera',
+	'annars',
+	'inte',
+	'passera',
+	'år',
+	'månad',
+	'dag',
+	'timme',
+	'minut',
+	'sekund',
+	'mikrosekund',
+	'annars',
+	'matte_e',
+	'matte_pi',
+]
+operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':', ';']
 
 is_developer_mode = False
 version = 3.0
