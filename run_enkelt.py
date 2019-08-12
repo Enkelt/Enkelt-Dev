@@ -104,14 +104,40 @@ def _import(enkeltmodule):
 
 
 def get_import(enkeltmodulefile):
+	global imported_modules
+	global source_code
+	global final
+	global user_functions
+
 	with open(enkeltmodulefile, 'r') as module_file:
 		module_code = module_file.readlines()
+
+		module_name = enkeltmodulefile.split('/')[-1][:-2]
+		imported_modules.append(module_name)
 
 		while '' in module_code:
 			module_code.pop(module_code.index(''))
 
 		for line in module_code:
-			run(line)
+			
+			if line != '\n':
+				data = main(line)
+				data = lex(data)
+
+				for token_index in range(len(data)):
+					if data[token_index][0] == 'USER_FUNCTION':
+						data[token_index][1] = module_name + '.' + data[token_index][1]
+
+						user_functions[-1] = module_name + '.' + user_functions[-1]
+
+
+				if is_developer_mode:
+					print(data)
+
+				parse(data, 0)
+				final.append(''.join(source_code))
+				final.append('\n')
+				source_code = []
 
 
 def parse(lexed, token_index):
@@ -353,9 +379,11 @@ def parse(lexed, token_index):
 		elif token_val == 'annars':
 			source_code.append('else')
 	elif token_type == 'USER_FUNCTION':
+		token_val = token_val.replace('.', '_')
 		source_code.append('def ' + token_val + '(')
 		needs_start = True
 	elif token_type == 'USER_FUNCTION_CALL':
+		token_val = token_val.replace('.', '_')
 		source_code.append(token_val + '(')
 	
 	if len(lexed) - 1 >= token_index + 1 and is_comment is False:
@@ -370,6 +398,7 @@ def lex(line):
 	global user_functions
 	global keywords
 	global operators
+	global imported_modules
 	
 	tmp = ''
 	is_string = False
@@ -467,8 +496,12 @@ def lex(line):
 							lexed_data.append(['VAR', tmp])
 							lexed_data.append(['START', chr])
 							tmp = ''
-					elif chr in operators:
+					elif chr in operators and tmp not in imported_modules:
 						lexed_data.append(['OPERATOR', chr])
+					elif chr in imported_modules and chr != '.':
+						lexed_data.append(['OPERATOR', chr])
+					elif chr in imported_modules and chr == '.':
+						tmp += chr
 					else:
 						if tmp == 'Sant' or tmp == 'Falskt':
 							lexed_data.append(['BOOL', tmp])
@@ -734,6 +767,7 @@ is_web_editor = False
 
 source_code = []
 indent_layers = []
+imported_modules = []
 
 functions = [
 	'skriv',

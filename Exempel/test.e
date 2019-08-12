@@ -1,3 +1,3 @@
 importera importtest
 
-test()
+importtest.test()
