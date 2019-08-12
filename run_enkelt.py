@@ -477,6 +477,7 @@ def lex(line):
 										tmp = ''
 									elif tmp == 'matte_e':
 										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
 	
 	return lexed_data
 
