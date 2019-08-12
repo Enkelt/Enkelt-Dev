@@ -97,6 +97,7 @@ def parse(lexed, token_index):
 	global is_math
 	global is_for
 	global look_for_loop_ending
+	global needs_start
 	
 	is_comment = False
 	
@@ -221,6 +222,10 @@ def parse(lexed, token_index):
 			source_code.append('__import__("time").ctime(')
 		elif token_val == 'nu':
 			source_code.append('__import__("time").ctime(__import__("time").time()')
+		elif token_val == 'värden':
+			source_code.append('values(')
+		elif token_val == 'element':
+			source_code.append('items(')
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
@@ -234,12 +239,14 @@ def parse(lexed, token_index):
 		if is_if and token_val == ')':
 			source_code.append('')
 			is_if = False
+			needs_start = True
 		elif is_math and token_val == ')':
 			is_math = False
 		elif is_for and token_val == ',':
 			is_for = False
 		elif look_for_loop_ending and token_val == ')':
 			look_for_loop_ending = False
+			needs_start = True
 		else:
 			source_code.append(token_val)
 	elif token_type == 'LIST_START':
@@ -247,17 +254,25 @@ def parse(lexed, token_index):
 	elif token_type == 'LIST_END':
 		source_code.append(']')
 	elif token_type == 'START':
-		if len(lexed) - 1 == token_index:
+		if needs_start is False:
+			source_code.append(token_val)
+		elif len(lexed) - 1 == token_index:
 			source_code.append(':')
 		else:
 			source_code.append(':' + '\n')
-		indent_layers.append(True)
+		
+		if needs_start:
+			indent_layers.append(True)
 	elif token_type == 'END':
-		indent_layers.pop(-1)
-		if len(lexed) - 1 == token_index:
-			source_code.append('')
+		if needs_start is False:
+			source_code.append(token_val)
 		else:
-			source_code.append('\n')
+			needs_start = False
+			indent_layers.pop(-1)
+			if len(lexed) - 1 == token_index:
+				source_code.append('')
+			else:
+				source_code.append('\n')
 	elif token_type == 'BOOL':
 		if token_val == 'Sant':
 			source_code.append('True')
@@ -276,9 +291,9 @@ def parse(lexed, token_index):
 			source_code.append('not ')
 		elif token_val == 'passera':
 			source_code.append('pass')
-		elif token_val == 'e':
+		elif token_val == 'matte_e':
 			source_code.append('__import__("math").e')
-		elif token_val == 'pi':
+		elif token_val == 'matte_pi':
 			source_code.append('__import__("math").pi')
 		elif token_val == 'töm':
 			if os.name == 'nt':
@@ -444,9 +459,9 @@ def lex(line):
 										tmp = ''
 									elif tmp == 'passera':
 										lexed_data.append(['KEYWORD', tmp])
-									elif tmp == 'e':
+									elif tmp == 'matte_e':
 										lexed_data.append(['KEYWORD', tmp])
-									elif tmp == 'pi':
+									elif tmp == 'matte_pi':
 										lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
 									elif tmp == 'töm' and line[-3:] == 'töm':
@@ -660,6 +675,7 @@ is_if = False
 is_math = False
 is_for = False
 look_for_loop_ending = False
+needs_start = False
 
 # --- SPECIAL --->
 is_web_editor = False
@@ -718,6 +734,8 @@ functions = [
 	'log',
 	'grader',
 	'radianer',
+	'värden',
+	'element',
 ]
 user_functions = []
 
