@@ -267,7 +267,7 @@ def parse(lexed, token_index):
 			source_code.append('pass') 
 		elif token_val == 'matte_e':
 			source_code.append('__import__("math").e')
-		elif token_val == 'pi':
+		elif token_val == 'matte_pi':
 			source_code.append('__import__("math").pi')
 		elif token_val == 'år':
 			source_code.append('year')
@@ -448,7 +448,7 @@ def lex(line):
 									elif tmp == 'passera':
 										lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
-									elif tmp == 'pi':
+									elif tmp == 'matte_pi':
 										lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
 									elif tmp == 'år':
