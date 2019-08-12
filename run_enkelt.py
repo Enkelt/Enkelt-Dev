@@ -114,7 +114,7 @@ def parse(lexed, token_index):
 	
 	is_comment = False
 	
-	forbidden = ['in', 'str', 'int', 'list', 'num']
+	forbidden = ['in', 'str', 'int', 'list', 'num', 'matte_e', 'matte_pi']
 	
 	token_type = str(lexed[token_index][0])
 	token_val = lexed[token_index][1]
