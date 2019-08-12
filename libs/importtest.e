@@ -1,1 +1,3 @@
-skriv("hej")
+def test() {
+	skriv("hej")
+}

@@ -90,17 +90,28 @@ class ErrorClass:
 			return error_type
 
 
-def _import(module):
-	import_file = module + ".e" # change to be the path of the code being run
+def _import(enkeltmodule):
+	global enkelt_script_path
+
+	import_file = ''.join(enkelt_script_path.split('/')[:-1]) + '/' + enkeltmodule + '.e'
 
 	if os.path.isfile(import_file):
-		print("yay")
+		get_import(import_file)
 	else:
-		import_file = "libs/" + module + ".e"
+		import_file = "libs/" + enkeltmodule + ".e"
 		if os.path.isfile(import_file):
-			print("yay")
+			get_import(import_file)
 
-	# do stuff
+
+def get_import(enkeltmodulefile):
+	with open(enkeltmodulefile, 'r') as module_file:
+		module_code = module_file.readlines()
+
+		while '' in module_code:
+			module_code.pop(module_code.index(''))
+
+		for line in module_code:
+			run(line)
 
 
 def parse(lexed, token_index):
@@ -370,9 +381,9 @@ def lex(line):
 	might_be_negative_num = False
 	data_index = -1
 	for chr_index, chr in enumerate(line):
-		if is_import and chr != ';' and chr != ' ':
+		if is_import and chr != ' ':
 			tmp += chr
-		elif is_import and chr == ';':
+		if is_import and chr_index == len(line)-1:
 			lexed_data.append(['IMPORT', tmp])
 			is_import = False
 			tmp = ''
