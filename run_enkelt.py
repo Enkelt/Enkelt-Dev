@@ -1,4 +1,21 @@
-# -*- coding: utf-8 -*-
+# coding=utf-8
+
+# Enkelt 3.0
+# Copyright 2018, 2019 Edvard Busck-Nielsen, 2019 Morgan Willliams
+# This file is part of Enkelt.
+#
+#     Enkelt is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     Foobar is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with Enkelt.  If not, see <https://www.gnu.org/licenses/>.
 
 import sys
 import re
@@ -93,6 +110,7 @@ def parse(lexed, token_index):
 	global is_math
 	global is_for
 	global look_for_loop_ending
+	global needs_start
 	
 	is_comment = False
 	
@@ -223,6 +241,12 @@ def parse(lexed, token_index):
 			source_code.append('__import__("datetime").datetime.now(')
 		elif token_val == 'idag':
 			source_code.append('__import__("datetime").date.today(')
+		elif token_val == 'värden':
+			source_code.append('values(')
+		elif token_val == 'element':
+			source_code.append('items(')
+		elif token_val == 'numrera':
+			source_code.append('enumerate(')
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
@@ -238,12 +262,14 @@ def parse(lexed, token_index):
 		if is_if and token_val == ')':
 			source_code.append('')
 			is_if = False
+			needs_start = True
 		elif is_math and token_val == ')':
 			is_math = False
-		elif is_for and token_val == ',':
+		elif is_for and token_val == ';':
 			is_for = False
 		elif look_for_loop_ending and token_val == ')':
 			look_for_loop_ending = False
+			needs_start = True
 		else:
 			source_code.append(token_val)
 	elif token_type == 'LIST_START':
@@ -251,17 +277,25 @@ def parse(lexed, token_index):
 	elif token_type == 'LIST_END':
 		source_code.append(']')
 	elif token_type == 'START':
-		if len(lexed) - 1 == token_index:
+		if needs_start is False:
+			source_code.append(token_val)
+		elif len(lexed) - 1 == token_index:
 			source_code.append(':')
 		else:
 			source_code.append(':' + '\n')
-		indent_layers.append(True)
+		
+		if needs_start:
+			indent_layers.append(True)
 	elif token_type == 'END':
-		indent_layers.pop(-1)
-		if len(lexed) - 1 == token_index:
-			source_code.append('')
+		if needs_start is False:
+			source_code.append(token_val)
 		else:
-			source_code.append('\n')
+			needs_start = False
+			indent_layers.pop(-1)
+			if len(lexed) - 1 == token_index:
+				source_code.append('')
+			else:
+				source_code.append('\n')
 	elif token_type == 'BOOL':
 		if token_val == 'Sant':
 			source_code.append('True')
@@ -309,6 +343,7 @@ def parse(lexed, token_index):
 			source_code.append('else')
 	elif token_type == 'USER_FUNCTION':
 		source_code.append('def ' + token_val + '(')
+		needs_start = True
 	elif token_type == 'USER_FUNCTION_CALL':
 		source_code.append(token_val + '(')
 	
@@ -322,7 +357,9 @@ def lex(line):
 
 	global functions
 	global user_functions
-	operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':']
+	global keywords
+	global operators
+	
 	tmp = ''
 	is_string = False
 	is_var = False
@@ -444,59 +481,17 @@ def lex(line):
 									lexed_data.append(['BOOL', tmp])
 									tmp = ''
 								else:
-									if tmp == 'annars':
+									if tmp in keywords:
 										lexed_data.append(['KEYWORD', tmp])
 										tmp = ""
-									elif tmp == 'inom':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'bryt':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'fortsätt':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
 									elif tmp == 'def':
 										is_function = True
 										tmp = ''
-									elif tmp == 'returnera':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'var' or tmp == 'num':
+									elif tmp == 'var':
 										is_var = True
 										tmp = ''
 									elif tmp == 'importera':
 										is_import = True
-										tmp = ''
-									elif tmp == 'inte':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'passera':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'matte_pi':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'år':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'månad':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'dag':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'timme':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'minut':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'sekund':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'mikrosekund':
-										lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
 									elif tmp == 'töm' and line[-3:] == 'töm':
 										lexed_data.append(['KEYWORD', tmp])
@@ -720,6 +715,7 @@ is_if = False
 is_math = False
 is_for = False
 look_for_loop_ending = False
+needs_start = False
 
 # --- SPECIAL --->
 is_web_editor = False
@@ -781,9 +777,32 @@ functions = [
 	'datum',
 	'idag',
 	'veckodag',
-
+	'värden',
+	'element',
+	'numrera'
 ]
 user_functions = []
+keywords = [
+	'annars',
+	'inom',
+	'bryt',
+	'fortsätt',
+	'returnera',
+	'annars',
+	'inte',
+	'passera',
+	'år',
+	'månad',
+	'dag',
+	'timme',
+	'minut',
+	'sekund',
+	'mikrosekund',
+	'annars',
+	'matte_e',
+	'matte_pi',
+]
+operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':', ';']
 
 is_developer_mode = False
 version = 3.0
