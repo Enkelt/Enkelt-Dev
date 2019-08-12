@@ -812,6 +812,7 @@ final = []
 variables = []
 
 tmp_variables = []
+enkelt_script_path = ''
 
 
 if is_web_editor is False:
@@ -822,6 +823,7 @@ if is_web_editor is False:
 	if not is_dev:
 		# Runs code from file or console-style
 		if len(sys.argv) >= 2:
+			enkelt_script_path = sys.argv[1]
 			tmp = ''
 			with open('.enkelt_tmp_source.txt', 'r+')as f:
 				tmp = f.readlines()[0]
