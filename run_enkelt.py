@@ -333,7 +333,7 @@ def lex(line):
 	might_be_negative_num = False
 	data_index = -1
 	for chr_index, chr in enumerate(line):
-		if is_import and chr != ';':
+		if is_import and chr != ';' and chr != ' ':
 			tmp += chr
 		elif is_import and chr == ';':
 			lexed_data.append(['IMPORT', tmp])
@@ -465,7 +465,7 @@ def lex(line):
 									elif tmp == 'var' or tmp == 'num':
 										is_var = True
 										tmp = ''
-									elif tmp == 'importera ':
+									elif tmp == 'importera':
 										is_import = True
 										tmp = ''
 									elif tmp == 'inte':
