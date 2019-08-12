@@ -326,6 +326,10 @@ def parse(lexed, token_index):
 				source_code.append('os.system("clear")')
 		elif token_val == 'annars':
 			source_code.append('else')
+		elif token_val == 'och':
+			source_code.append(' and ')
+		elif token_val == 'eller':
+			source_code.append(' or ')
 	elif token_type == 'USER_FUNCTION':
 		source_code.append('def ' + token_val + '(')
 		needs_start = True
@@ -764,6 +768,8 @@ keywords = [
 	'annars',
 	'matte_e',
 	'matte_pi',
+	'och',
+	'eller',
 ]
 operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':', ';']
 
