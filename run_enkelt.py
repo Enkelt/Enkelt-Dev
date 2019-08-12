@@ -226,6 +226,8 @@ def parse(lexed, token_index):
 			source_code.append('values(')
 		elif token_val == 'element':
 			source_code.append('items(')
+		elif token_val == 'numrera':
+			source_code.append('enumerate(')
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
@@ -242,7 +244,7 @@ def parse(lexed, token_index):
 			needs_start = True
 		elif is_math and token_val == ')':
 			is_math = False
-		elif is_for and token_val == ',':
+		elif is_for and token_val == ';':
 			is_for = False
 		elif look_for_loop_ending and token_val == ')':
 			look_for_loop_ending = False
@@ -319,7 +321,7 @@ def lex(line):
 	
 	global functions
 	global user_functions
-	operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':']
+	operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':', ';']
 	tmp = ''
 	is_string = False
 	is_var = False
@@ -451,7 +453,7 @@ def lex(line):
 									elif tmp == 'returnera':
 										lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
-									elif tmp == 'var' or tmp == 'num':
+									elif tmp == 'var':
 										is_var = True
 										tmp = ''
 									elif tmp == 'inte':
@@ -736,6 +738,7 @@ functions = [
 	'radianer',
 	'värden',
 	'element',
+	'numrera'
 ]
 user_functions = []
 
