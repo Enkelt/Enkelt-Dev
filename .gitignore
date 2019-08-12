@@ -275,3 +275,8 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/osx,macos,python,windows,pycharm
+
+# Specific files
+final_transpiled.py
+.enkelt_tmp_source.txt
+.idea/

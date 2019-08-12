@@ -14,6 +14,8 @@ class TestEnkelt(unittest.TestCase):
 		self.assertEqual(main("skriv  ('hej')"), 'skriv("hej")')
 		self.assertEqual(main("skriv   ('hej')"), 'skriv("hej")')
 		self.assertEqual(main("skriv    ('hej')\n"), 'skriv("hej")')
+		self.assertEqual(main("skriv\t('hej')"), 'skriv("hej")')
+		self.assertEqual(main(".bort[123]"), '.bort(123)')
 
 	def test_lex(self):
 		# Tests functions, data-types, vars, bools, operators and others tokenized output.
@@ -105,15 +107,17 @@ class TestEnkelt(unittest.TestCase):
 			['OPERATOR', '+'],
 			['STRING', 'b'],
 		])
-		self.assertEqual(lex('$var="a"+matte(1+2)'), [
+		self.assertEqual(lex('$var="a"+Text(Nummer(1+2))'), [
 			['VAR', 'var'],
 			['OPERATOR', '='],
 			['STRING', 'a'],
 			['OPERATOR', '+'],
+			['FUNCTION', 'Text'],
 			['FUNCTION', 'Nummer'],
 			['PNUMBER', '1'],
 			['OPERATOR', '+'],
 			['PNUMBER', '2'],
+			['OPERATOR', ')'],
 			['OPERATOR', ')'],
 		])
 		self.assertEqual(lex('töm()'), [
@@ -157,12 +161,21 @@ class TestEnkelt(unittest.TestCase):
 			['OPERATOR', ')'],
 			['START', '{'],
 		])
+		self.assertEqual(lex('om($var=="a"){'), [
+			['FUNCTION', 'om'],
+			['VAR', 'var'],
+			['OPERATOR', '='],
+			['OPERATOR', '='],
+			['STRING', 'a'],
+			['OPERATOR', ')'],
+			['START', '{'],
+		])
 		self.assertEqual(lex('}annars{'), [
 			['END', '}'],
 			['KEYWORD', 'annars'],
 			['START', '{'],
 		])
-		for operator in ['+', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')']:
+		for operator in ['+', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':', ';']:
 			self.assertEqual(lex(operator), [
 				['OPERATOR', operator]
 			])
@@ -177,4 +190,119 @@ class TestEnkelt(unittest.TestCase):
 			['STRING', 'x'],
 			['OPERATOR', ')'],
 			['OPERATOR', ')'],
+		])
+		self.assertEqual(lex('längd("hej")'), [
+			['FUNCTION', 'längd'],
+			['STRING', 'hej'],
+			['OPERATOR', ')'],
+		])
+		functions = [
+			'skriv',
+			'till',
+			'bort',
+			'töm',
+			'om',
+			'anom',
+			'längd',
+			'in',
+			'Text',
+			'Nummer',
+			'Flyt',
+			'Bool',
+			'området',
+			'sortera',
+			'slumpval',
+			'slump',
+			'abs',
+			'lista',
+			'blanda',
+			'runda',
+			'versal',
+			'gemen',
+			'ärnum',
+			'ersätt',
+			'infoga',
+			'index',
+			'dela',
+			'foga',
+			'typ',
+			'för',
+			'medan',
+			'epok',
+			'tid',
+			'nu',
+			'sin',
+			'cos',
+			'tan',
+			'asin',
+			'acos',
+			'atan',
+			'potens',
+			'tak',
+			'golv',
+			'fakultet',
+			'kvadratrot',
+			'log',
+			'grader',
+			'radianer',
+			'datum',
+			'idag',
+			'veckodag',
+			'värden',
+			'element',
+			'numrera'
+		]
+		for function in functions:
+			self.assertEqual(lex(function+'("x")'), [
+				['FUNCTION', function],
+				['STRING', 'x'],
+				['OPERATOR', ')'],
+			])
+		keywords = [
+			'annars',
+			'inom',
+			'bryt',
+			'fortsätt',
+			'returnera',
+			'annars',
+			'inte',
+			'passera',
+			'år',
+			'månad',
+			'dag',
+			'timme',
+			'minut',
+			'sekund',
+			'mikrosekund',
+			'annars',
+			'matte_e',
+			'matte_pi',
+		]
+		for keyword in keywords:
+			self.assertEqual(lex('skriv('+keyword+')'), [
+				['FUNCTION', 'skriv'],
+				['KEYWORD', keyword],
+				['OPERATOR', ')'],
+			])
+		self.assertEqual(lex('def test($param, $param_b) {'), [
+			['USER_FUNCTION', ' test'],
+			['VAR', 'param'],
+			['OPERATOR', ','],
+			['VAR', 'param_b'],
+			['OPERATOR', ')'],
+			['START', '{'],
+			
+		])
+		self.assertEqual(lex('$lex =  {"a": "alpha", "b": "beta"}'), [
+			['VAR', 'lex'],
+			['OPERATOR', '='],
+			['START', '{'],
+			['STRING', 'a'],
+			['OPERATOR', ':'],
+			['STRING', 'alpha'],
+			['OPERATOR', ','],
+			['STRING', 'b'],
+			['OPERATOR', ':'],
+			['STRING', 'beta'],
+			['END', '}'],
 		])
