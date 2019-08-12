@@ -1,3 +1,4 @@
-för ($nummer; inom området(0,5)) {
-	skriv ($nummer)
+$test = in("hej: ")
+om ($test == 'gg' eller $test == 'test') {
+	skriv("hi")
 }
