@@ -73,6 +73,19 @@ class ErrorClass:
 			return error_type
 
 
+def _import(module):
+	import_file = module + ".e" # change to be the path of the code being run
+
+	if os.path.isfile(import_file):
+		print("yay")
+	else:
+		import_file = "libs/" + module + ".e"
+		if os.path.isfile(import_file):
+			print("yay")
+
+	# do stuff
+
+
 def parse(lexed, token_index):
 	global source_code
 	global indent_layers
@@ -83,7 +96,7 @@ def parse(lexed, token_index):
 	
 	is_comment = False
 	
-	forbidden = ['in', 'str', 'int', 'list', 'num', 'e', 'pi']
+	forbidden = ['in', 'str', 'int', 'list', 'num']
 	
 	token_type = str(lexed[token_index][0])
 	token_val = lexed[token_index][1]
@@ -219,6 +232,8 @@ def parse(lexed, token_index):
 		source_code.append('"' + token_val + '"')
 	elif token_type == 'PNUMBER' or token_type == 'NNUMBER':
 		source_code.append(token_val)
+	elif token_type == 'IMPORT':
+		_import(token_val)
 	elif token_type == 'OPERATOR':
 		if is_if and token_val == ')':
 			source_code.append('')
@@ -304,7 +319,7 @@ def parse(lexed, token_index):
 def lex(line):
 	if line[0] == '#':
 		return ['COMMENT', line]
-	
+
 	global functions
 	global user_functions
 	operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':']
@@ -312,11 +327,18 @@ def lex(line):
 	is_string = False
 	is_var = False
 	is_function = False
+	is_import = False
 	lexed_data = []
 	last_action = ''
 	might_be_negative_num = False
 	data_index = -1
 	for chr_index, chr in enumerate(line):
+		if is_import and chr != ';':
+			tmp += chr
+		elif is_import and chr == ';':
+			lexed_data.append(['IMPORT', tmp])
+			is_import = False
+			tmp = ''
 		if is_function and chr not in operators and chr != '(':
 			tmp += chr
 		elif is_function and chr == '(':
@@ -416,7 +438,8 @@ def lex(line):
 								lexed_data.append(['USER_FUNCTION_CALL', tmp])
 								tmp = ''
 							else:
-								tmp += chr
+								if is_import is False:
+									tmp += chr
 								if tmp == 'Sant' or tmp == 'Falskt':
 									lexed_data.append(['BOOL', tmp])
 									tmp = ''
@@ -441,6 +464,9 @@ def lex(line):
 										tmp = ''
 									elif tmp == 'var' or tmp == 'num':
 										is_var = True
+										tmp = ''
+									elif tmp == 'importera ':
+										is_import = True
 										tmp = ''
 									elif tmp == 'inte':
 										lexed_data.append(['KEYWORD', tmp])
@@ -486,11 +512,15 @@ def main(statement):
 	statement = statement.replace('\n', '').replace('\t', '').replace("'", '"')
 	current_line = ''
 	is_string = False
+	is_import = False
+
 	for chr_index, char in enumerate(statement):
 		if char == ' ' and is_string:
 			current_line += char
-		elif char == ' ' and is_string is False:
+		elif char == ' ' and is_string is False and is_import is False:
 			continue
+		elif char == ' ' and is_string is False and is_import:
+			current_line += char
 		elif char == '"' and is_string:
 			is_string = False
 			current_line += char
@@ -499,7 +529,10 @@ def main(statement):
 			current_line += char
 		else:
 			current_line += char
-	
+
+		if current_line == 'importera':
+			is_import = True
+
 	# Legacy removals
 	if '.bort[' in current_line:
 		current_line = current_line.replace('.bort[', '.bort(')
@@ -520,6 +553,7 @@ def main(statement):
 				break
 			else:
 				tmp += text
+
 	return current_line
 
 
@@ -580,14 +614,14 @@ def run(line):
 	global is_developer_mode
 	global final
 	global variables
-	
+
 	if line != '\n':
 		data = main(line)
 		data = lex(data)
-		
+
 		if is_developer_mode:
 			print(data)
-		
+
 		parse(data, 0)
 		final.append(''.join(source_code))
 		final.append('\n')
@@ -616,7 +650,7 @@ def run_with_code(data):
 		# Variable setup
 		variables = tmp_variables
 		tmp_variables = []
-			
+
 	execute_run_with_code(data)
 
 
