@@ -1,12 +1,5 @@
-$var = {"a": "alpha", "b": "beta", "c": "gamma"}
-skriv($var)
-skriv($var["c"])
-$var["a"] = "alphaa"
-
-för ($x, inom $var.element()) {
-	skriv($x)
-}
-
-för ($x, inom $var.värden()) {
-	skriv($x)
+$lista = ["a", "b", "c"]
+för ($x, $sak; inom numrera($lista)) {
+	skriv($sak)
+	skriv ($x)
 }
