@@ -209,6 +209,10 @@ def parse(lexed, token_index):
 			source_code.append('__import__("math").radians(')
 		elif token_val == 'fakultet':
 			source_code.append('__import__("math").factorial(')
+		elif token_val == 'datum':
+			source_code.append('__import__("datetime").date(')
+		elif token_val == 'veckodag':
+			source_code.append('weekday(')
 		elif token_val == 'för':
 			source_code.append('for ')
 			is_for = True
@@ -221,7 +225,9 @@ def parse(lexed, token_index):
 		elif token_val == 'tid':
 			source_code.append('__import__("time").ctime(')
 		elif token_val == 'nu':
-			source_code.append('__import__("time").ctime(__import__("time").time()')
+			source_code.append('__import__("datetime").datetime.now(')
+		elif token_val == 'idag':
+			source_code.append('__import__("datetime").date.today(')
 		elif token_val == 'värden':
 			source_code.append('values(')
 		elif token_val == 'element':
@@ -292,11 +298,25 @@ def parse(lexed, token_index):
 		elif token_val == 'inte':
 			source_code.append('not ')
 		elif token_val == 'passera':
-			source_code.append('pass')
+			source_code.append('pass') 
 		elif token_val == 'matte_e':
 			source_code.append('__import__("math").e')
 		elif token_val == 'matte_pi':
 			source_code.append('__import__("math").pi')
+		elif token_val == 'år':
+			source_code.append('year')
+		elif token_val == 'månad':
+			source_code.append('month')
+		elif token_val == 'dag':
+			source_code.append('day')
+		elif token_val == 'timme':
+			source_code.append('hour')
+		elif token_val == 'minut':
+			source_code.append('minute')
+		elif token_val == 'sekund':
+			source_code.append('second')
+		elif token_val == 'mikrosekund':
+			source_code.append('microsecond')
 		elif token_val == 'töm':
 			if os.name == 'nt':
 				source_code.append('os.system("cls")')
@@ -461,8 +481,31 @@ def lex(line):
 										tmp = ''
 									elif tmp == 'passera':
 										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									elif tmp == 'år':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									elif tmp == 'månad':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									elif tmp == 'dag':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									elif tmp == 'timme':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									elif tmp == 'minut':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									elif tmp == 'sekund':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
+									elif tmp == 'mikrosekund':
+										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
 									elif tmp == 'matte_e':
 										lexed_data.append(['KEYWORD', tmp])
+										tmp = ''
 									elif tmp == 'matte_pi':
 										lexed_data.append(['KEYWORD', tmp])
 										tmp = ''
@@ -736,6 +779,9 @@ functions = [
 	'log',
 	'grader',
 	'radianer',
+	'datum',
+	'idag',
+	'veckodag',
 	'värden',
 	'element',
 	'numrera'
