@@ -897,7 +897,8 @@ if is_web_editor is False:
 				if len(sys.argv) >= 2:
 					if '.e' in sys.argv[1]:
 						enkelt_script_path = sys.argv[1]
-					elif len(sys.argv) >= 3:
+					
+					if len(sys.argv) >= 3:
 						if sys.argv[2] == '--d':
 							is_developer_mode = True
 					
