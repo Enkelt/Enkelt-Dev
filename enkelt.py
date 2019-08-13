@@ -24,11 +24,12 @@ import os
 
 def run_enkelt(to_run, variables):
 	global run_command
+	global path
 	
 	with open('.enkelt_tmp_source.txt', 'w+')as f:
 		f.writelines(str([to_run, variables]))
 	
-	tmp_run_command = run_command+' '+'--run'
+	tmp_run_command = run_command+' '+str(path)
 	process = subprocess.Popen(tmp_run_command, stdout = subprocess.PIPE, stderr = None, shell = True).communicate()[0].decode('utf-8').split('\n')
 	
 	for index, line in enumerate(process):
@@ -51,6 +52,7 @@ def run_enkelt(to_run, variables):
 
 has_file = False
 run_command = 'python3 run_enkelt.py '
+path = ''
 
 try:
 	if sys.version_info[0] < 3:
@@ -71,6 +73,7 @@ try:
 			data = []
 			for i, arg in enumerate(sys_args):
 				if '.e' in arg:
+					path = sys_args[i]
 					with open(sys_args[i], 'r+') as f:
 						data = f.readlines()
 						break
