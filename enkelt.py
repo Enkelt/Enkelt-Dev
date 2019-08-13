@@ -114,49 +114,66 @@ def _import(enkelt_module):
 	import_file = ''.join(enkelt_script_path.split('/')[:-1]) + '/' + enkelt_module + '.e'
 
 	if os.path.isfile(import_file):
-		get_import(import_file)
+		get_import(import_file, True, enkelt_module)
 	else:
-		import_file = "bib/" + enkelt_module + ".e"
+		import_file = 'bib/' + enkelt_module + '.e'
 		if os.path.isfile(import_file):
-			get_import(import_file)
+			get_import(import_file, True, enkelt_module)
 		else:
-			print('Error kunde inte importera ' + enkelt_module)
+			import urllib.request
+	
+			global web_import_location
+	
+			url = web_import_location + enkelt_module + '.e'
+
+			try:
+				response = urllib.request.urlopen(url)
+				module_code = response.read().decode('utf-8')
+
+				module_code = module_code.split('\n')
+
+				get_import(module_code, False, enkelt_module)
+			except:
+				print('Error kunde inte importera ' + enkelt_module)
 
 
-def get_import(enkelt_module_file):
+def get_import(file_or_code, is_file, module_name):
 	global imported_modules
 	global source_code
 	global final
 	global user_functions
 
-	with open(enkelt_module_file, 'r') as module_file:
-		module_code = module_file.readlines()
+	imported_modules.append(module_name)
 
-		module_name = enkelt_module_file.split('/')[-1][:-2]
-		imported_modules.append(module_name)
+	if is_file:
+		with open(file_or_code, 'r') as module_file:
+			module_code = module_file.readlines()
+			module_file.close()
+	else:
+		module_code = file_or_code
 
-		while '' in module_code:
-			module_code.pop(module_code.index(''))
+	while '' in module_code:
+		module_code.pop(module_code.index(''))
 
-		for line in module_code:
-			
-			if line != '\n':
-				data = main(line)
-				data = lex(data)
+	for line in module_code:
+		
+		if line != '\n':
+			data = main(line)
+			data = lex(data)
 
-				for token_index in range(len(data)):
-					if data[token_index][0] == 'USER_FUNCTION':
-						data[token_index][1] = module_name + '.' + data[token_index][1]
+			for token_index in range(len(data)):
+				if data[token_index][0] == 'USER_FUNCTION':
+					data[token_index][1] = module_name + '.' + data[token_index][1]
 
-						user_functions[-1] = module_name + '.' + user_functions[-1]
+					user_functions[-1] = module_name + '.' + user_functions[-1]
 
-				if is_developer_mode:
-					print(data)
+			if is_developer_mode:
+				print(data)
 
-				parse(data, 0)
-				final.append(''.join(source_code))
-				final.append('\n')
-				source_code = []
+			parse(data, 0)
+			final.append(''.join(source_code))
+			final.append('\n')
+			source_code = []
 
 
 def parse(lexed, token_index):
@@ -876,6 +893,7 @@ operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':', ';
 is_developer_mode = False
 version = 3.0
 repo_location = 'https://raw.githubusercontent.com/Buscedv/Enkelt/'
+web_import_location = 'https://raw.githubusercontent.com/Enkelt/EnkeltBibliotek/master/bib/'
 
 final = []
 variables = []
