@@ -1,8 +1,8 @@
 import unittest
 
-from run_enkelt import lex
-from run_enkelt import main
-from run_enkelt import parse
+from enkelt import lex
+from enkelt import main
+from enkelt import parse
 
 
 class TestEnkelt(unittest.TestCase):
