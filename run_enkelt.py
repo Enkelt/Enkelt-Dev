@@ -98,7 +98,7 @@ def _import(enkeltmodule):
 	if os.path.isfile(import_file):
 		get_import(import_file)
 	else:
-		import_file = "libs/" + enkeltmodule + ".e"
+		import_file = "bib/" + enkeltmodule + ".e"
 		if os.path.isfile(import_file):
 			get_import(import_file)
 

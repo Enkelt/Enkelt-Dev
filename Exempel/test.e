@@ -1,3 +1,3 @@
 importera importtest
 
-importtest.test()
+importtest.test("hej")
