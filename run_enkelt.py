@@ -164,7 +164,7 @@ def parse(lexed, token_index):
 		is_comment = True
 	elif token_type == 'FUNCTION':
 		if token_val == 'skriv':
-			source_code.append('print(')
+			source_code.append('EnkeltModules.enkelt_print(')
 		elif token_val == 'matte':
 			is_math = True
 		elif token_val == 'in':
@@ -179,7 +179,7 @@ def parse(lexed, token_index):
 			source_code.append('str(')
 		elif token_val == 'Nummer':
 			source_code.append('int(')
-		elif token_val == 'Flyt':
+		elif token_val == 'Decimal':
 			source_code.append('float(')
 		elif token_val == 'Bool':
 			source_code.append('bool(')
@@ -604,7 +604,7 @@ def execute():
 	global is_developer_mode
 	
 	# Inserts necessary code to make importing a temporary python file work.
-	code_to_append = "def __Enkelt__():\n\tprint('')\n\n"
+	code_to_append = "import EnkeltModules\ndef __Enkelt__():\n\tprint('')\n\n"
 	final.insert(0, code_to_append)
 	
 	# Removes unnecessary tabs
@@ -784,7 +784,7 @@ functions = [
 	'in',
 	'Text',
 	'Nummer',
-	'Flyt',
+	'Decimal',
 	'Bool',
 	'området',
 	'sortera',
