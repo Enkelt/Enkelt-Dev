@@ -20,6 +20,7 @@
 import sys
 import re
 import os
+import ast
 
 
 def check_for_updates(version_nr):
@@ -90,29 +91,29 @@ class ErrorClass:
 			return error_type
 
 
-def _import(enkeltmodule):
+def _import(enkelt_module):
 	global enkelt_script_path
 
-	import_file = ''.join(enkelt_script_path.split('/')[:-1]) + '/' + enkeltmodule + '.e'
+	import_file = ''.join(enkelt_script_path.split('/')[:-1]) + '/' + enkelt_module + '.e'
 
 	if os.path.isfile(import_file):
 		get_import(import_file)
 	else:
-		import_file = "bib/" + enkeltmodule + ".e"
+		import_file = "bib/" + enkelt_module + ".e"
 		if os.path.isfile(import_file):
 			get_import(import_file)
 
 
-def get_import(enkeltmodulefile):
+def get_import(enkelt_module_file):
 	global imported_modules
 	global source_code
 	global final
 	global user_functions
 
-	with open(enkeltmodulefile, 'r') as module_file:
+	with open(enkelt_module_file, 'r') as module_file:
 		module_code = module_file.readlines()
 
-		module_name = enkeltmodulefile.split('/')[-1][:-2]
+		module_name = enkelt_module_file.split('/')[-1][:-2]
 		imported_modules.append(module_name)
 
 		while '' in module_code:
@@ -129,7 +130,6 @@ def get_import(enkeltmodulefile):
 						data[token_index][1] = module_name + '.' + data[token_index][1]
 
 						user_functions[-1] = module_name + '.' + user_functions[-1]
-
 
 				if is_developer_mode:
 					print(data)
@@ -157,9 +157,8 @@ def parse(lexed, token_index):
 	token_val = lexed[token_index][1]
 	
 	if indent_layers:
-		for indent in indent_layers:
+		for _ in indent_layers:
 			source_code.append('\t')
-	
 	if token_type == 'COMMENT':
 		source_code.append(token_val)
 		is_comment = True
@@ -400,7 +399,7 @@ def lex(line):
 	global operators
 	global imported_modules
 	
-	tmp = ''
+	tmp_data = ''
 	is_string = False
 	is_var = False
 	is_function = False
@@ -409,140 +408,140 @@ def lex(line):
 	last_action = ''
 	might_be_negative_num = False
 	data_index = -1
-	for chr_index, chr in enumerate(line):
-		if is_import and chr != ' ':
-			tmp += chr
+	for chr_index, char in enumerate(line):
+		if is_import and char != ' ':
+			tmp_data += char
 		if is_import and chr_index == len(line)-1:
-			lexed_data.append(['IMPORT', tmp])
+			lexed_data.append(['IMPORT', tmp_data])
 			is_import = False
-			tmp = ''
-		if is_function and chr not in operators and chr != '(':
-			tmp += chr
-		elif is_function and chr == '(':
-			lexed_data.append(['USER_FUNCTION', tmp])
-			user_functions.append(tmp)
-			tmp = ''
+			tmp_data = ''
+		if is_function and char not in operators and char != '(':
+			tmp_data += char
+		elif is_function and char == '(':
+			lexed_data.append(['USER_FUNCTION', tmp_data])
+			user_functions.append(tmp_data)
+			tmp_data = ''
 			is_function = False
-		elif chr == '{':
-			lexed_data.append(['START', chr])
-		elif chr == '}':
-			lexed_data.append(['END', chr])
-		elif chr == '#' and is_string is False:
+		elif char == '{':
+			lexed_data.append(['START', char])
+		elif char == '}':
+			lexed_data.append(['END', char])
+		elif char == '#' and is_string is False:
 			break
-		elif chr.isdigit() and is_string is False and is_var is False:
+		elif char.isdigit() and is_string is False and is_var is False:
 			if might_be_negative_num or last_action == 'NNUMBER':
 				if last_action == 'NNUMBER':
-					lexed_data[data_index - 1] = ['NNUMBER', lexed_data[data_index - 1][1] + chr]
+					lexed_data[data_index - 1] = ['NNUMBER', lexed_data[data_index - 1][1] + char]
 				else:
-					lexed_data.append(['NNUMBER', '-' + chr])
+					lexed_data.append(['NNUMBER', '-' + char])
 					data_index += 1
 				last_action = 'NNUMBER'
 				might_be_negative_num = False
 			else:
 				if last_action == 'PNUMBER':
-					lexed_data[-1] = ['PNUMBER', lexed_data[-1][1] + chr]
+					lexed_data[-1] = ['PNUMBER', lexed_data[-1][1] + char]
 				else:
-					lexed_data.append(['PNUMBER', chr])
+					lexed_data.append(['PNUMBER', char])
 					data_index += 1
 				
 				last_action = 'PNUMBER'
-		elif chr == '-' and is_string is False:
+		elif char == '-' and is_string is False:
 			might_be_negative_num = True
 		else:
 			last_action = ''
-			if chr == '"' and is_string is False:
+			if char == '"' and is_string is False:
 				is_string = True
-				tmp = ''
-			elif chr == '"' and is_string:
+				tmp_data = ''
+			elif char == '"' and is_string:
 				is_string = False
-				lexed_data.append(['STRING', tmp])
-				tmp = ''
+				lexed_data.append(['STRING', tmp_data])
+				tmp_data = ''
 			elif is_string:
-				tmp += chr
+				tmp_data += char
 			else:
-				if chr == '[' and is_var is False:
+				if char == '[' and is_var is False:
 					lexed_data.append(['LIST_START', '['])
-				elif chr == ']' and is_var is False:
+				elif char == ']' and is_var is False:
 					lexed_data.append(['LIST_END', ']'])
 				else:
-					if chr == '$':
+					if char == '$':
 						is_var = True
-						tmp = ''
+						tmp_data = ''
 					elif is_var:
-						if chr != ' ' and chr != '=' and chr not in operators and chr != '[' and chr != ']':
-							tmp += chr
+						if char != ' ' and char != '=' and char not in operators and char != '[' and char != ']':
+							tmp_data += char
 							if len(line) - 1 == chr_index:
 								is_var = False
-								lexed_data.append(['VAR', tmp])
-								lexed_data.append(['FUNCTION', tmp])
-								tmp = ''
-						elif chr == '=' or chr in operators:
+								lexed_data.append(['VAR', tmp_data])
+								lexed_data.append(['FUNCTION', tmp_data])
+								tmp_data = ''
+						elif char == '=' or char in operators:
 							is_var = False
-							lexed_data.append(['VAR', tmp])
-							lexed_data.append(['OPERATOR', chr])
-							tmp = ''
-						elif chr == '[':
+							lexed_data.append(['VAR', tmp_data])
+							lexed_data.append(['OPERATOR', char])
+							tmp_data = ''
+						elif char == '[':
 							is_var = False
-							lexed_data.append(['VAR', tmp])
+							lexed_data.append(['VAR', tmp_data])
 							lexed_data.append(['LIST_START', '['])
-							tmp = ''
-						elif chr == ']':
+							tmp_data = ''
+						elif char == ']':
 							is_var = False
-							lexed_data.append(['VAR', tmp])
+							lexed_data.append(['VAR', tmp_data])
 							lexed_data.append(['LIST_END', '['])
-							tmp = ''
-						elif chr == '{':
+							tmp_data = ''
+						elif char == '{':
 							is_var = False
-							lexed_data.append(['VAR', tmp])
-							lexed_data.append(['START', chr])
-							tmp = ''
-					elif chr in operators and tmp not in imported_modules:
-						lexed_data.append(['OPERATOR', chr])
-					elif chr in imported_modules and chr != '.':
-						lexed_data.append(['OPERATOR', chr])
-					elif chr in imported_modules and chr == '.':
-						tmp += chr
+							lexed_data.append(['VAR', tmp_data])
+							lexed_data.append(['START', char])
+							tmp_data = ''
+					elif char in operators and tmp_data not in imported_modules:
+						lexed_data.append(['OPERATOR', char])
+					elif char in imported_modules and char != '.':
+						lexed_data.append(['OPERATOR', char])
+					elif char in imported_modules and char == '.':
+						tmp_data += char
 					else:
-						if tmp == 'Sant' or tmp == 'Falskt':
-							lexed_data.append(['BOOL', tmp])
-							tmp = ''
+						if tmp_data == 'Sant' or tmp_data == 'Falskt':
+							lexed_data.append(['BOOL', tmp_data])
+							tmp_data = ''
 						else:
-							if chr == '(' and tmp in functions:
-								if tmp == 'matte':
-									tmp = 'Nummer'
-								lexed_data.append(['FUNCTION', tmp])
-								tmp = ''
-							elif chr == '(' and tmp not in functions and tmp not in user_functions:
-								print('ERROR! Funktionen ' + tmp + ' hittades inte!')
-								tmp = ''
-							elif chr == '(' and tmp in user_functions:
-								lexed_data.append(['USER_FUNCTION_CALL', tmp])
-								tmp = ''
+							if char == '(' and tmp_data in functions:
+								if tmp_data == 'matte':
+									tmp_data = 'Nummer'
+								lexed_data.append(['FUNCTION', tmp_data])
+								tmp_data = ''
+							elif char == '(' and tmp_data not in functions and tmp_data not in user_functions:
+								print('ERROR! Funktionen ' + tmp_data + ' hittades inte!')
+								tmp_data = ''
+							elif char == '(' and tmp_data in user_functions:
+								lexed_data.append(['USER_FUNCTION_CALL', tmp_data])
+								tmp_data = ''
 							else:
 								if is_import is False:
-									tmp += chr
-								if tmp == 'Sant' or tmp == 'Falskt':
-									lexed_data.append(['BOOL', tmp])
-									tmp = ''
+									tmp_data += char
+								if tmp_data == 'Sant' or tmp_data == 'Falskt':
+									lexed_data.append(['BOOL', tmp_data])
+									tmp_data = ''
 								else:
-									if tmp in keywords:
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ""
-									elif tmp == 'def':
+									if tmp_data in keywords:
+										lexed_data.append(['KEYWORD', tmp_data])
+										tmp_data = ""
+									elif tmp_data == 'def':
 										is_function = True
-										tmp = ''
-									elif tmp == 'var':
+										tmp_data = ''
+									elif tmp_data == 'var':
 										is_var = True
-										tmp = ''
-									elif tmp == 'importera':
+										tmp_data = ''
+									elif tmp_data == 'importera':
 										is_import = True
-										tmp = ''
-									elif tmp == 'töm' and line[-3:] == 'töm':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
-									elif tmp == 'matte_e':
-										lexed_data.append(['KEYWORD', tmp])
-										tmp = ''
+										tmp_data = ''
+									elif tmp_data == 'töm' and line[-3:] == 'töm':
+										lexed_data.append(['KEYWORD', tmp_data])
+										tmp_data = ''
+									elif tmp_data == 'matte_e':
+										lexed_data.append(['KEYWORD', tmp_data])
+										tmp_data = ''
 	
 	return lexed_data
 
@@ -875,8 +874,6 @@ if is_web_editor is False:
 				
 			with open('.enkelt_tmp_source.txt', 'w+')as f:
 				f.writelines('')
-			
-			import ast
 			
 			tmp = ast.literal_eval(tmp)
 			tmp_code_to_run = tmp[0]
