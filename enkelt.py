@@ -30,24 +30,7 @@ def run_enkelt(to_run, variables):
 		f.writelines(str([to_run, variables]))
 	
 	tmp_run_command = run_command+' '+str(path)
-	process = subprocess.Popen(tmp_run_command, stdout = subprocess.PIPE, stderr = None, shell = True).communicate()[0].decode('utf-8').split('\n')
-	
-	for index, line in enumerate(process):
-		if line == 'True':
-			process[index] = 'Sant'
-		elif line == 'False':
-			process[index] = 'Falskt'
-		elif line == '<class \'float\'>':
-			process[index] = 'flyt'
-		elif line == '<class \'str\'>':
-			process[index] = 'sträng'
-		elif line == '<class \'int\'>':
-			process[index] = 'heltal'
-		elif line == '<class \'list\'>':
-			process[index] = 'lista'
-	
-	process = '\n'.join(process)
-	print(process)
+	os.system(tmp_run_command)
 
 
 has_file = False

@@ -207,7 +207,7 @@ class TestEnkelt(unittest.TestCase):
 			'in',
 			'Text',
 			'Nummer',
-			'Flyt',
+			'Decimal',
 			'Bool',
 			'området',
 			'sortera',

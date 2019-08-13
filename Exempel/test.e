@@ -1,3 +1,10 @@
-importera importtest
-
-importtest.test("hej")
+$test = in("Namn: ")
+skriv ($test)
+skriv(Sant)
+skriv(Falskt)
+skriv(typ(""))
+skriv(typ(1))
+skriv(typ(1.2))
+skriv(typ([]))
+skriv(typ({}))
+skriv(typ(Sant))
