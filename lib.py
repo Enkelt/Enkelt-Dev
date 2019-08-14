@@ -87,7 +87,6 @@ def uninstall(enkelt_module):
 	
 	if os.path.isfile(local_path):
 		os.remove(local_path)
-		
 		if not os.path.isfile(local_path):
 			print('Modulen', enkelt_module, 'avinstallerades.')
 	else:
