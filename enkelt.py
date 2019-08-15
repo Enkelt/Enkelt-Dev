@@ -298,6 +298,14 @@ def parse(lexed, token_index):
 			source_code.append('__import__("datetime").date(')
 		elif token_val == 'veckodag':
 			source_code.append('weekday(')
+		elif token_val == 'öppna':
+			source_code.append('open(')
+		elif token_val == 'stänga':
+			source_code.append('close(')
+		elif token_val == 'läsa':
+			source_code.append('read(')
+		elif token_val == 'överför':
+			source_code.append('write(')
 		elif token_val == 'för':
 			source_code.append('for ')
 			is_for = True
@@ -863,7 +871,11 @@ functions = [
 	'veckodag',
 	'värden',
 	'element',
-	'numrera'
+	'numrera',
+	'öppna',
+	'läsa',
+	'överför',
+	'stänga'
 ]
 user_functions = []
 keywords = [
