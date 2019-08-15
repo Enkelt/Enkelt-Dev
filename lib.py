@@ -29,7 +29,6 @@ def install(enkelt_module):
 	if os.path.isfile(local_path):
 		print('Modulen ', enkelt_module, ' är redan installerad.')
 		ans = input('Vill du uppdatera den? (J/n) ')
-		
 		if ans.lower() == 'j':
 			update(enkelt_module)
 	
@@ -77,14 +76,12 @@ def update(enkelt_module):
 	else:
 		print('Ingen installerad modul vid namnet', enkelt_module, ' kunde hittas.')
 		ans = input('Vill du installera den? (J/n) ')
-		
 		if ans.lower() == 'j':
 			install(enkelt_module)
 
 
 def uninstall(enkelt_module):
 	local_path = 'bib/' + enkelt_module + '.e'
-	
 	if os.path.isfile(local_path):
 		os.remove(local_path)
 		if not os.path.isfile(local_path):
