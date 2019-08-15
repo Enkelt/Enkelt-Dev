@@ -184,6 +184,7 @@ def parse(lexed, token_index):
 	global is_for
 	global look_for_loop_ending
 	global needs_start
+	global is_file_open
 	
 	is_comment = False
 	
@@ -192,7 +193,7 @@ def parse(lexed, token_index):
 	token_type = str(lexed[token_index][0])
 	token_val = lexed[token_index][1]
 	
-	if indent_layers:
+	if indent_layers and token_index == 0:
 		for _ in indent_layers:
 			source_code.append('\t')
 	if token_type == 'COMMENT':
@@ -298,6 +299,14 @@ def parse(lexed, token_index):
 			source_code.append('__import__("datetime").date(')
 		elif token_val == 'veckodag':
 			source_code.append('weekday(')
+		elif token_val == 'öppna':
+			source_code.append('with open(')
+			needs_start = True
+			is_file_open = True
+		elif token_val == 'läs':
+			source_code.append('read(')
+		elif token_val == 'överför':
+			source_code.append('write(')
 		elif token_val == 'för':
 			source_code.append('for ')
 			is_for = True
@@ -325,6 +334,8 @@ def parse(lexed, token_index):
 		else:
 			print('Error namnet ' + token_val + " är inte tillåtet som variabelnamn!")
 	elif token_type == 'STRING':
+		if is_file_open and len(token_val) <= 2:
+			token_val = token_val.replace('l', 'r').replace('ö', 'w')
 		source_code.append('"' + token_val + '"')
 	elif token_type == 'PNUMBER' or token_type == 'NNUMBER':
 		source_code.append(token_val)
@@ -332,7 +343,6 @@ def parse(lexed, token_index):
 		_import(token_val)
 	elif token_type == 'OPERATOR':
 		if is_if and token_val == ')':
-			source_code.append('')
 			is_if = False
 			needs_start = True
 		elif is_math and token_val == ')':
@@ -417,6 +427,8 @@ def parse(lexed, token_index):
 			source_code.append(' and ')
 		elif token_val == 'eller':
 			source_code.append(' or ')
+		elif token_val == 'som':
+			source_code.append(' as ')
 	elif token_type == 'USER_FUNCTION':
 		token_val = token_val.replace('.', '_')
 		source_code.append('def ' + token_val + '(')
@@ -462,7 +474,7 @@ def lex(line):
 			user_functions.append(tmp_data)
 			tmp_data = ''
 			is_function = False
-		elif char == '{':
+		elif char == '{' and is_var is False:
 			lexed_data.append(['START', char])
 		elif char == '}':
 			lexed_data.append(['END', char])
@@ -508,7 +520,7 @@ def lex(line):
 						is_var = True
 						tmp_data = ''
 					elif is_var:
-						if char != ' ' and char != '=' and char not in operators and char != '[' and char != ']':
+						if char != ' ' and char != '=' and char not in operators and char != '[' and char != ']' and char != '{' and char != '}':
 							tmp_data += char
 							if len(line) - 1 == chr_index:
 								is_var = False
@@ -799,6 +811,7 @@ is_math = False
 is_for = False
 look_for_loop_ending = False
 needs_start = False
+is_file_open = False
 
 # --- SPECIAL --->
 is_web_editor = False
@@ -863,7 +876,10 @@ functions = [
 	'veckodag',
 	'värden',
 	'element',
-	'numrera'
+	'numrera',
+	'öppna',
+	'läs',
+	'överför',
 ]
 user_functions = []
 keywords = [
@@ -887,6 +903,7 @@ keywords = [
 	'matte_pi',
 	'och',
 	'eller',
+	'som',
 ]
 operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':', ';']
 
