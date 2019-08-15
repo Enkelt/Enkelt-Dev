@@ -20,7 +20,6 @@
 import sys
 import re
 import os
-import ast
 
 # ############## #
 # Enkelt Modules #
@@ -186,6 +185,8 @@ def parse(lexed, token_index):
 	global needs_start
 	global is_file_open
 	
+	global is_web_editor
+	
 	is_comment = False
 	
 	forbidden = ['in', 'str', 'int', 'list', 'num', 'matte_e', 'matte_pi']
@@ -201,7 +202,10 @@ def parse(lexed, token_index):
 		is_comment = True
 	elif token_type == 'FUNCTION':
 		if token_val == 'skriv':
-			source_code.append('Enkelt.enkelt_print(')
+			if is_web_editor is False:
+				source_code.append('Enkelt.enkelt_print(')
+			else:
+				source_code.append('print(')
 		elif token_val == 'matte':
 			is_math = True
 		elif token_val == 'in':
@@ -650,10 +654,12 @@ def main(statement):
 def execute():
 	global final
 	global is_developer_mode
+	global is_web_editor
 	
-	# Inserts necessary code to make importing a temporary python file work.
-	code_to_append = "import enkelt as Enkelt\ndef Enkelt__():\n\tprint('', end='')\n"
-	final.insert(0, code_to_append)
+	if is_web_editor is False:
+		# Inserts necessary code to make importing a temporary python file work.
+		code_to_append = "import enkelt as Enkelt\ndef Enkelt__():\n\tprint('', end='')\n"
+		final.insert(0, code_to_append)
 	
 	# Removes unnecessary tabs
 	for line_index, line in enumerate(final):
@@ -678,14 +684,18 @@ def execute():
 	if is_developer_mode:
 		print(code)
 	
-	# Writes the transpiled code to a file temporarily.
-	with open('final_transpiled.py', 'w+')as f:
-		f.writelines(code)
+	if is_web_editor is False:
+		# Writes the transpiled code to a file temporarily.
+		with open('final_transpiled.py', 'w+')as f:
+			f.writelines(code)
 	
 	# Executes the code transpiled to python and catches Exceptions
 	try:
-		import final_transpiled
-		final_transpiled.Enkelt__()
+		if is_web_editor is False:
+			import final_transpiled
+			final_transpiled.Enkelt__()
+		else:
+			exec(code)
 	except Exception as e:
 		if is_developer_mode:
 			print(e)
@@ -694,9 +704,10 @@ def execute():
 		error = ErrorClass(str(e).replace('(<string>, ', '('))
 		print(error.get_error_message_data() if error.get_error_message_data() != 'IGNORED' else '', end='')
 	
-	# Removes the temporary python code
-	with open('final_transpiled.py', 'w+')as f:
-		f.writelines('')
+	if is_web_editor is False:
+		# Removes the temporary python code
+		with open('final_transpiled.py', 'w+')as f:
+			f.writelines('')
 
 
 def run(line):
