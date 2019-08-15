@@ -1,6 +1,6 @@
 # coding=utf-8
 
-# Enkeltpip 1.0
+# Enkeltlib 1.1
 # Copyright 2018, 2019 Edvard Busck-Nielsen, 2019 Morgan Willliams
 # This file is part of Enkelt.
 #
@@ -22,80 +22,79 @@ import sys
 import os
 
 
+def show_help_message(sys_args):
+	if len(sys_args) > 1:
+		print('\nOgiltigt argument:', sys_args[1])
+	print('Prova hjälpkommandot:\npython3 lib.py hjälp\n')
+	
+
 def install(enkelt_module):
 	local_path = 'bib/' + enkelt_module + '.e'
 	web_path = web_import_location + enkelt_module + '.e'
-
+	
 	if os.path.isfile(local_path):
-		print('Modul', enkelt_module, 'redan installerad.')
-		ans = input('Vill du uppdatera? (J/N) ')
-
-		if ans.lower() == 'j':
+		print('Modulen ', enkelt_module, ' är redan installerad.')
+		ans = input('Vill du uppdatera den? (J/n) ')
+		if ans.lower() == 'j' or ans == '':
 			update(enkelt_module)
-
+	
 	else:
 		try:
 			response = urllib.request.urlopen(web_path)
 			module_code = response.read().decode('utf-8')
-
+			
 			with open(local_path, 'w') as f:
 				f.write(module_code)
 				f.close()
-
+			
 			if os.path.isfile(local_path):
-				print('Modulen', enkelt_module, 'installerad lyckade.')
-		except:
-			print('Modul', enkelt_module, 'hittades inte.')
+				print('Modulen ', enkelt_module, ' installerad.')
+		except Exception:
+			print('Modulen ', enkelt_module, ' kunde inte hittas.')
 
 
 def update(enkelt_module):
 	local_path = 'bib/' + enkelt_module + '.e'
 	web_path = web_import_location + enkelt_module + '.e'
-
+	
 	if os.path.isfile(local_path):
 		try:
 			response = urllib.request.urlopen(web_path)
 			web_module_code = response.read().decode('utf-8')
-
+			
 			with open(local_path, 'r') as f:
 				local_module_code = f.read()
 				f.close()
-				
+			
 			if local_module_code != web_module_code:
-
+				
 				with open(local_path, 'w') as f:
 					f.write(web_module_code)
 					f.close()
-
-					print('Modulen', enkelt_module, 'uppdaterad lyckade.')
+					
+					print('Modulen', enkelt_module, 'uppdaterades.')
 			else:
 				print('Redan uppdaterad.')
-
-		except:
-			print('Modul', enkelt_module, 'hittades inte.')
-
+		except Exception:
+			print('Modulen', enkelt_module, 'kunde inte hittas.')
 	else:
-		print('Ingen installerad modul', enkelt_module, '.')
-		ans = input('Vill du installera? (J/N) ')
-
-		if ans.lower() == 'j':
+		print('Ingen installerad modul vid namnet', enkelt_module, ' kunde hittas.')
+		ans = input('Vill du installera den? (J/n) ')
+		if ans.lower() == 'j' or ans == '':
 			install(enkelt_module)
 
 
 def uninstall(enkelt_module):
 	local_path = 'bib/' + enkelt_module + '.e'
-
 	if os.path.isfile(local_path):
 		os.remove(local_path)
-
 		if not os.path.isfile(local_path):
-			print('Modulen', enkelt_module, 'avinstallerad lyckade.')
+			print('Modulen', enkelt_module, 'avinstallerades.')
 	else:
-		print('Ingen installerad modul', enkelt_module, '.')
+		print('Ingen installerad modul vid namnet ', enkelt_module, ' kunde hittas.')
 
 
 def list_installed_modules():
-
 	for file_name in os.listdir('bib'):
 		if file_name.endswith('.e'):
 			print(file_name[:-2])
@@ -103,30 +102,35 @@ def list_installed_modules():
 
 web_import_location = 'https://raw.githubusercontent.com/Enkelt/EnkeltBibliotek/master/bib/'
 help_message = '''
-Användande:
-  python3 enkeltpip.py <kommando> [modul_namn]
+Hur man använder lib:
+	python3 lib.py <kommando> [modulnamn]
 
 Kommandon:
-  installera 				installera moduler
-  uppdatera 				uppdatera moduler
-  avinstallera 				avinstallera moduler
-  lista        				lista över installerade moduler
-  hjälp       				visa det här meddelandet
+	installera                installera modul
+	uppdatera                 uppdatera modul
+	avinstallera              avinstallera modul
+	lista                     visa alla installerade moduler
+	hjälp                     visa det här meddelandet
 
 '''
 
 args = sys.argv
 
-if args[1].lower() == 'installera':
-	install(args[2])
-elif args[1].lower() == 'uppdatera':
-	update(args[2])
-elif args[1].lower() == 'avinstallera':
-	uninstall(args[2])
-elif args[1].lower() == 'lista':
-	list_installed_modules()
-elif args[1].lower() == 'hjälp':
-	print(help_message)
+if len(args) > 2:
+	if args[1].lower() == 'installera':
+		install(args[2])
+	elif args[1].lower() == 'uppdatera':
+		update(args[2])
+	elif args[1].lower() == 'avinstallera':
+		uninstall(args[2])
+	elif args[1].lower() == 'lista':
+		list_installed_modules()
+	else:
+		show_help_message(args)
+elif len(args) > 1:
+	if args[1].lower() == 'hjälp':
+		print(help_message)
+	else:
+		show_help_message(args)
 else:
-	print('\nOgiltigt argument:', args[1])
-	print('Prova hjälpkommandot\npython3 enkeltpip.py hjälp\n')
+	show_help_message(args)
