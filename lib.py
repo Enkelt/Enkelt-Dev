@@ -22,6 +22,12 @@ import sys
 import os
 
 
+def show_help_message(sys_args):
+	if len(sys_args) > 1:
+		print('\nOgiltigt argument:', sys_args[1])
+	print('Prova hjälpkommandot:\npython3 lib.py hjälp\n')
+	
+
 def install(enkelt_module):
 	local_path = 'bib/' + enkelt_module + '.e'
 	web_path = web_import_location + enkelt_module + '.e'
@@ -29,7 +35,7 @@ def install(enkelt_module):
 	if os.path.isfile(local_path):
 		print('Modulen ', enkelt_module, ' är redan installerad.')
 		ans = input('Vill du uppdatera den? (J/n) ')
-		if ans.lower() == 'j':
+		if ans.lower() == 'j' or ans == '':
 			update(enkelt_module)
 	
 	else:
@@ -69,14 +75,12 @@ def update(enkelt_module):
 					print('Modulen', enkelt_module, 'uppdaterades.')
 			else:
 				print('Redan uppdaterad.')
-		
 		except Exception:
 			print('Modulen', enkelt_module, 'kunde inte hittas.')
-	
 	else:
 		print('Ingen installerad modul vid namnet', enkelt_module, ' kunde hittas.')
 		ans = input('Vill du installera den? (J/n) ')
-		if ans.lower() == 'j':
+		if ans.lower() == 'j' or ans == '':
 			install(enkelt_module)
 
 
@@ -112,16 +116,21 @@ Kommandon:
 
 args = sys.argv
 
-if args[1].lower() == 'installera':
-	install(args[2])
-elif args[1].lower() == 'uppdatera':
-	update(args[2])
-elif args[1].lower() == 'avinstallera':
-	uninstall(args[2])
-elif args[1].lower() == 'lista':
-	list_installed_modules()
-elif args[1].lower() == 'hjälp':
-	print(help_message)
+if len(args) > 2:
+	if args[1].lower() == 'installera':
+		install(args[2])
+	elif args[1].lower() == 'uppdatera':
+		update(args[2])
+	elif args[1].lower() == 'avinstallera':
+		uninstall(args[2])
+	elif args[1].lower() == 'lista':
+		list_installed_modules()
+	else:
+		show_help_message(args)
+elif len(args) > 1:
+	if args[1].lower() == 'hjälp':
+		print(help_message)
+	else:
+		show_help_message(args)
 else:
-	print('\nOgiltigt argument:', args[1])
-	print('Prova hjälpkommandot\npython3 lib.py hjälp\n')
+	show_help_message(args)
