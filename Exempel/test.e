@@ -1,3 +1,3 @@
-importera matematik
-
-skriv(matematik.addition(4,5))
+öppna('Exempel/abc.e', 'l+')som $fil{
+	skriv($fil.läs())
+}
