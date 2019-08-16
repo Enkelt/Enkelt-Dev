@@ -159,7 +159,7 @@ def get_import(file_or_code, is_file, module_name):
 			data = main(line)
 			data = lex(data)
 
-			for token_index in range(len(data)):
+			for token_index, _ in enumerate(data):
 				if data[token_index][0] == 'USER_FUNCTION':
 					data[token_index][1] = module_name + '.' + data[token_index][1]
 
@@ -607,7 +607,7 @@ def main(statement):
 	is_string = False
 	is_import = False
 
-	for chr_index, char in enumerate(statement):
+	for char in statement:
 		if char == ' ' and is_string:
 			current_line += char
 		elif char == ' ' and is_string is False and is_import is False:

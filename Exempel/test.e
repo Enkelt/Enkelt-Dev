@@ -1,3 +1,2 @@
-skriv("a")
-skriv("b")
-skriv("c")
+importera random
+random.awesome()
