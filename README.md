@@ -2,6 +2,8 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3804274f9a3242319d4b9d3f717d1428)](https://app.codacy.com/app/Enkelt/Enkelt-Dev?utm_source=github.com&utm_medium=referral&utm_content=Enkelt/Enkelt-Dev&utm_campaign=Badge_Grade_Dashboard)
 
+[![CircleCI](https://circleci.com/gh/Enkelt/Enkelt-Dev.svg?style=svg)](https://circleci.com/gh/Enkelt/Enkelt-Dev)
+
 Enkelt är världens första svenska programmeringsspråk
 
 ## Information om Enkelt-Dev
