@@ -1,3 +1,3 @@
-skriv("hej")
-skriv("hgg")
-skriv("lol"
+skriv("a")
+skriv("b")
+skriv("c")
