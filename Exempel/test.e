@@ -1,3 +1,3 @@
-öppna('Exempel/abc.e', 'l+')som $fil{
-	skriv($fil.läs())
-}
+skriv("hej")
+skriv("hgg")
+skriv("lol"

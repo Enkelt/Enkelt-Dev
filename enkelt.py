@@ -97,13 +97,12 @@ class ErrorClass:
 			self.set_error(self.error.replace('File "tmp.py", ', ''))
 			self.set_error(self.error.replace(", in <module>", ''))
 			return translator.translate(self.error, dest = 'sv').text.replace('linje', 'rad')
-		
-		# Get line number
-		for index, item in enumerate(self.error_list):
-			if 'line' in item and has_numbers(self.error_list[index + 1]):
-				line_index = index + 1
-				return error_type + " (rad " + str(int(self.error_list[line_index][:-1])-4) + ')'
 		else:
+			# Get line number
+			for index, item in enumerate(self.error_list):
+				if 'line' in item and has_numbers(self.error_list[index + 1]):
+					line_index = index + 1
+					return error_type + " (rad " + str(int(self.error_list[line_index][:-1]) - 3) + ')'
 			return error_type
 
 
