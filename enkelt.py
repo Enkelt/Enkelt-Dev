@@ -131,7 +131,7 @@ def _import(enkelt_module):
 				module_code = module_code.split('\n')
 
 				get_import(module_code, False, enkelt_module)
-			except:
+			except Exception:
 				print('Error kunde inte importera ' + enkelt_module)
 
 
@@ -701,7 +701,8 @@ def execute():
 		
 		# Print out error(s) if any
 		error = ErrorClass(str(e).replace('(<string>, ', '('))
-		print(error.get_error_message_data() if error.get_error_message_data() != 'IGNORED' else '', end='')
+		if error.get_error_message_data() != 'IGNORED':
+			print(error.get_error_message_data())
 	
 	if is_web_editor is False:
 		# Removes the temporary python code
