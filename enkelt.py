@@ -49,8 +49,7 @@ def check_for_updates(version_nr):
 	data_store = json.loads(response.read())
 	
 	if data_store['version'] > float(version_nr):
-		print('Uppdatering tillgänglig! Du har version ' + str(version_nr) + ' men du kan uppdatera till Enkelt version ' + str(
-			data_store['version']))
+		print('Uppdatering tillgänglig! Du har version ' + str(version_nr) + ' men du kan uppdatera till Enkelt version ' + str(data_store['version']))
 
 
 def has_numbers(input_string):
@@ -96,13 +95,13 @@ class ErrorClass:
 			self.set_error(self.error.replace("Traceback (most recent call last):", ''))
 			self.set_error(self.error.replace('File "tmp.py", ', ''))
 			self.set_error(self.error.replace(", in <module>", ''))
-			return translator.translate(self.error, dest = 'sv').text.replace('linje', 'rad')
+			return translator.translate(self.error, dest = 'sv').text.replace('linje', 'rad').replace('final_transpiled.py, ', '')
 		else:
 			# Get line number
 			for index, item in enumerate(self.error_list):
 				if 'line' in item and has_numbers(self.error_list[index + 1]):
 					line_index = index + 1
-					return error_type + " (rad " + str(int(self.error_list[line_index][:-1]) - 3) + ')'
+					return error_type + " (runt rad " + str(int(self.error_list[line_index][:-1]) - 3) + ')'
 			return error_type
 
 
@@ -181,7 +180,7 @@ def parse(lexed, token_index):
 	global is_math
 	global is_for
 	global look_for_loop_ending
-	global needs_start
+	global needs_start_statuses
 	global is_file_open
 	
 	global is_web_editor
@@ -192,6 +191,10 @@ def parse(lexed, token_index):
 	
 	token_type = str(lexed[token_index][0])
 	token_val = lexed[token_index][1]
+	
+	needs_start = False
+	
+	needs_start = needs_start_statuses[-1]
 	
 	if indent_layers and token_index == 0:
 		for _ in indent_layers:
@@ -304,7 +307,7 @@ def parse(lexed, token_index):
 			source_code.append('weekday(')
 		elif token_val == 'öppna':
 			source_code.append('with open(')
-			needs_start = True
+			needs_start_statuses.append(True)
 			is_file_open = True
 		elif token_val == 'läs':
 			source_code.append('read(')
@@ -347,14 +350,14 @@ def parse(lexed, token_index):
 	elif token_type == 'OPERATOR':
 		if is_if and token_val == ')':
 			is_if = False
-			needs_start = True
+			needs_start_statuses.append(True)
 		elif is_math and token_val == ')':
 			is_math = False
 		elif is_for and token_val == ';':
 			is_for = False
 		elif look_for_loop_ending and token_val == ')':
 			look_for_loop_ending = False
-			needs_start = True
+			needs_start_statuses.append(True)
 		else:
 			source_code.append(token_val)
 	elif token_type == 'LIST_START':
@@ -370,17 +373,17 @@ def parse(lexed, token_index):
 			source_code.append(':' + '\n')
 		
 		if needs_start:
-			indent_layers.append(True)
+			indent_layers.append("x")
 	elif token_type == 'END':
 		if needs_start is False:
 			source_code.append(token_val)
 		else:
-			needs_start = False
+			needs_start_statuses.pop(-1)
 			indent_layers.pop(-1)
-			if len(lexed) - 1 == token_index:
-				source_code.append('')
-			else:
+			if len(lexed) - 1 != token_index:
 				source_code.append('\n')
+				for _ in indent_layers:
+					source_code.append('\t')
 	elif token_type == 'BOOL':
 		if token_val == 'Sant':
 			source_code.append('True')
@@ -426,6 +429,7 @@ def parse(lexed, token_index):
 				source_code.append('os.system("clear")')
 		elif token_val == 'annars':
 			source_code.append('else')
+			needs_start_statuses.append(True)
 		elif token_val == 'och':
 			source_code.append(' and ')
 		elif token_val == 'eller':
@@ -435,7 +439,7 @@ def parse(lexed, token_index):
 	elif token_type == 'USER_FUNCTION':
 		token_val = token_val.replace('.', '_')
 		source_code.append('def ' + token_val + '(')
-		needs_start = True
+		needs_start_statuses.append(True)
 	elif token_type == 'USER_FUNCTION_CALL':
 		token_val = token_val.replace('.', '_')
 		source_code.append(token_val + '(')
@@ -566,10 +570,10 @@ def lex(line):
 									tmp_data = 'Nummer'
 								lexed_data.append(['FUNCTION', tmp_data])
 								tmp_data = ''
-							elif char == '(' and tmp_data not in functions and tmp_data not in user_functions:
-								print('ERROR! Funktionen ' + tmp_data + ' hittades inte!')
-								tmp_data = ''
 							elif char == '(' and tmp_data in user_functions:
+								lexed_data.append(['USER_FUNCTION_CALL', tmp_data])
+								tmp_data = ''
+							elif char == '(' and tmp_data not in functions:
 								lexed_data.append(['USER_FUNCTION_CALL', tmp_data])
 								tmp_data = ''
 							else:
@@ -657,7 +661,7 @@ def execute():
 	
 	if is_web_editor is False:
 		# Inserts necessary code to make importing a temporary python file work.
-		code_to_append = "import enkelt as Enkelt\ndef Enkelt__():\n\tprint('', end='')\n"
+		code_to_append = "import enkelt as Enkelt\ndef __Enkelt__():\n\tprint('', end='')\n"
 		final.insert(0, code_to_append)
 	
 	# Removes unnecessary tabs
@@ -669,7 +673,7 @@ def execute():
 				chars_started = True
 			elif chars_started and char == '\t' and char_index > 0:
 				tmp_line[char_index] = ' '
-				
+			
 		final[line_index] = ''.join(tmp_line)
 	
 	# Turn = = into == and ! = into != and + = into +=
@@ -685,14 +689,14 @@ def execute():
 	
 	if is_web_editor is False:
 		# Writes the transpiled code to a file temporarily.
-		with open('final_transpiled.py', 'w+')as f:
-			f.writelines(code)
+		with open('final_transpiled.py', 'w+')as transpiled_f:
+			transpiled_f.writelines(code)
 	
 	# Executes the code transpiled to python and catches Exceptions
 	try:
 		if is_web_editor is False:
 			import final_transpiled
-			final_transpiled.Enkelt__()
+			final_transpiled.__Enkelt__()
 		else:
 			exec(code)
 	except Exception as e:
@@ -706,8 +710,8 @@ def execute():
 	
 	if is_web_editor is False:
 		# Removes the temporary python code
-		with open('final_transpiled.py', 'w+')as f:
-			f.writelines('')
+		with open('final_transpiled.py', 'w+')as transpiled_f:
+			transpiled_f.writelines('')
 
 
 def run(line):
@@ -821,7 +825,7 @@ is_if = False
 is_math = False
 is_for = False
 look_for_loop_ending = False
-needs_start = False
+needs_start_statuses = [False]
 is_file_open = False
 
 # --- SPECIAL --->
@@ -920,7 +924,7 @@ operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':', ';
 
 is_developer_mode = False
 version = 3.0
-repo_location = 'https://raw.githubusercontent.com/Buscedv/Enkelt/'
+repo_location = 'https://raw.githubusercontent.com/Enkelt/Enkelt/'
 web_import_location = 'https://raw.githubusercontent.com/Enkelt/EnkeltBibliotek/master/bib/'
 
 final = []
@@ -938,7 +942,7 @@ if is_web_editor is False:
 	if not is_dev:
 		try:
 			if sys.version_info[0] < 3:
-				raise Exception("Du måste använda python version 3 eller högre")
+				raise Exception("Du måste använda Python version 3 eller högre")
 			else:
 				if len(sys.argv) >= 2:
 					if '.e' in sys.argv[1]:
