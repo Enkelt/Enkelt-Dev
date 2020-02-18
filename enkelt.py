@@ -82,7 +82,7 @@ class ErrorClass:
 	
 	def get_error_message_data(self):
 		
-		if self.error == "module 'final_transpiled' has no attribute 'Enkelt__'":
+		if self.error == "module 'final_transpiled' has no attribute '__Enkelt__'":
 			return 'IGNORED'
 		
 		from googletrans import Translator
