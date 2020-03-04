@@ -764,10 +764,12 @@ def console_line_runner(code):
 	global variables
 	global is_developer_mode
 	global tmp_variables
+	global is_web_editor
 	
 	tmp_variables = variables
 	
 	is_developer_mode = False
+	is_web_editor = True
 	
 	run_with_code([code])
 	
@@ -777,12 +779,13 @@ def start_console(first):
 	global is_developer_mode
 	global variables
 	global source_code
+	global final
 	
 	if first:  # is first console run
 		# Checks for updates:
 		check_for_updates(version)
 		# Print info
-		print('Enkelt ' + str(version) + ' © 2018-2019 Edvard Busck-Nielsen' + ". GNU GPL v.3")
+		print('Enkelt ' + str(version) + ' © 2018-2019-2020 Edvard Busck-Nielsen' + ". GNU GPL v.3")
 		print('Tryck Ctrl+C för att avsluta')
 	
 	code_line = input('Enkelt >> ')
@@ -803,6 +806,7 @@ def start_console(first):
 			variables.append(''.join(source_code))
 			
 	source_code = []
+	final = []
 	start_console(False)
 
 
