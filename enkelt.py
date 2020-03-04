@@ -709,9 +709,10 @@ def execute():
 			print(error.get_error_message_data())
 	
 	if is_web_editor is False:
-		# Removes the temporary python code
+		# Removes the temporary python file.
 		with open('final_transpiled.py', 'w+')as transpiled_f:
 			transpiled_f.writelines('')
+		os.remove(os.getcwd() + '/final_transpiled.py')
 
 
 def run(line):
