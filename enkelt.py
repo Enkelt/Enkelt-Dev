@@ -187,7 +187,7 @@ def parse(lexed, token_index):
 	
 	is_comment = False
 	
-	forbidden = ['in', 'str', 'int', 'list', 'num', 'matte_e', 'matte_pi']
+	forbidden = ['in', 'str', 'int', 'list', 'num', 'matte_e', 'matte_pi', 'själv']
 	
 	token_type = str(lexed[token_index][0])
 	token_val = lexed[token_index][1]
@@ -337,6 +337,8 @@ def parse(lexed, token_index):
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
+		elif token_val == 'själv':
+			source_code.append('self')
 		else:
 			print('Error namnet ' + token_val + " är inte tillåtet som variabelnamn!")
 	elif token_type == 'STRING':
@@ -397,7 +399,7 @@ def parse(lexed, token_index):
 		elif token_val == 'fortsätt':
 			source_code.append('continue')
 		elif token_val == 'returnera':
-			source_code.append('return')
+			source_code.append('return ')
 		elif token_val == 'inte':
 			source_code.append('not ')
 		elif token_val == 'passera':
@@ -436,6 +438,8 @@ def parse(lexed, token_index):
 			source_code.append(' or ')
 		elif token_val == 'som':
 			source_code.append(' as ')
+		elif token_val == 'klass':
+			source_code.append('class ')
 	elif token_type == 'USER_FUNCTION':
 		token_val = token_val.replace('.', '_')
 		source_code.append('def ' + token_val + '(')
@@ -443,6 +447,9 @@ def parse(lexed, token_index):
 	elif token_type == 'USER_FUNCTION_CALL':
 		token_val = token_val.replace('.', '_')
 		source_code.append(token_val + '(')
+	elif token_type == 'CLASS':
+		source_code.append(' ' + token_val)
+		needs_start_statuses.append(True)
 	
 	if len(lexed) - 1 >= token_index + 1 and is_comment is False:
 		parse(lexed, token_index + 1)
@@ -462,6 +469,7 @@ def lex(line):
 	is_string = False
 	is_var = False
 	is_function = False
+	is_class = False
 	is_import = False
 	lexed_data = []
 	last_action = ''
@@ -482,6 +490,10 @@ def lex(line):
 			tmp_data = ''
 			is_function = False
 		elif char == '{' and is_var is False:
+			if is_class:
+				lexed_data.append(['CLASS', tmp_data])
+				tmp_data = ''
+				is_class = False
 			lexed_data.append(['START', char])
 		elif char == '}':
 			lexed_data.append(['END', char])
@@ -601,7 +613,11 @@ def lex(line):
 									elif tmp_data == 'matte_e':
 										lexed_data.append(['KEYWORD', tmp_data])
 										tmp_data = ''
-	
+									elif tmp_data == 'klass':
+										lexed_data.append(['KEYWORD', tmp_data])
+										tmp_data = ''
+										is_class = True
+
 	return lexed_data
 
 
