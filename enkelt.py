@@ -745,7 +745,6 @@ def start_console(first):
 	global final
 	
 	if first:  # is first console run -> shows copyright & license info.
-		# Checks for updates:
 		check_for_updates(version)
 		print('Enkelt ' + str(version) + ' © 2018-2019-2020 Edvard Busck-Nielsen' + ". GNU GPL v.3")
 		print('Tryck Ctrl+C för att avsluta')
@@ -941,7 +940,6 @@ if is_web_editor is False:
 					
 					run_with_code(tmp_code_to_run)
 
-					# Checks for updates:
 					check_for_updates(version)
 				else:
 					# Starts console/repl mode
