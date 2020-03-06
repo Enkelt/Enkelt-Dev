@@ -172,70 +172,108 @@ def has_numbers(input_string):
 	return any(char.isdigit() for char in input_string)
 
 
-def translate_function(func):
-	function_translations = {
-		# Functions with no statuses in parse()
-		'skriv': 'print',
-		'in': 'input',
-		'Text': 'str',
-		'Nummer': 'int',
-		'Decimal': 'float',
-		'Bool': 'bool',
-		'längd': 'len',
-		'till': 'append',
-		'bort': 'pop',
-		'sortera': 'sorted',
-		'slump': '__import__("random").randint',
-		'slumpval': '__import__("random").choice',
-		'blanda': '__import__("random").shuffle',
-		'området': 'range',
-		'abs': 'abs',
-		'lista': 'list',
-		'ärnum': 'isdigit',
-		'runda': 'round',
-		'versal': 'upper',
-		'gemen': 'lower',
-		'ersätt': 'replace',
-		'infoga': 'insert',
-		'index': 'index',
-		'dela': 'split',
-		'foga': 'join',
-		'typ': 'type',
-		'sin': '__import__("math").sin',
-		'cos': '__import__("math").cos',
-		'tan': '__import__("math").tan',
-		'potens': '__import__("math").pow',
-		'asin': '__import__("math").asin',
-		'atan': '__import__("math").atan',
-		'acos': '__import__("math").acos',
-		'tak': '__import__("math").ceil',
-		'golv': '__import__("math").floor',
-		'log': '__import__("math").log',
-		'kvadratrot': '__import__("math").sqrt',
-		'grader': '__import__("math").degrees',
-		'radianer': '__import__("math").radians',
-		'fakultet': '__import__("math").factorial',
-		'datum': '__import__("datetime").date',
-		'veckodag': 'weekday',
-		'läs': 'read',
-		'överför': 'write',
-		'epok': '__import__("time").time',
-		'tid': '__import__("time").ctime',
-		'nu': '__import__("datetime").datetime.now',
-		'idag': '__import__("datetime").date.today',
-		'värden': 'values',
-		'element': 'elements',
-		'numrera': 'enumerate',
-		'töm': 'os.system("clear"',
-		# Functions with statuses in parse()
-		'om': 'if',
-		'anom': 'elif',
-		'öppna': 'with open',
-		'för': 'for',
-		'medan': 'while'
+def functions_and_keywords():
+	return {
+		'functions': {
+			# Functions with no statuses in parse()
+			'skriv': 'print',
+			'in': 'input',
+			'Text': 'str',
+			'Nummer': 'int',
+			'Decimal': 'float',
+			'Bool': 'bool',
+			'längd': 'len',
+			'till': 'append',
+			'bort': 'pop',
+			'sortera': 'sorted',
+			'slump': '__import__("random").randint',
+			'slumpval': '__import__("random").choice',
+			'blanda': '__import__("random").shuffle',
+			'området': 'range',
+			'abs': 'abs',
+			'lista': 'list',
+			'ärnum': 'isdigit',
+			'runda': 'round',
+			'versal': 'upper',
+			'gemen': 'lower',
+			'ersätt': 'replace',
+			'infoga': 'insert',
+			'index': 'index',
+			'dela': 'split',
+			'foga': 'join',
+			'typ': 'type',
+			'sin': '__import__("math").sin',
+			'cos': '__import__("math").cos',
+			'tan': '__import__("math").tan',
+			'potens': '__import__("math").pow',
+			'asin': '__import__("math").asin',
+			'atan': '__import__("math").atan',
+			'acos': '__import__("math").acos',
+			'tak': '__import__("math").ceil',
+			'golv': '__import__("math").floor',
+			'log': '__import__("math").log',
+			'kvadratrot': '__import__("math").sqrt',
+			'grader': '__import__("math").degrees',
+			'radianer': '__import__("math").radians',
+			'fakultet': '__import__("math").factorial',
+			'datum': '__import__("datetime").date',
+			'veckodag': 'weekday',
+			'läs': 'read',
+			'överför': 'write',
+			'epok': '__import__("time").time',
+			'tid': '__import__("time").ctime',
+			'nu': '__import__("datetime").datetime.now',
+			'idag': '__import__("datetime").date.today',
+			'värden': 'values',
+			'element': 'elements',
+			'numrera': 'enumerate',
+			'töm': 'os.system("clear"',
+			# Functions with statuses in parse()
+			'om': 'if',
+			'anom': 'elif',
+			'öppna': 'with open',
+			'för': 'for',
+			'medan': 'while'
+		},
+		'keywords': {
+			'Sant': 'True',
+			'Falskt': 'False',
+			'inom': ' in ',
+			'bryt': 'break',
+			'fortsätt': 'continue',
+			'returnera': 'return ',
+			'inte': 'not',
+			'passera': 'pass',
+			'matte_e': '__import__("math").e',
+			'matte_pi': '__import__("math").pi',
+			'år': 'year',
+			'månad': 'month',
+			'dag': 'day',
+			'timme': 'hour',
+			'minut': 'minute',
+			'sekund': 'second',
+			'mikrosekund': 'microsecond',
+			'annars': 'else',
+			'och': ' and ',
+			'eller': ' or ',
+			'som': ' as ',
+			'klass': 'class ',
+		},
 	}
 
-	return function_translations[func]
+
+def operator_symbols():
+	return ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':', ';']
+
+
+def forbidden_variable_names():
+	return ['in', 'str', 'int', 'list', 'num', 'matte_e', 'matte_pi', 'själv']
+
+
+def translate_function(func):
+	function_translations = functions_and_keywords()['functions']
+
+	return function_translations[func] if func in function_translations.keys() else 'error'
 
 
 def transpile_function(func):
@@ -245,32 +283,9 @@ def transpile_function(func):
 
 
 def translate_keyword(keyword):
-	keyword_translations = {
-		'Sant': 'True',
-		'Falskt': 'False',
-		'inom': ' in ',
-		'bryt': 'break',
-		'fortsätt': 'continue',
-		'returnera': 'return ',
-		'inte': 'not',
-		'passera': 'pass',
-		'matte_e': '__import__("math").e',
-		'matte_pi': '__import__("math").pi',
-		'år': 'year',
-		'månad': 'month',
-		'dag': 'day',
-		'timme': 'hour',
-		'minut': 'minute',
-		'sekund': 'second',
-		'mikrosekund': 'microsecond',
-		'annars': 'else',
-		'och': ' and ',
-		'eller': ' or ',
-		'som': ' as ',
-		'klass': 'class ',
-	}
+	keyword_translations = functions_and_keywords()['keywords']
 
-	return keyword_translations[keyword]
+	return keyword_translations[keyword] if keyword in keyword_translations.keys() else 'error'
 
 
 def transpile_keyword(keyword):
@@ -289,7 +304,7 @@ def parse(lexed, token_index):
 	global look_for_loop_ending
 	global needs_start_statuses
 	global is_file_open
-	global forbidden
+	forbidden = forbidden_variable_names()
 	
 	global is_web_editor
 	
@@ -417,10 +432,8 @@ def lex(line):
 	if line[0] == '#':
 		return ['COMMENT', line]
 
-	global functions
 	global user_functions
-	global keywords
-	global operators
+	operators = operator_symbols()
 	global imported_modules
 	
 	tmp_data = ''
@@ -535,7 +548,7 @@ def lex(line):
 							lexed_data.append(['BOOL', tmp_data])
 							tmp_data = ''
 						else:
-							if char == '(' and tmp_data in functions:
+							if char == '(' and translate_function(tmp_data) != 'error':
 								if tmp_data == 'matte':
 									tmp_data = 'Nummer'
 								lexed_data.append(['FUNCTION', tmp_data])
@@ -543,7 +556,7 @@ def lex(line):
 							elif char == '(' and tmp_data in user_functions:
 								lexed_data.append(['USER_FUNCTION_CALL', tmp_data])
 								tmp_data = ''
-							elif char == '(' and tmp_data not in functions:
+							elif char == '(' and translate_function(tmp_data) == 'error':
 								lexed_data.append(['USER_FUNCTION_CALL', tmp_data])
 								tmp_data = ''
 							else:
@@ -553,7 +566,7 @@ def lex(line):
 									lexed_data.append(['BOOL', tmp_data])
 									tmp_data = ''
 								else:
-									if tmp_data in keywords:
+									if translate_keyword(tmp_data) != 'error':
 										lexed_data.append(['KEYWORD', tmp_data])
 										tmp_data = ""
 									elif tmp_data == 'def':
@@ -810,94 +823,7 @@ is_web_editor = False
 source_code = []
 indent_layers = []
 imported_modules = []
-
-functions = [
-	'skriv',
-	'matte',
-	'till',
-	'bort',
-	'töm',
-	'om',
-	'anom',
-	'längd',
-	'in',
-	'Text',
-	'Nummer',
-	'Decimal',
-	'Bool',
-	'området',
-	'sortera',
-	'slumpval',
-	'slump',
-	'abs',
-	'lista',
-	'blanda',
-	'runda',
-	'versal',
-	'gemen',
-	'ärnum',
-	'ersätt',
-	'infoga',
-	'index',
-	'dela',
-	'foga',
-	'typ',
-	'för',
-	'medan',
-	'epok',
-	'tid',
-	'nu',
-	'sin',
-	'cos',
-	'tan',
-	'asin',
-	'acos',
-	'atan',
-	'potens',
-	'tak',
-	'golv',
-	'fakultet',
-	'kvadratrot',
-	'log',
-	'grader',
-	'radianer',
-	'datum',
-	'idag',
-	'veckodag',
-	'värden',
-	'element',
-	'numrera',
-	'öppna',
-	'läs',
-	'överför',
-]
 user_functions = []
-keywords = [
-	'annars',
-	'inom',
-	'bryt',
-	'fortsätt',
-	'returnera',
-	'annars',
-	'inte',
-	'passera',
-	'år',
-	'månad',
-	'dag',
-	'timme',
-	'minut',
-	'sekund',
-	'mikrosekund',
-	'annars',
-	'matte_e',
-	'matte_pi',
-	'och',
-	'eller',
-	'som',
-]
-operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':', ';']
-# Forbidden variable names
-forbidden = ['in', 'str', 'int', 'list', 'num', 'matte_e', 'matte_pi', 'själv']
 
 # When user/dev tests
 is_developer_mode = False
