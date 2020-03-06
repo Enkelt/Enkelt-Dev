@@ -1,7 +1,6 @@
 import unittest
 
-from enkelt import lex
-from enkelt import main
+from enkelt import lex, main, parse
 
 
 class TestEnkelt(unittest.TestCase):
@@ -14,99 +13,99 @@ class TestEnkelt(unittest.TestCase):
 		self.assertEqual(main("skriv   ('hej')"), 'skriv("hej")')
 		self.assertEqual(main("skriv    ('hej')\n"), 'skriv("hej")')
 		self.assertEqual(main("skriv\t('hej')"), 'skriv("hej")')
-		self.assertEqual(main(".bort[123]"), '.bort(123)')
+		self.assertEqual(main('importera test'), 'importera test')
 
 	def test_lex(self):
 		# Tests functions, data-types, vars, bools, operators and others tokenized output.
-		self.assertEqual(lex('skriv("Hej")'), [
+		self.assertEqual(lex(main('skriv("Hej")')), [
 			['FUNCTION', 'skriv'],
 			['STRING', 'Hej'],
 			['OPERATOR', ')'],
 		])
-		self.assertEqual(lex('skriv(1)'), [
+		self.assertEqual(lex(main('skriv(1)')), [
 			['FUNCTION', 'skriv'],
 			['PNUMBER', '1'],
 			['OPERATOR', ')'],
 		])
-		self.assertEqual(lex('skriv(-1)'), [
+		self.assertEqual(lex(main('skriv(-1)')), [
 			['FUNCTION', 'skriv'],
 			['NNUMBER', '-1'],
 			['OPERATOR', ')'],
 		])
-		self.assertEqual(lex('skriv(1+1)'), [
+		self.assertEqual(lex(main('skriv(1+1)')), [
 			['FUNCTION', 'skriv'],
 			['PNUMBER', '1'],
 			['OPERATOR', '+'],
 			['PNUMBER', '1'],
 			['OPERATOR', ')'],
 		])
-		self.assertEqual(lex('skriv(1-1)'), [
+		self.assertEqual(lex(main('skriv(1-1)')), [
 			['FUNCTION', 'skriv'],
 			['PNUMBER', '1'],
 			['NNUMBER', '-1'],
 			['OPERATOR', ')'],
 		])
-		self.assertEqual(lex('skriv(1*1)'), [
+		self.assertEqual(lex(main('skriv(1*1)')), [
 			['FUNCTION', 'skriv'],
 			['PNUMBER', '1'],
 			['OPERATOR', '*'],
 			['PNUMBER', '1'],
 			['OPERATOR', ')'],
 		])
-		self.assertEqual(lex('skriv(1/1)'), [
+		self.assertEqual(lex(main('skriv(1/1)')), [
 			['FUNCTION', 'skriv'],
 			['PNUMBER', '1'],
 			['OPERATOR', '/'],
 			['PNUMBER', '1'],
 			['OPERATOR', ')'],
 		])
-		self.assertEqual(lex('skriv(1%1)'), [
+		self.assertEqual(lex(main('skriv(1%1)')), [
 			['FUNCTION', 'skriv'],
 			['PNUMBER', '1'],
 			['OPERATOR', '%'],
 			['PNUMBER', '1'],
 			['OPERATOR', ')'],
 		])
-		self.assertEqual(lex('skriv("Hej")#Test'), [
+		self.assertEqual(lex(main('skriv("Hej")#Test')), [
 			['FUNCTION', 'skriv'],
 			['STRING', 'Hej'],
 			['OPERATOR', ')'],
 		])
-		self.assertEqual(lex('$var="a"'), [
+		self.assertEqual(lex(main('$var="a"')), [
 			['VAR', 'var'],
 			['OPERATOR', '='],
 			['STRING', 'a'],
 		])
-		self.assertEqual(lex('$var=1'), [
+		self.assertEqual(lex(main('$var=1')), [
 			['VAR', 'var'],
 			['OPERATOR', '='],
 			['PNUMBER', '1'],
 		])
-		self.assertEqual(lex('$var=-1'), [
+		self.assertEqual(lex(main('$var=-1')), [
 			['VAR', 'var'],
 			['OPERATOR', '='],
 			['NNUMBER', '-1'],
 		])
-		self.assertEqual(lex('$var=Sant'), [
+		self.assertEqual(lex(main('$var=Sant')), [
 			['VAR', 'var'],
 			['OPERATOR', '='],
 			['BOOL', 'Sant'],
 
 		])
-		self.assertEqual(lex('$var=Falskt'), [
+		self.assertEqual(lex(main('$var=Falskt')), [
 			['VAR', 'var'],
 			['OPERATOR', '='],
 			['BOOL', 'Falskt'],
 
 		])
-		self.assertEqual(lex('$var="a"+"b"'), [
+		self.assertEqual(lex(main('$var="a"+"b"')), [
 			['VAR', 'var'],
 			['OPERATOR', '='],
 			['STRING', 'a'],
 			['OPERATOR', '+'],
 			['STRING', 'b'],
 		])
-		self.assertEqual(lex('$var="a"+Text(Nummer(1+2))'), [
+		self.assertEqual(lex(main('$var="a"+Text(Nummer(1+2))')), [
 			['VAR', 'var'],
 			['OPERATOR', '='],
 			['STRING', 'a'],
@@ -119,18 +118,18 @@ class TestEnkelt(unittest.TestCase):
 			['OPERATOR', ')'],
 			['OPERATOR', ')'],
 		])
-		self.assertEqual(lex('töm()'), [
+		self.assertEqual(lex(main('töm()')), [
 			['FUNCTION', 'töm'],
 			['OPERATOR', ')'],
 		])
-		self.assertEqual(lex('['), [
+		self.assertEqual(lex(main('[')), [
 			['LIST_START', '['],
 		])
-		self.assertEqual(lex('[]'), [
+		self.assertEqual(lex(main('[]')), [
 			['LIST_START', '['],
 			['LIST_END', ']'],
 		])
-		self.assertEqual(lex('$var=["a",1]'), [
+		self.assertEqual(lex(main('$var=["a",1]')), [
 			['VAR', 'var'],
 			['OPERATOR', '='],
 			['LIST_START', '['],
@@ -139,7 +138,7 @@ class TestEnkelt(unittest.TestCase):
 			['PNUMBER', '1'],
 			['LIST_END', ']'],
 		])
-		self.assertEqual(lex('$var=["a",["b"], 1]'), [
+		self.assertEqual(lex(main('$var=["a",["b"], 1]')), [
 			['VAR', 'var'],
 			['OPERATOR', '='],
 			['LIST_START', '['],
@@ -152,7 +151,7 @@ class TestEnkelt(unittest.TestCase):
 			['PNUMBER', '1'],
 			['LIST_END', ']'],
 		])
-		self.assertEqual(lex('om($var="a"){'), [
+		self.assertEqual(lex(main('om($var="a"){')), [
 			['FUNCTION', 'om'],
 			['VAR', 'var'],
 			['OPERATOR', '='],
@@ -160,7 +159,7 @@ class TestEnkelt(unittest.TestCase):
 			['OPERATOR', ')'],
 			['START', '{'],
 		])
-		self.assertEqual(lex('om($var=="a"){'), [
+		self.assertEqual(lex(main('om($var=="a"){')), [
 			['FUNCTION', 'om'],
 			['VAR', 'var'],
 			['OPERATOR', '='],
@@ -169,28 +168,28 @@ class TestEnkelt(unittest.TestCase):
 			['OPERATOR', ')'],
 			['START', '{'],
 		])
-		self.assertEqual(lex('}annars{'), [
+		self.assertEqual(lex(main('}annars{')), [
 			['END', '}'],
 			['KEYWORD', 'annars'],
 			['START', '{'],
 		])
 		for operator in ['+', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':', ';']:
-			self.assertEqual(lex(operator), [
+			self.assertEqual(lex(main(operator)), [
 				['OPERATOR', operator]
 			])
-		self.assertEqual(lex('längd("hej")'), [
+		self.assertEqual(lex(main('längd("hej")')), [
 			['FUNCTION', 'längd'],
 			['STRING', 'hej'],
 			['OPERATOR', ')'],
 		])
-		self.assertEqual(lex('skriv(längd("x"))'), [
+		self.assertEqual(lex(main('skriv(längd("x"))')), [
 			['FUNCTION', 'skriv'],
 			['FUNCTION', 'längd'],
 			['STRING', 'x'],
 			['OPERATOR', ')'],
 			['OPERATOR', ')'],
 		])
-		self.assertEqual(lex('längd("hej")'), [
+		self.assertEqual(lex(main('längd("hej")')), [
 			['FUNCTION', 'längd'],
 			['STRING', 'hej'],
 			['OPERATOR', ')'],
@@ -252,7 +251,7 @@ class TestEnkelt(unittest.TestCase):
 			'numrera'
 		]
 		for function in functions:
-			self.assertEqual(lex(function+'("x")'), [
+			self.assertEqual(lex(main(function+'("x")')), [
 				['FUNCTION', function],
 				['STRING', 'x'],
 				['OPERATOR', ')'],
@@ -278,13 +277,13 @@ class TestEnkelt(unittest.TestCase):
 			'matte_pi',
 		]
 		for keyword in keywords:
-			self.assertEqual(lex('skriv('+keyword+')'), [
+			self.assertEqual(lex(main('skriv('+keyword+')')), [
 				['FUNCTION', 'skriv'],
 				['KEYWORD', keyword],
 				['OPERATOR', ')'],
 			])
-		self.assertEqual(lex('def test($param, $param_b) {'), [
-			['USER_FUNCTION', ' test'],
+		self.assertEqual(lex(main('def test($param, $param_b) {')), [
+			['USER_FUNCTION', 'test'],
 			['VAR', 'param'],
 			['OPERATOR', ','],
 			['VAR', 'param_b'],
@@ -292,7 +291,7 @@ class TestEnkelt(unittest.TestCase):
 			['START', '{'],
 			
 		])
-		self.assertEqual(lex('$lex =  {"a": "alpha", "b": "beta"}'), [
+		self.assertEqual(lex(main('$lex =  {"a": "alpha", "b": "beta"}')), [
 			['VAR', 'lex'],
 			['OPERATOR', '='],
 			['START', '{'],
@@ -305,3 +304,11 @@ class TestEnkelt(unittest.TestCase):
 			['STRING', 'beta'],
 			['END', '}'],
 		])
+		self.assertEqual(lex(main('klass minKlass {')), [
+			['KEYWORD', 'klass'],
+			['CLASS', 'minKlass'],
+			['START', '{']
+		])
+
+	def test_parse(self):
+		self.assertEqual(''.join(parse(lex(main('skriv("text")')), 0)), 'Enkelt.enkelt_print("text")')
