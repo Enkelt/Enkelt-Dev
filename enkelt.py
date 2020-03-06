@@ -52,10 +52,6 @@ def check_for_updates(version_nr):
 		print('Uppdatering tillgänglig! Du har version ' + str(version_nr) + ' men du kan uppdatera till Enkelt version ' + str(data_store['version']))
 
 
-def has_numbers(input_string):
-	return any(char.isdigit() for char in input_string)
-
-
 class ErrorClass:
 	
 	def __init__(self, error_msg):
@@ -153,7 +149,6 @@ def get_import(file_or_code, is_file, module_name):
 		module_code.pop(module_code.index(''))
 
 	for line in module_code:
-		
 		if line != '\n':
 			data = main(line)
 			data = lex(data)
@@ -173,6 +168,118 @@ def get_import(file_or_code, is_file, module_name):
 			source_code = []
 
 
+def has_numbers(input_string):
+	return any(char.isdigit() for char in input_string)
+
+
+def translate_function(func):
+	function_translations = {
+		# Functions with no statuses in parse()
+		'skriv': 'print',
+		'in': 'input',
+		'Text': 'str',
+		'Nummer': 'int',
+		'Decimal': 'float',
+		'Bool': 'bool',
+		'längd': 'len',
+		'till': 'append',
+		'bort': 'pop',
+		'sortera': 'sorted',
+		'slump': '__import__("random").randint',
+		'slumpval': '__import__("random").choice',
+		'blanda': '__import__("random").shuffle',
+		'området': 'range',
+		'abs': 'abs',
+		'lista': 'list',
+		'ärnum': 'isdigit',
+		'runda': 'round',
+		'versal': 'upper',
+		'gemen': 'lower',
+		'ersätt': 'replace',
+		'infoga': 'insert',
+		'index': 'index',
+		'dela': 'split',
+		'foga': 'join',
+		'typ': 'type',
+		'sin': '__import__("math").sin',
+		'cos': '__import__("math").cos',
+		'tan': '__import__("math").tan',
+		'potens': '__import__("math").pow',
+		'asin': '__import__("math").asin',
+		'atan': '__import__("math").atan',
+		'acos': '__import__("math").acos',
+		'tak': '__import__("math").ceil',
+		'golv': '__import__("math").floor',
+		'log': '__import__("math").log',
+		'kvadratrot': '__import__("math").sqrt',
+		'grader': '__import__("math").degrees',
+		'radianer': '__import__("math").radians',
+		'fakultet': '__import__("math").factorial',
+		'datum': '__import__("datetime").date',
+		'veckodag': 'weekday',
+		'läs': 'read',
+		'överför': 'write',
+		'epok': '__import__("time").time',
+		'tid': '__import__("time").ctime',
+		'nu': '__import__("datetime").datetime.now',
+		'idag': '__import__("datetime").date.today',
+		'värden': 'values',
+		'element': 'elements',
+		'numrera': 'enumerate',
+		'töm': 'os.system("clear"',
+		# Functions with statuses in parse()
+		'om': 'if',
+		'anom': 'elif',
+		'öppna': 'with open',
+		'för': 'for',
+		'medan': 'while'
+	}
+
+	return function_translations[func]
+
+
+def transpile_function(func):
+	global source_code
+
+	source_code.append(translate_function(func) + '(')
+
+
+def translate_keyword(keyword):
+	keyword_translations = {
+		'Sant': 'True',
+		'Falskt': 'False',
+		'inom': ' in ',
+		'bryt': 'break',
+		'fortsätt': 'continue',
+		'returnera': 'return ',
+		'inte': 'not',
+		'passera': 'pass',
+		'matte_e': '__import__("math").e',
+		'matte_pi': '__import__("math").pi',
+		'år': 'year',
+		'månad': 'month',
+		'dag': 'day',
+		'timme': 'hour',
+		'minut': 'minute',
+		'sekund': 'second',
+		'mikrosekund': 'microsecond',
+		'annars': 'else',
+		'och': ' and ',
+		'eller': ' or ',
+		'som': ' as ',
+		'klass': 'class ',
+	}
+
+	return keyword_translations[keyword]
+
+
+def transpile_keyword(keyword):
+	global source_code
+
+	source_code.append(translate_keyword(keyword))
+
+
+# Parses the code tree and transpiles to python.
 def parse(lexed, token_index):
 	global source_code
 	global indent_layers
@@ -182,12 +289,11 @@ def parse(lexed, token_index):
 	global look_for_loop_ending
 	global needs_start_statuses
 	global is_file_open
+	global forbidden
 	
 	global is_web_editor
 	
 	is_comment = False
-	
-	forbidden = ['in', 'str', 'int', 'list', 'num', 'matte_e', 'matte_pi', 'själv']
 	
 	token_type = str(lexed[token_index][0])
 	token_val = lexed[token_index][1]
@@ -203,137 +309,31 @@ def parse(lexed, token_index):
 		source_code.append(token_val)
 		is_comment = True
 	elif token_type == 'FUNCTION':
-		if token_val == 'skriv':
-			if is_web_editor is False:
-				source_code.append('Enkelt.enkelt_print(')
-			else:
-				source_code.append('print(')
+		# Specific functions & function cases that ex. required updating of statuses.
+		if token_val == 'skriv' and is_web_editor is False:
+			source_code.append('Enkelt.enkelt_print(')
 		elif token_val == 'matte':
 			is_math = True
-		elif token_val == 'in':
-			source_code.append('input(')
-		elif token_val == 'om':
-			source_code.append('if ')
+		elif token_val == 'om' or token_val == 'anom':
+			source_code.append(translate_function(token_val) + ' ')
 			is_if = True
-		elif token_val == 'anom':
-			source_code.append('elif ')
-			is_if = True
-		elif token_val == 'Text':
-			source_code.append('str(')
-		elif token_val == 'Nummer':
-			source_code.append('int(')
-		elif token_val == 'Decimal':
-			source_code.append('float(')
-		elif token_val == 'Bool':
-			source_code.append('bool(')
-		elif token_val == 'längd':
-			source_code.append('len(')
-		elif token_val == 'töm':
+		elif token_val == 'töm' and os.name == 'nt' or token_val == 'töm' and os.name == 'posix':
 			if os.name == 'nt':
 				source_code.append('os.system("cls"')
 			elif os.name == 'posix':
 				source_code.append('print("\x1b[3J\x1b[H\x1b[2J"')
-			else:
-				source_code.append('os.system("clear"')
-		elif token_val == 'till':
-			source_code.append('append(')
-		elif token_val == 'bort':
-			source_code.append('pop(')
-		elif token_val == 'ärnum':
-			source_code.append('isdigit(')
-		elif token_val == 'sortera':
-			source_code.append('sorted(')
-		elif token_val == 'slump':
-			source_code.append('__import__("random").randint(')
-		elif token_val == 'slumpval':
-			source_code.append('__import__("random").choice(')
-		elif token_val == 'blanda':
-			source_code.append('__import__("random").shuffle(')
-		elif token_val == 'området':
-			source_code.append('range(')
-		elif token_val == 'abs':
-			source_code.append('abs(')
-		elif token_val == 'lista':
-			source_code.append('list(')
-		elif token_val == 'runda':
-			source_code.append('round(')
-		elif token_val == 'versal':
-			source_code.append('upper(')
-		elif token_val == 'gemen':
-			source_code.append('lower(')
-		elif token_val == 'ersätt':
-			source_code.append('replace(')
-		elif token_val == 'infoga':
-			source_code.append('insert(')
-		elif token_val == 'index':
-			source_code.append('index(')
-		elif token_val == 'dela':
-			source_code.append('split(')
-		elif token_val == 'foga':
-			source_code.append('join(')
-		elif token_val == 'typ':
-			source_code.append('type(')
-		elif token_val == 'sin':
-			source_code.append('__import__("math").sin(')
-		elif token_val == 'cos':
-			source_code.append('__import__("math").cos(')
-		elif token_val == 'tan':
-			source_code.append('__import__("math").tan(')
-		elif token_val == 'potens':
-			source_code.append('__import__("math").pow(')
-		elif token_val == 'asin':
-			source_code.append('__import__("math").asin(')
-		elif token_val == 'acos':
-			source_code.append('__import__("math").acos(')
-		elif token_val == 'atan':
-			source_code.append('__import__("math").atan(')
-		elif token_val == 'tak':
-			source_code.append('__import__("math").ceil(')
-		elif token_val == 'golv':
-			source_code.append('__import__("math").floor(')
-		elif token_val == 'log':
-			source_code.append('__import__("math").log(')
-		elif token_val == 'kvadratrot':
-			source_code.append('__import__("math").sqrt(')
-		elif token_val == 'grader':
-			source_code.append('__import__("math").degrees(')
-		elif token_val == 'radianer':
-			source_code.append('__import__("math").radians(')
-		elif token_val == 'fakultet':
-			source_code.append('__import__("math").factorial(')
-		elif token_val == 'datum':
-			source_code.append('__import__("datetime").date(')
-		elif token_val == 'veckodag':
-			source_code.append('weekday(')
 		elif token_val == 'öppna':
-			source_code.append('with open(')
+			transpile_function(token_val)
 			needs_start_statuses.append(True)
 			is_file_open = True
-		elif token_val == 'läs':
-			source_code.append('read(')
-		elif token_val == 'överför':
-			source_code.append('write(')
-		elif token_val == 'för':
-			source_code.append('for ')
-			is_for = True
+		elif token_val == 'för' or token_val == 'medan':
+			source_code.append(translate_function(token_val) + ' ')
 			look_for_loop_ending = True
-		elif token_val == 'medan':
-			source_code.append('while ')
-			look_for_loop_ending = True
-		elif token_val == 'epok':
-			source_code.append('__import__("time").time(')
-		elif token_val == 'tid':
-			source_code.append('__import__("time").ctime(')
-		elif token_val == 'nu':
-			source_code.append('__import__("datetime").datetime.now(')
-		elif token_val == 'idag':
-			source_code.append('__import__("datetime").date.today(')
-		elif token_val == 'värden':
-			source_code.append('values(')
-		elif token_val == 'element':
-			source_code.append('items(')
-		elif token_val == 'numrera':
-			source_code.append('enumerate(')
+			if token_val == 'för':
+				is_for = True
+		# Every other function get's transpiled in the same way.
+		else:
+			transpile_function(token_val)
 	elif token_type == 'VAR':
 		if token_val not in forbidden:
 			source_code.append(token_val)
@@ -350,6 +350,7 @@ def parse(lexed, token_index):
 	elif token_type == 'IMPORT':
 		_import(token_val)
 	elif token_type == 'OPERATOR':
+		# Special operator cases
 		if is_if and token_val == ')':
 			is_if = False
 			needs_start_statuses.append(True)
@@ -360,12 +361,11 @@ def parse(lexed, token_index):
 		elif look_for_loop_ending and token_val == ')':
 			look_for_loop_ending = False
 			needs_start_statuses.append(True)
+		# All other operators just gets appended to the source
 		else:
 			source_code.append(token_val)
-	elif token_type == 'LIST_START':
-		source_code.append('[')
-	elif token_type == 'LIST_END':
-		source_code.append(']')
+	elif token_type == 'LIST_START' or token_type == 'LIST_END':
+		source_code.append(token_val)
 	elif token_type == 'START':
 		if needs_start is False:
 			source_code.append(token_val)
@@ -373,7 +373,6 @@ def parse(lexed, token_index):
 			source_code.append(':')
 		else:
 			source_code.append(':' + '\n')
-		
 		if needs_start:
 			indent_layers.append("x")
 	elif token_type == 'END':
@@ -386,73 +385,28 @@ def parse(lexed, token_index):
 				source_code.append('\n')
 				for _ in indent_layers:
 					source_code.append('\t')
-	elif token_type == 'BOOL':
-		if token_val == 'Sant':
-			source_code.append('True')
-		elif token_val == 'Falskt':
-			source_code.append('False')
-	elif token_type == 'KEYWORD':
-		if token_val == 'inom':
-			source_code.append(' in ')
-		elif token_val == 'bryt':
-			source_code.append('break')
-		elif token_val == 'fortsätt':
-			source_code.append('continue')
-		elif token_val == 'returnera':
-			source_code.append('return ')
-		elif token_val == 'inte':
-			source_code.append('not ')
-		elif token_val == 'passera':
-			source_code.append('pass') 
-		elif token_val == 'matte_e':
-			source_code.append('__import__("math").e')
-		elif token_val == 'matte_pi':
-			source_code.append('__import__("math").pi')
-		elif token_val == 'år':
-			source_code.append('year')
-		elif token_val == 'månad':
-			source_code.append('month')
-		elif token_val == 'dag':
-			source_code.append('day')
-		elif token_val == 'timme':
-			source_code.append('hour')
-		elif token_val == 'minut':
-			source_code.append('minute')
-		elif token_val == 'sekund':
-			source_code.append('second')
-		elif token_val == 'mikrosekund':
-			source_code.append('microsecond')
-		elif token_val == 'töm':
-			if os.name == 'nt':
-				source_code.append('os.system("cls")')
-			elif os.name == 'posix':
-				source_code.append('print("\x1b[3J\x1b[H\x1b[2J")')
-			else:
-				source_code.append('os.system("clear")')
-		elif token_val == 'annars':
-			source_code.append('else')
+	elif token_type == 'KEYWORD' or token_type == 'BOOL':
+		# Specific keywords & keyword cases that ex. required updating of statuses.
+		if token_val == 'annars':
+			source_code.append(translate_keyword(token_val))
 			needs_start_statuses.append(True)
-		elif token_val == 'och':
-			source_code.append(' and ')
-		elif token_val == 'eller':
-			source_code.append(' or ')
-		elif token_val == 'som':
-			source_code.append(' as ')
-		elif token_val == 'klass':
-			source_code.append('class ')
+		# Every other keyword get's transpiled in the same way.
+		else:
+			transpile_keyword(token_val)
 	elif token_type == 'USER_FUNCTION':
-		token_val = token_val.replace('.', '_')
 		source_code.append('def ' + token_val + '(')
 		needs_start_statuses.append(True)
 	elif token_type == 'USER_FUNCTION_CALL':
-		token_val = token_val.replace('.', '_')
 		source_code.append(token_val + '(')
 	elif token_type == 'CLASS':
 		source_code.append(' ' + token_val)
 		needs_start_statuses.append(True)
-	
+
+	# Recursively calls parse() when there is more code to parse
 	if len(lexed) - 1 >= token_index + 1 and is_comment is False:
 		parse(lexed, token_index + 1)
+
+	return source_code
 
 
 def lex(line):
@@ -621,6 +575,7 @@ def lex(line):
 	return lexed_data
 
 
+# "Fixes up" the non-transpiled code before lexing.
 def main(statement):
 	statement = statement.replace('\n', '').replace('\t', '').replace("'", '"')
 	current_line = ''
@@ -646,30 +601,10 @@ def main(statement):
 		if current_line == 'importera':
 			is_import = True
 
-	# Legacy removals
-	if '.bort[' in current_line:
-		current_line = current_line.replace('.bort[', '.bort(')
-		
-		tmp = ''
-		is_index = False
-		
-		current_line = list(current_line)
-		
-		for index, text in enumerate(current_line):
-			if '.bort(' in tmp and is_index is False:
-				tmp = ''
-				is_index = True
-			elif is_index and text == ']':
-				is_index = False
-				current_line[index] = ')'
-				current_line = ''.join(current_line)
-				break
-			else:
-				tmp += text
-
 	return current_line
 
 
+# Executes transpiled code
 def execute():
 	global final
 	global is_developer_mode
@@ -710,17 +645,19 @@ def execute():
 	
 	# Executes the code transpiled to python and catches Exceptions
 	try:
+		# The "main" way of executing the transpiled code
 		if is_web_editor is False:
 			import final_transpiled
 			final_transpiled.__Enkelt__()
+		# The "fallback" execution process.
 		else:
 			exec(code)
-	except Exception as e:
+	except Exception as err:
 		if is_developer_mode:
-			print(e)
+			print(err)
 		
 		# Print out error(s) if any
-		error = ErrorClass(str(e).replace('(<string>, ', '('))
+		error = ErrorClass(str(err).replace('(<string>, ', '('))
 		if error.get_error_message_data() != 'IGNORED':
 			print(error.get_error_message_data())
 	
@@ -737,14 +674,20 @@ def run(line):
 	global final
 	global variables
 
+	# Makes sure the line is not empty
 	if line != '\n':
+		# Prepares the line
 		data = main(line)
+		# Lexes the line
 		data = lex(data)
 
 		if is_developer_mode:
 			print(data)
 
+		# Parses the line
 		parse(data, 0)
+
+		# Appends the transpiled code to the final source code
 		final.append(''.join(source_code))
 		final.append('\n')
 		source_code = []
@@ -755,13 +698,15 @@ def execute_run_with_code(data):
 	
 	for var in variables[::-1]:
 		final.insert(0, var + '\n')
-	
-	for line_to_run in data:
-		line_to_run = line_to_run.replace('£', ',')
-		run(line_to_run)
-	execute()
-	
 
+	# Runs/Prepares every line in data
+	for line_to_run in data:
+		run(line_to_run)
+	# Executes the final transpiled code
+	execute()
+
+
+# Prepares running the code.
 def run_with_code(data):
 	global is_developer_mode
 	global final
@@ -776,6 +721,7 @@ def run_with_code(data):
 	execute_run_with_code(data)
 
 
+# Prepares for running the code from the console.
 def console_line_runner(code):
 	global variables
 	global is_developer_mode
@@ -788,8 +734,9 @@ def console_line_runner(code):
 	is_web_editor = True
 	
 	run_with_code([code])
-	
-	
+
+
+# Enkelt in console/repl mode
 def start_console(first):
 	global version
 	global is_developer_mode
@@ -797,10 +744,8 @@ def start_console(first):
 	global source_code
 	global final
 	
-	if first:  # is first console run
-		# Checks for updates:
+	if first:  # is first console run -> shows copyright & license info.
 		check_for_updates(version)
-		# Print info
 		print('Enkelt ' + str(version) + ' © 2018-2019-2020 Edvard Busck-Nielsen' + ". GNU GPL v.3")
 		print('Tryck Ctrl+C för att avsluta')
 	
@@ -808,19 +753,24 @@ def start_console(first):
 	if code_line != '':
 		test = main(code_line)
 		test = lex(test)
-		
-		if code_line != 'töm' and code_line != 'töm()' and code_line != 'töm ()' and test[0][0] != 'VAR':
+
+		# Makes sure that the line is a "normal" code line, AKA not the clear command and not a variable declaration.
+		if code_line.replace(' (', '(') != 'töm()' and test[0][0] != 'VAR':
 			console_line_runner(code_line)
-			
-		elif code_line == 'töm' or code_line == 'töm()' or code_line == 'töm ()':
+
+		# Clear command was issued
+		elif code_line.replace(' (', '(') == 'töm()':
 			if not os.name == 'nt':
 				os.system('clear')
 			else:
 				os.system('cls')
+
+		# A variable was declared
 		else:
 			parse(test, 0)
 			variables.append(''.join(source_code))
-			
+
+	# Calling the console, recursively
 	source_code = []
 	final = []
 	start_console(False)
@@ -830,7 +780,7 @@ def web_editor_runner(event):
 	global variables
 	
 	data = ''
-	# These lines should be commented-out
+	# These lines should be commented-out, they are only used in the web-version of Enkelt and are not Python code.
 	# data = document["inputCode"].value
 	# data = data.split('\n')
 	
@@ -942,8 +892,13 @@ keywords = [
 	'som',
 ]
 operators = ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':', ';']
+# Forbidden variable names
+forbidden = ['in', 'str', 'int', 'list', 'num', 'matte_e', 'matte_pi', 'själv']
 
+# When user/dev tests
 is_developer_mode = False
+# When running automatic tests
+is_dev = False
 version = 3.0
 repo_location = 'https://raw.githubusercontent.com/Enkelt/Enkelt/'
 web_import_location = 'https://raw.githubusercontent.com/Enkelt/EnkeltBibliotek/master/bib/'
@@ -962,17 +917,21 @@ if is_web_editor is False:
 	# ----- START -----
 	if not is_dev:
 		try:
+			# Makes sure that the user uses Python3
 			if sys.version_info[0] < 3:
-				raise Exception("Du måste använda Python version 3 eller högre")
+				raise Exception("Du måste använda Python 3 eller högre")
 			else:
+				# Checks if enkelt code is being provided from an enkelt script
 				if len(sys.argv) >= 2:
 					if '.e' in sys.argv[1]:
 						enkelt_script_path = sys.argv[1]
-					
+
+					# Checks if enkelt is being run in developer mode (--d flag)
 					if len(sys.argv) >= 3:
 						if sys.argv[2] == '--d':
 							is_developer_mode = True
-					
+
+					# Opens and reads the provided enkelt script.
 					with open(enkelt_script_path, 'r+')as f:
 						tmp_code_to_run = f.readlines()
 						
@@ -980,9 +939,10 @@ if is_web_editor is False:
 						tmp_code_to_run.pop(tmp_code_to_run.index(''))
 					
 					run_with_code(tmp_code_to_run)
-					# Checks for updates:
+
 					check_for_updates(version)
 				else:
+					# Starts console/repl mode
 					variables = []
 					final = []
 					start_console(True)

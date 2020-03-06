@@ -1,12 +1,11 @@
-klass MinKlass {
-     $text = ''
-     def __init__($själv, $text) {
-         $själv.$text = $text
-     }
-    def getText($själv) {
-        returnera $själv.$text
-    }
+skriv ("hej")
+skriv ("test") 
+def går_att_dividera($nummer, $num_b) {
+	om ($nummer % $num_b == 0) {
+		returnera Sant
+	} annars {
+		returnera Falskt
+	}
 }
-
-$textobjekt = MinKlass("Hej")
-skriv ($textobjekt.getText())
+$resultat = går_att_dividera(10, 2)
+skriv ($resultat) 
