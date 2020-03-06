@@ -394,9 +394,13 @@ def parse(lexed, token_index):
 		else:
 			transpile_keyword(token_val)
 	elif token_type == 'USER_FUNCTION':
+		# Needed when functions are imported functions
+		token_val = token_val.replace('.', '__IMPORTED__')
 		source_code.append('def ' + token_val + '(')
 		needs_start_statuses.append(True)
 	elif token_type == 'USER_FUNCTION_CALL':
+		# Needed when functions are imported functions
+		token_val = token_val.replace('.', '__IMPORTED__')
 		source_code.append(token_val + '(')
 	elif token_type == 'CLASS':
 		source_code.append(' ' + token_val)
