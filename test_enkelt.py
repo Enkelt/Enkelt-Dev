@@ -1,16 +1,16 @@
 import unittest
 
-from enkelt import lex, main, parse, functions_and_keywords, operator_symbols
+import enkelt
 
 
 class TestEnkelt(unittest.TestCase):
-	keywords = functions_and_keywords()['keywords'].keys()
+	keywords = enkelt.functions_and_keywords()['keywords'].keys()
 	expected_lexer_keywords_output = [[['BOOL', 'Sant']], [['BOOL', 'Falskt']], [['KEYWORD', 'inom']], [['KEYWORD', 'bryt']], [['KEYWORD', 'fortsätt']], [['KEYWORD', 'returnera']], [['KEYWORD', 'inte']], [['KEYWORD', 'passera']], [['KEYWORD', 'matte_e']], [['KEYWORD', 'matte_pi']], [['KEYWORD', 'år']], [['KEYWORD', 'månad']], [['KEYWORD', 'dag']], [['KEYWORD', 'timme']], [['KEYWORD', 'minut']], [['KEYWORD', 'sekund']], [['KEYWORD', 'mikrosekund']], [['KEYWORD', 'annars']], [['KEYWORD', 'och']], [['KEYWORD', 'eller']], [['KEYWORD', 'som']], [['KEYWORD', 'klass']]]
 
-	operators = operator_symbols()
+	operators = enkelt.operator_symbols()
 	expected_lexer_operators_output = [[['OPERATOR', '+']], [], [['OPERATOR', '*']], [['OPERATOR', '/']], [['OPERATOR', '%']], [['OPERATOR', '<']], [['OPERATOR', '>']], [['OPERATOR', '=']], [['OPERATOR', '!']], [['OPERATOR', '.']], [['OPERATOR', ',']], [['OPERATOR', ')']], [['OPERATOR', ':']], [['OPERATOR', ';']]]
 
-	functions = functions_and_keywords()['functions'].keys()
+	functions = enkelt.functions_and_keywords()['functions'].keys()
 	sample_code_snippets = [
 		'',
 		'"text"',
@@ -61,13 +61,13 @@ class TestEnkelt(unittest.TestCase):
 		# comment removal and quote conversion.
 		expected_for_standard_skriv = 'skriv("text")'
 
-		self.assertEqual(main("skriv ('text')"), expected_for_standard_skriv)
-		self.assertEqual(main("skriv  ('text')"), expected_for_standard_skriv)
-		self.assertEqual(main("skriv   ('text')"), expected_for_standard_skriv)
-		self.assertEqual(main("skriv    ('text')\n"), expected_for_standard_skriv)
-		self.assertEqual(main("skriv\t('text')"), expected_for_standard_skriv)
-		self.assertEqual(main("skriv\t('text text2')"), 'skriv("text text2")')
-		self.assertEqual(main('importera test'), 'importera test')
+		self.assertEqual(enkelt.main("skriv ('text')"), expected_for_standard_skriv)
+		self.assertEqual(enkelt.main("skriv  ('text')"), expected_for_standard_skriv)
+		self.assertEqual(enkelt.main("skriv   ('text')"), expected_for_standard_skriv)
+		self.assertEqual(enkelt.main("skriv    ('text')\n"), expected_for_standard_skriv)
+		self.assertEqual(enkelt.main("skriv\t('text')"), expected_for_standard_skriv)
+		self.assertEqual(enkelt.main("skriv\t('text text2')"), 'skriv("text text2")')
+		self.assertEqual(enkelt.main('importera test'), 'importera test')
 
 	def test_lex(self):
 		loop_counter = 0
@@ -77,23 +77,35 @@ class TestEnkelt(unittest.TestCase):
 				index = self.expected_output_index_calculator(loop_counter, x)
 
 				self.assertEqual(
-					lex(main(function + '(' + code_snippet + ')')),
+					enkelt.lex(enkelt.main(function + '(' + code_snippet + ')')),
 					self.sample_code_snippets_expected_lexer_output[index]
 				)
 			loop_counter = loop_counter + 1
 
 		for x, keyword in enumerate(self.keywords):
-			self.assertEqual(lex(main(keyword)), self.expected_lexer_keywords_output[x])
+			self.assertEqual(enkelt.lex(enkelt.main(keyword)), self.expected_lexer_keywords_output[x])
 
 		for x, operator in enumerate(self.operators):
-			self.assertEqual(lex(main(operator)), self.expected_lexer_operators_output[x])
+			self.assertEqual(enkelt.lex(enkelt.main(operator)), self.expected_lexer_operators_output[x])
 
 		for x, real_code_snippet in enumerate(self.sample_real_code_snippets):
-			self.assertEqual(lex(main(real_code_snippet)), self.sample_real_code_snippets_expected_lexer_output[x])
+			self.assertEqual(enkelt.lex(enkelt.main(real_code_snippet)), self.sample_real_code_snippets_expected_lexer_output[x])
 
 	def test_parse(self):
 		for x, real_code_snippet in enumerate(self.sample_real_code_snippets):
 			self.assertEqual(
-				''.join(parse(lex(main(real_code_snippet)), 0)),
+				''.join(enkelt.parse(enkelt.lex(enkelt.main(real_code_snippet)), 0)),
 				self.sample_real_code_snippets_expected_parser_output[x][0]
 			)
+
+	def test_has_numbers(self):
+		self.assertEqual(enkelt.has_numbers('text'), False)
+		self.assertEqual(enkelt.has_numbers('t1e2x3t4'), True)
+
+	def test_translate_function(self):
+		self.assertEqual(enkelt.translate_function('skriv'), 'print')
+		self.assertEqual(enkelt.translate_function('definitely_not_a_function'), 'error')
+
+	def test_translate_keyword(self):
+		self.assertEqual(enkelt.translate_keyword('Sant'), 'True')
+		self.assertEqual(enkelt.translate_keyword('definitely_not_a_keyword'), 'error')

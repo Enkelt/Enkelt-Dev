@@ -21,10 +21,56 @@ import sys
 import re
 import os
 
-# ############## #
-# Enkelt Modules #
-# ############## #
+# ####### #
+# CLASSES #
+# ####### #
 
+
+class ErrorClass:
+
+	def __init__(self, error_msg):
+		self.error = error_msg
+		self.error_list = error_msg.split()
+		self.errors = get_errors()
+
+	def set_error(self, new_error_msg):
+		self.error = new_error_msg
+
+	def get_error_type(self):
+		for part in self.errors:
+			if 'Error' in part:
+				return self.errors[part]
+		return ''
+
+	def get_error_message_data(self):
+
+		if self.error == "module 'final_transpiled' has no attribute '__Enkelt__'":
+			return 'IGNORED'
+
+		from googletrans import Translator
+
+		translator = Translator()
+
+		error_type = self.get_error_type()
+
+		if error_type == '':
+			self.set_error(self.error.replace("Traceback (most recent call last):", ''))
+			self.set_error(self.error.replace('File "tmp.py", ', ''))
+			self.set_error(self.error.replace(", in <module>", ''))
+			return translator.translate(self.error, dest='sv').text.replace('linje', 'rad').replace(
+				'final_transpiled.py, ', '')
+		else:
+			# Get line number
+			for index, item in enumerate(self.error_list):
+				if 'line' in item and has_numbers(self.error_list[index + 1]):
+					line_index = index + 1
+					return error_type + " (runt rad " + str(int(self.error_list[line_index][:-1]) - 3) + ')'
+			return error_type
+
+
+# ############################################### #
+# Modules Used When Executing The Transpiled Code #
+# ############################################### #
 
 def enkelt_print(data):
 	data = str(data)
@@ -50,55 +96,6 @@ def check_for_updates(version_nr):
 	
 	if data_store['version'] > float(version_nr):
 		print('Uppdatering tillgänglig! Du har version ' + str(version_nr) + ' men du kan uppdatera till Enkelt version ' + str(data_store['version']))
-
-
-class ErrorClass:
-	
-	def __init__(self, error_msg):
-		self.error = error_msg
-		self.error_list = error_msg.split()
-		self.errors = {
-			'SyntaxError': 'Syntaxfel',
-			'IndexError': 'Indexfel',
-			'TypeError': 'Typfel',
-			'ValueError': 'Värdefel',
-			'NameError': 'Namnfel',
-			'ZeroDivisionError': 'Nolldelningsfel',
-			'AttributeError': 'Attributfel'
-		}
-	
-	def set_error(self, new_error_msg):
-		self.error = new_error_msg
-	
-	def get_error_type(self):
-		for part in self.errors:
-			if 'Error' in part:
-				return self.errors[part]
-		return ''
-	
-	def get_error_message_data(self):
-		
-		if self.error == "module 'final_transpiled' has no attribute '__Enkelt__'":
-			return 'IGNORED'
-		
-		from googletrans import Translator
-		
-		translator = Translator()
-		
-		error_type = self.get_error_type()
-		
-		if error_type == '':
-			self.set_error(self.error.replace("Traceback (most recent call last):", ''))
-			self.set_error(self.error.replace('File "tmp.py", ', ''))
-			self.set_error(self.error.replace(", in <module>", ''))
-			return translator.translate(self.error, dest = 'sv').text.replace('linje', 'rad').replace('final_transpiled.py, ', '')
-		else:
-			# Get line number
-			for index, item in enumerate(self.error_list):
-				if 'line' in item and has_numbers(self.error_list[index + 1]):
-					line_index = index + 1
-					return error_type + " (runt rad " + str(int(self.error_list[line_index][:-1]) - 3) + ')'
-			return error_type
 
 
 def _import(enkelt_module):
@@ -138,12 +135,12 @@ def get_import(file_or_code, is_file, module_name):
 
 	imported_modules.append(module_name)
 
+	module_code = file_or_code
+
 	if is_file:
 		with open(file_or_code, 'r') as module_file:
 			module_code = module_file.readlines()
 			module_file.close()
-	else:
-		module_code = file_or_code
 
 	while '' in module_code:
 		module_code.pop(module_code.index(''))
@@ -156,7 +153,6 @@ def get_import(file_or_code, is_file, module_name):
 			for token_index, _ in enumerate(data):
 				if data[token_index][0] == 'USER_FUNCTION':
 					data[token_index][1] = module_name + '.' + data[token_index][1]
-
 					user_functions[-1] = module_name + '.' + user_functions[-1]
 
 			if is_developer_mode:
@@ -170,6 +166,18 @@ def get_import(file_or_code, is_file, module_name):
 
 def has_numbers(input_string):
 	return any(char.isdigit() for char in input_string)
+
+
+def get_errors():
+	return {
+			'SyntaxError': 'Syntaxfel',
+			'IndexError': 'Indexfel',
+			'TypeError': 'Typfel',
+			'ValueError': 'Värdefel',
+			'NameError': 'Namnfel',
+			'ZeroDivisionError': 'Nolldelningsfel',
+			'AttributeError': 'Attributfel'
+	}
 
 
 def functions_and_keywords():

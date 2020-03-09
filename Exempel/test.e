@@ -1,5 +1,5 @@
 skriv ("hej")
-skriv ("test") 
+skriv ("test")
 def går_att_dividera($nummer, $num_b) {
 	om ($nummer % $num_b == 0) {
 		returnera Sant
@@ -8,4 +8,4 @@ def går_att_dividera($nummer, $num_b) {
 	}
 }
 $resultat = går_att_dividera(10, 2)
-skriv ($resultat) 
+skriv ($resultat)
