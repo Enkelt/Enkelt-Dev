@@ -1,3 +1,5 @@
-$num_a = 1
-$num_b = 2
-skriv ($num_a+$num_b)
+def test($a, $b) {
+    returnera $a + $b
+}
+
+skriv (test('a', 'b'))

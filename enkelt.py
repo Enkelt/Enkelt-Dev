@@ -119,6 +119,9 @@ def get_import(file_or_code, is_file, module_name):
 		module_code.pop(module_code.index(''))
 
 	for line in module_code:
+		if is_developer_mode:
+			print(line)
+
 		if line != '\n':
 			data = fix_up_code_line(line)
 			data = lex(data)
@@ -136,9 +139,9 @@ def get_import(file_or_code, is_file, module_name):
 			final.append('\n')
 			source_code = []
 
-			# Removes the temporary bib/ folder
-			if os.path.isdir('bib'):
-				shutil.rmtree('bib')
+	# Removes the temporary bib/ folder
+	if os.path.isdir('bib'):
+		shutil.rmtree('bib')
 
 
 def _import(enkelt_module):
@@ -532,7 +535,6 @@ def lex(line):
 							if len(line) - 1 == chr_index:
 								is_var = False
 								lexed_data.append(['VAR', tmp_data])
-								lexed_data.append(['FUNCTION', tmp_data])
 								tmp_data = ''
 						elif char == '=' or char in operators:
 							is_var = False
@@ -715,6 +717,9 @@ def transpile_line(line):
 	global final
 
 	if line != '\n':
+		if is_developer_mode:
+			print(line)
+
 		data = fix_up_code_line(line)
 		data = lex(data)
 
@@ -828,7 +833,6 @@ web_import_location = 'https://raw.githubusercontent.com/Enkelt/EnkeltWeb/master
 final = []
 variables = []
 
-tmp_variables = []
 enkelt_script_path = ''
 
 
