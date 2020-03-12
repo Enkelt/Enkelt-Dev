@@ -1,7 +1,7 @@
 # coding=utf-8
 
 # Enkelt 3.0
-# Copyright 2018, 2019 Edvard Busck-Nielsen, 2019 Morgan Willliams
+# Copyright 2018, 2019, 2020 Edvard Busck-Nielsen, 2019 Morgan Willliams
 # This file is part of Enkelt.
 #
 #     Enkelt is free software: you can redistribute it and/or modify
@@ -27,7 +27,6 @@ import os
 
 
 class ErrorClass:
-
 	def __init__(self, error_msg):
 		self.error = error_msg
 		self.error_list = error_msg.split()
@@ -43,7 +42,6 @@ class ErrorClass:
 		return ''
 
 	def get_error_message_data(self):
-
 		if self.error == "module 'final_transpiled' has no attribute '__Enkelt__'":
 			return 'IGNORED'
 
@@ -64,7 +62,7 @@ class ErrorClass:
 			for index, item in enumerate(self.error_list):
 				if 'line' in item and has_numbers(self.error_list[index + 1]):
 					line_index = index + 1
-					return error_type + " (runt rad " + str(int(self.error_list[line_index][:-1]) - 3) + ')'
+					return error_type + " (vid rad " + str(int(self.error_list[line_index][:-1]) - 4) + ')'
 			return error_type
 
 
@@ -73,14 +71,17 @@ class ErrorClass:
 # ############################################### #
 
 def enkelt_print(data):
-	data = str(data)
-	data = data.replace("True", "Sant").replace("False", "Falskt").replace("<class \'float\'>", "decimaltal").replace("<class \'str\'>", "sträng").replace("<class \'int\'>", "heltal").replace("<class \'list\'>", "lista").replace("<class \'dict\'>", "lexikon").replace("<class \'bool\'>", "boolesk").replace("<class \'NoneType\'>", "inget")
-	print(data)
+	print(translate_output_to_swedish(data))
 
 	
 # ############ #
 # Main Methods #
 # ############ #
+
+def translate_output_to_swedish(data):
+	data = str(data)
+	return data.replace("True", "Sant").replace("False", "Falskt").replace("<class \'float\'>", "decimaltal").replace("<class \'str\'>", "sträng").replace("<class \'int\'>", "heltal").replace("<class \'list\'>", "lista").replace("<class \'dict\'>", "lexikon").replace("<class \'bool\'>", "boolesk").replace("<class \'NoneType\'>", "inget")
+
 
 def check_for_updates(version_nr):
 	import urllib.request
@@ -98,27 +99,11 @@ def check_for_updates(version_nr):
 		print('Uppdatering tillgänglig! Du har version ' + str(version_nr) + ' men du kan uppdatera till Enkelt version ' + str(data_store['version']))
 
 
-def get_import(file_or_code, is_file, module_name):
-	import shutil
-
-	global imported_modules
-	global source_code
+def transpile_library_code(library_code, library_name):
 	global final
-	global user_functions
+	global source_code
 
-	imported_modules.append(module_name)
-
-	module_code = file_or_code
-
-	if is_file:
-		with open(file_or_code, 'r') as module_file:
-			module_code = module_file.readlines()
-			module_file.close()
-
-	while '' in module_code:
-		module_code.pop(module_code.index(''))
-
-	for line in module_code:
+	for line in library_code:
 		if is_developer_mode:
 			print(line)
 
@@ -128,8 +113,8 @@ def get_import(file_or_code, is_file, module_name):
 
 			for token_index, _ in enumerate(data):
 				if data[token_index][0] == 'USER_FUNCTION':
-					data[token_index][1] = module_name + '.' + data[token_index][1]
-					user_functions[-1] = module_name + '.' + user_functions[-1]
+					data[token_index][1] = library_name + '.' + data[token_index][1]
+					user_functions[-1] = library_name + '.' + user_functions[-1]
 
 			if is_developer_mode:
 				print(data)
@@ -139,43 +124,57 @@ def get_import(file_or_code, is_file, module_name):
 			final.append('\n')
 			source_code = []
 
-	# Removes the temporary bib/ folder
-	if os.path.isdir('bib'):
-		shutil.rmtree('bib')
+
+def get_import(file_or_code, is_file, library_name):
+	global imported_libraries
+	global source_code
+	global final
+	global user_functions
+
+	imported_libraries.append(library_name)
+
+	library_code = file_or_code
+
+	if is_file:
+		with open(file_or_code) as library_file:
+			library_code = library_file.readlines()
+			library_file.close()
+
+	while '' in library_code:
+		library_code.pop(library_code.index(''))
+
+	transpile_library_code(library_code, library_name)
 
 
-def _import(enkelt_module):
+def _import(enkelt_library_name):
 	import urllib.request
+	from urllib.error import HTTPError
 
 	global enkelt_script_path
 	global web_import_location
 
-	import_file = ''.join(enkelt_script_path.split('/')[:-1]) + '/' + enkelt_module + '.e'
-
+	# Checks if the library is user-made (i.e. local not remote).
+	import_file = ''.join(enkelt_script_path.split('/')[:-1]) + '/' + enkelt_library_name + '.e'
 	if os.path.isfile(import_file):
-		get_import(import_file, True, enkelt_module)
+		get_import(import_file, True, enkelt_library_name)
 	else:
-		import_file = 'bib/' + enkelt_module + '.e'
-		if os.path.isfile(import_file):
-			get_import(import_file, True, enkelt_module)
-		else:
-			url = web_import_location + enkelt_module + '.e'
+		# The library is remote (i.e. needs to be fetched)
+		url = web_import_location + enkelt_library_name + '.e'
 
-			try:
-				response = urllib.request.urlopen(url)
-				module_code = response.read().decode('utf-8')
+		try:
+			response = urllib.request.urlopen(url)
+			module_code = response.read().decode('utf-8')
 
-				module_code = module_code.split('\n')
+			module_code = module_code.split('\n')
 
-				get_import(module_code, False, enkelt_module)
-			except Exception:
-				print('Error kunde inte importera ' + enkelt_module)
+			get_import(module_code, False, enkelt_library_name)
+		except HTTPError:
+			print('Error! Kunde inte importera ' + enkelt_library_name)
 
 
 def translate_clear():
 	if os.name == 'nt':
 		return 'cls'
-
 	return 'clear'
 
 
@@ -451,7 +450,7 @@ def lex(line):
 		return ['COMMENT', line]
 
 	global user_functions
-	global imported_modules
+	global imported_libraries
 
 	operators = operator_symbols()
 	
@@ -556,11 +555,11 @@ def lex(line):
 							lexed_data.append(['VAR', tmp_data])
 							lexed_data.append(['START', char])
 							tmp_data = ''
-					elif char in operators and tmp_data not in imported_modules:
+					elif char in operators and tmp_data not in imported_libraries:
 						lexed_data.append(['OPERATOR', char])
-					elif char in imported_modules and char != '.':
+					elif char in imported_libraries and char != '.':
 						lexed_data.append(['OPERATOR', char])
-					elif char in imported_modules and char == '.':
+					elif char in imported_libraries and char == '.':
 						tmp_data += char
 					else:
 						if tmp_data == 'Sant' or tmp_data == 'Falskt':
@@ -806,7 +805,6 @@ def web_editor_mode(event):
 
 # ----- SETUP -----
 
-# Global variable setup
 is_list = False
 is_if = False
 is_math = False
@@ -819,13 +817,14 @@ is_web_editor_or_console_mode = False
 
 source_code = []
 indent_layers = []
-imported_modules = []
+imported_libraries = []
 user_functions = []
 
 # When user/dev tests
 is_developer_mode = False
 # When running automatic tests
 is_dev = False
+
 version = 3.1
 repo_location = 'https://raw.githubusercontent.com/Enkelt/Enkelt/'
 web_import_location = 'https://raw.githubusercontent.com/Enkelt/EnkeltWeb/master/bibliotek/bib/'
@@ -843,7 +842,6 @@ if is_web_editor_or_console_mode is False:
 	# ----- START -----
 	if not is_dev:
 		try:
-			# Makes sure that the user uses Python 3
 			if sys.version_info[0] < 3:
 				raise Exception("Du måste använda Python 3 eller högre")
 
@@ -857,7 +855,6 @@ if is_web_editor_or_console_mode is False:
 					if sys.argv[2] == '--d':
 						is_developer_mode = True
 
-				# Opens and reads the provided enkelt script.
 				with open(enkelt_script_path, 'r+')as f:
 					tmp_code_to_run = f.readlines()
 
