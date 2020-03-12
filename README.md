@@ -28,8 +28,6 @@ Om du vill bidra till Enkelt är detta rätt plats att vara på! Om du vill läm
   * Uppdatera gärna denna fil med viktig information om det behövs.
 
   * Använd ' inte " i koden.
-
-  * I koden används engelska för kommentarer, variabelnamn, osv... allt annat sker på svenska inklusive commit meddelanden.
 </details>
 
 <details>
