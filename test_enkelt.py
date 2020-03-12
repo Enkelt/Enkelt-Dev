@@ -61,13 +61,13 @@ class TestEnkelt(unittest.TestCase):
 		# comment removal and quote conversion.
 		expected_for_standard_skriv = 'skriv("text")'
 
-		self.assertEqual(enkelt.main("skriv ('text')"), expected_for_standard_skriv)
-		self.assertEqual(enkelt.main("skriv  ('text')"), expected_for_standard_skriv)
-		self.assertEqual(enkelt.main("skriv   ('text')"), expected_for_standard_skriv)
-		self.assertEqual(enkelt.main("skriv    ('text')\n"), expected_for_standard_skriv)
-		self.assertEqual(enkelt.main("skriv\t('text')"), expected_for_standard_skriv)
-		self.assertEqual(enkelt.main("skriv\t('text text2')"), 'skriv("text text2")')
-		self.assertEqual(enkelt.main('importera test'), 'importera test')
+		self.assertEqual(enkelt.fix_up_code_line("skriv ('text')"), expected_for_standard_skriv)
+		self.assertEqual(enkelt.fix_up_code_line("skriv  ('text')"), expected_for_standard_skriv)
+		self.assertEqual(enkelt.fix_up_code_line("skriv   ('text')"), expected_for_standard_skriv)
+		self.assertEqual(enkelt.fix_up_code_line("skriv    ('text')\n"), expected_for_standard_skriv)
+		self.assertEqual(enkelt.fix_up_code_line("skriv\t('text')"), expected_for_standard_skriv)
+		self.assertEqual(enkelt.fix_up_code_line("skriv\t('text text2')"), 'skriv("text text2")')
+		self.assertEqual(enkelt.fix_up_code_line('importera test'), 'importera test')
 
 	def test_lex(self):
 		loop_counter = 0
@@ -77,24 +77,24 @@ class TestEnkelt(unittest.TestCase):
 				index = self.expected_output_index_calculator(loop_counter, x)
 
 				self.assertEqual(
-					enkelt.lex(enkelt.main(function + '(' + code_snippet + ')')),
+					enkelt.lex(enkelt.fix_up_code_line(function + '(' + code_snippet + ')')),
 					self.sample_code_snippets_expected_lexer_output[index]
 				)
 			loop_counter = loop_counter + 1
 
 		for x, keyword in enumerate(self.keywords):
-			self.assertEqual(enkelt.lex(enkelt.main(keyword)), self.expected_lexer_keywords_output[x])
+			self.assertEqual(enkelt.lex(enkelt.fix_up_code_line(keyword)), self.expected_lexer_keywords_output[x])
 
 		for x, operator in enumerate(self.operators):
-			self.assertEqual(enkelt.lex(enkelt.main(operator)), self.expected_lexer_operators_output[x])
+			self.assertEqual(enkelt.lex(enkelt.fix_up_code_line(operator)), self.expected_lexer_operators_output[x])
 
 		for x, real_code_snippet in enumerate(self.sample_real_code_snippets):
-			self.assertEqual(enkelt.lex(enkelt.main(real_code_snippet)), self.sample_real_code_snippets_expected_lexer_output[x])
+			self.assertEqual(enkelt.lex(enkelt.fix_up_code_line(real_code_snippet)), self.sample_real_code_snippets_expected_lexer_output[x])
 
 	def test_parse(self):
 		for x, real_code_snippet in enumerate(self.sample_real_code_snippets):
 			self.assertEqual(
-				''.join(enkelt.parse(enkelt.lex(enkelt.main(real_code_snippet)), 0)),
+				''.join(enkelt.parse(enkelt.lex(enkelt.fix_up_code_line(real_code_snippet)), 0)),
 				self.sample_real_code_snippets_expected_parser_output[x][0]
 			)
 

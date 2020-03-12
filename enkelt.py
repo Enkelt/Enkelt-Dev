@@ -1,7 +1,7 @@
 # coding=utf-8
 
 # Enkelt 3.0
-# Copyright 2018, 2019 Edvard Busck-Nielsen, 2019 Morgan Willliams
+# Copyright 2018, 2019, 2020 Edvard Busck-Nielsen, 2019 Morgan Willliams
 # This file is part of Enkelt.
 #
 #     Enkelt is free software: you can redistribute it and/or modify
@@ -27,7 +27,6 @@ import os
 
 
 class ErrorClass:
-
 	def __init__(self, error_msg):
 		self.error = error_msg
 		self.error_list = error_msg.split()
@@ -43,7 +42,6 @@ class ErrorClass:
 		return ''
 
 	def get_error_message_data(self):
-
 		if self.error == "module 'final_transpiled' has no attribute '__Enkelt__'":
 			return 'IGNORED'
 
@@ -64,7 +62,7 @@ class ErrorClass:
 			for index, item in enumerate(self.error_list):
 				if 'line' in item and has_numbers(self.error_list[index + 1]):
 					line_index = index + 1
-					return error_type + " (runt rad " + str(int(self.error_list[line_index][:-1]) - 3) + ')'
+					return error_type + " (vid rad " + str(int(self.error_list[line_index][:-1]) - 4) + ')'
 			return error_type
 
 
@@ -73,14 +71,17 @@ class ErrorClass:
 # ############################################### #
 
 def enkelt_print(data):
-	data = str(data)
-	data = data.replace("True", "Sant").replace("False", "Falskt").replace("<class \'float\'>", "decimaltal").replace("<class \'str\'>", "sträng").replace("<class \'int\'>", "heltal").replace("<class \'list\'>", "lista").replace("<class \'dict\'>", "lexikon").replace("<class \'bool\'>", "boolesk").replace("<class \'NoneType\'>", "inget")
-	print(data)
+	print(translate_output_to_swedish(data))
 
 	
 # ############ #
 # Main Methods #
 # ############ #
+
+def translate_output_to_swedish(data):
+	data = str(data)
+	return data.replace("True", "Sant").replace("False", "Falskt").replace("<class \'float\'>", "decimaltal").replace("<class \'str\'>", "sträng").replace("<class \'int\'>", "heltal").replace("<class \'list\'>", "lista").replace("<class \'dict\'>", "lexikon").replace("<class \'bool\'>", "boolesk").replace("<class \'NoneType\'>", "inget")
+
 
 def check_for_updates(version_nr):
 	import urllib.request
@@ -98,62 +99,22 @@ def check_for_updates(version_nr):
 		print('Uppdatering tillgänglig! Du har version ' + str(version_nr) + ' men du kan uppdatera till Enkelt version ' + str(data_store['version']))
 
 
-def _import(enkelt_module):
-	global enkelt_script_path
-
-	import_file = ''.join(enkelt_script_path.split('/')[:-1]) + '/' + enkelt_module + '.e'
-
-	if os.path.isfile(import_file):
-		get_import(import_file, True, enkelt_module)
-	else:
-		import_file = 'bib/' + enkelt_module + '.e'
-		if os.path.isfile(import_file):
-			get_import(import_file, True, enkelt_module)
-		else:
-			import urllib.request
-	
-			global web_import_location
-	
-			url = web_import_location + enkelt_module + '.e'
-
-			try:
-				response = urllib.request.urlopen(url)
-				module_code = response.read().decode('utf-8')
-
-				module_code = module_code.split('\n')
-
-				get_import(module_code, False, enkelt_module)
-			except Exception:
-				print('Error kunde inte importera ' + enkelt_module)
-
-
-def get_import(file_or_code, is_file, module_name):
-	global imported_modules
-	global source_code
+def transpile_library_code(library_code, library_name):
 	global final
-	global user_functions
+	global source_code
 
-	imported_modules.append(module_name)
+	for line in library_code:
+		if is_developer_mode:
+			print(line)
 
-	module_code = file_or_code
-
-	if is_file:
-		with open(file_or_code, 'r') as module_file:
-			module_code = module_file.readlines()
-			module_file.close()
-
-	while '' in module_code:
-		module_code.pop(module_code.index(''))
-
-	for line in module_code:
 		if line != '\n':
-			data = main(line)
+			data = fix_up_code_line(line)
 			data = lex(data)
 
 			for token_index, _ in enumerate(data):
 				if data[token_index][0] == 'USER_FUNCTION':
-					data[token_index][1] = module_name + '.' + data[token_index][1]
-					user_functions[-1] = module_name + '.' + user_functions[-1]
+					data[token_index][1] = library_name + '.' + data[token_index][1]
+					user_functions[-1] = library_name + '.' + user_functions[-1]
 
 			if is_developer_mode:
 				print(data)
@@ -162,6 +123,59 @@ def get_import(file_or_code, is_file, module_name):
 			final.append(''.join(source_code))
 			final.append('\n')
 			source_code = []
+
+
+def get_import(file_or_code, is_file, library_name):
+	global imported_libraries
+	global source_code
+	global final
+	global user_functions
+
+	imported_libraries.append(library_name)
+
+	library_code = file_or_code
+
+	if is_file:
+		with open(file_or_code) as library_file:
+			library_code = library_file.readlines()
+			library_file.close()
+
+	while '' in library_code:
+		library_code.pop(library_code.index(''))
+
+	transpile_library_code(library_code, library_name)
+
+
+def _import(enkelt_library_name):
+	import urllib.request
+	from urllib.error import HTTPError
+
+	global enkelt_script_path
+	global web_import_location
+
+	# Checks if the library is user-made (i.e. local not remote).
+	import_file = ''.join(enkelt_script_path.split('/')[:-1]) + '/' + enkelt_library_name + '.e'
+	if os.path.isfile(import_file):
+		get_import(import_file, True, enkelt_library_name)
+	else:
+		# The library is remote (i.e. needs to be fetched)
+		url = web_import_location + enkelt_library_name + '.e'
+
+		try:
+			response = urllib.request.urlopen(url)
+			module_code = response.read().decode('utf-8')
+
+			module_code = module_code.split('\n')
+
+			get_import(module_code, False, enkelt_library_name)
+		except HTTPError:
+			print('Error! Kunde inte importera ' + enkelt_library_name)
+
+
+def translate_clear():
+	if os.name == 'nt':
+		return 'cls'
+	return 'clear'
 
 
 def has_numbers(input_string):
@@ -235,7 +249,7 @@ def functions_and_keywords():
 			'värden': 'values',
 			'element': 'elements',
 			'numrera': 'enumerate',
-			'töm': 'os.system("clear"',
+			'töm': 'os.system("' + translate_clear() + '"',
 			# Functions with statuses in parse()
 			'om': 'if',
 			'anom': 'elif',
@@ -314,7 +328,7 @@ def parse(lexed, token_index):
 	global is_file_open
 	forbidden = forbidden_variable_names()
 	
-	global is_web_editor
+	global is_web_editor_or_console_mode
 	
 	is_comment = False
 	
@@ -333,18 +347,13 @@ def parse(lexed, token_index):
 		is_comment = True
 	elif token_type == 'FUNCTION':
 		# Specific functions & function cases that ex. required updating of statuses.
-		if token_val == 'skriv' and is_web_editor is False:
+		if token_val == 'skriv' and is_web_editor_or_console_mode is False:
 			source_code.append('Enkelt.enkelt_print(')
 		elif token_val == 'matte':
 			is_math = True
 		elif token_val == 'om' or token_val == 'anom':
 			source_code.append(translate_function(token_val) + ' ')
 			is_if = True
-		elif token_val == 'töm' and os.name == 'nt' or token_val == 'töm' and os.name == 'posix':
-			if os.name == 'nt':
-				source_code.append('os.system("cls"')
-			elif os.name == 'posix':
-				source_code.append('print("\x1b[3J\x1b[H\x1b[2J"')
 		elif token_val == 'öppna':
 			transpile_function(token_val)
 			needs_start_statuses.append(True)
@@ -441,8 +450,9 @@ def lex(line):
 		return ['COMMENT', line]
 
 	global user_functions
+	global imported_libraries
+
 	operators = operator_symbols()
-	global imported_modules
 	
 	tmp_data = ''
 	is_string = False
@@ -454,6 +464,7 @@ def lex(line):
 	last_action = ''
 	might_be_negative_num = False
 	data_index = -1
+
 	for chr_index, char in enumerate(line):
 		if is_import and char != ' ':
 			tmp_data += char
@@ -523,7 +534,6 @@ def lex(line):
 							if len(line) - 1 == chr_index:
 								is_var = False
 								lexed_data.append(['VAR', tmp_data])
-								lexed_data.append(['FUNCTION', tmp_data])
 								tmp_data = ''
 						elif char == '=' or char in operators:
 							is_var = False
@@ -545,11 +555,11 @@ def lex(line):
 							lexed_data.append(['VAR', tmp_data])
 							lexed_data.append(['START', char])
 							tmp_data = ''
-					elif char in operators and tmp_data not in imported_modules:
+					elif char in operators and tmp_data not in imported_libraries:
 						lexed_data.append(['OPERATOR', char])
-					elif char in imported_modules and char != '.':
+					elif char in imported_libraries and char != '.':
 						lexed_data.append(['OPERATOR', char])
-					elif char in imported_modules and char == '.':
+					elif char in imported_libraries and char == '.':
 						tmp_data += char
 					else:
 						if tmp_data == 'Sant' or tmp_data == 'Falskt':
@@ -600,8 +610,7 @@ def lex(line):
 	return lexed_data
 
 
-# "Fixes up" the non-transpiled code before lexing.
-def main(statement):
+def fix_up_code_line(statement):
 	statement = statement.replace('\n', '').replace('\t', '').replace("'", '"')
 	current_line = ''
 	is_string = False
@@ -629,17 +638,9 @@ def main(statement):
 	return current_line
 
 
-# Executes transpiled code
-def execute():
+def fix_up_and_prepare_transpiled_code():
 	global final
-	global is_developer_mode
-	global is_web_editor
-	
-	if is_web_editor is False:
-		# Inserts necessary code to make importing a temporary python file work.
-		code_to_append = "import enkelt as Enkelt\ndef __Enkelt__():\n\tprint('', end='')\n"
-		final.insert(0, code_to_append)
-	
+
 	# Removes unnecessary tabs
 	for line_index, line in enumerate(final):
 		tmp_line = list(line)
@@ -649,21 +650,36 @@ def execute():
 				chars_started = True
 			elif chars_started and char == '\t' and char_index > 0:
 				tmp_line[char_index] = ' '
-			
+
 		final[line_index] = ''.join(tmp_line)
-	
+
 	# Turn = = into == and ! = into != and + = into +=
 	final = list(''.join(final).replace('= =', '==').replace('! =', '==').replace('+ =', '+='))
-	
+
 	# Remove empty lines from final
 	final = list(re.sub(r'\n\s*\n', '\n\n', ''.join(final)))
 
 	code = ''.join(final)
+
+	return code
+
+
+def run_transpiled_code():
+	global final
+	global is_developer_mode
+	global is_web_editor_or_console_mode
+	
+	if is_web_editor_or_console_mode is False:
+		# Inserts necessary code to make importing a temporary python file work.
+		code_to_append = "import enkelt as Enkelt\ndef __Enkelt__():\n\tprint('', end='')\n"
+		final.insert(0, code_to_append)
+	
+	code = fix_up_and_prepare_transpiled_code()
 	
 	if is_developer_mode:
 		print(code)
 	
-	if is_web_editor is False:
+	if is_web_editor_or_console_mode is False:
 		# Writes the transpiled code to a file temporarily.
 		with open('final_transpiled.py', 'w+')as transpiled_f:
 			transpiled_f.writelines(code)
@@ -671,7 +687,8 @@ def execute():
 	# Executes the code transpiled to python and catches Exceptions
 	try:
 		# The "main" way of executing the transpiled code
-		if is_web_editor is False:
+		if is_web_editor_or_console_mode is False:
+			# This line will show an error since it's importing a temporary file that get's created (and deleted) by this script.
 			import final_transpiled
 			final_transpiled.__Enkelt__()
 		# The "fallback" execution process.
@@ -686,30 +703,28 @@ def execute():
 		if error.get_error_message_data() != 'IGNORED':
 			print(error.get_error_message_data())
 	
-	if is_web_editor is False:
+	if is_web_editor_or_console_mode is False:
 		# Removes the temporary python file.
 		with open('final_transpiled.py', 'w+')as transpiled_f:
 			transpiled_f.writelines('')
 		os.remove(os.getcwd() + '/final_transpiled.py')
 
 
-def run(line):
+def transpile_line(line):
 	global source_code
 	global is_developer_mode
 	global final
-	global variables
 
-	# Makes sure the line is not empty
 	if line != '\n':
-		# Prepares the line
-		data = main(line)
-		# Lexes the line
+		if is_developer_mode:
+			print(line)
+
+		data = fix_up_code_line(line)
 		data = lex(data)
 
 		if is_developer_mode:
 			print(data)
 
-		# Parses the line
 		parse(data, 0)
 
 		# Appends the transpiled code to the final source code
@@ -718,104 +733,78 @@ def run(line):
 		source_code = []
 
 
-def execute_run_with_code(data):
-	global variables
-	
-	for var in variables[::-1]:
-		final.insert(0, var + '\n')
-
-	# Runs/Prepares every line in data
-	for line_to_run in data:
-		run(line_to_run)
-	# Executes the final transpiled code
-	execute()
-
-
-# Prepares running the code.
-def run_with_code(data):
-	global is_developer_mode
+def prepare_and_run_code_lines_to_be_run(code):
 	global final
 	global variables
-	global tmp_variables
-	
-	if is_developer_mode is False and tmp_variables != []:
-		# Variable setup
-		variables = tmp_variables
-		tmp_variables = []
 
-	execute_run_with_code(data)
+	# Inserts previously saved variables into the transpiled code (used in the console mode)
+	if variables:
+		for var in variables[::-1]:
+			final.insert(0, var + '\n')
 
+	# Runs the code line by line
+	for line_to_run in code:
+		transpile_line(line_to_run)
 
-# Prepares for running the code from the console.
-def console_line_runner(code):
-	global variables
-	global is_developer_mode
-	global tmp_variables
-	global is_web_editor
-	
-	tmp_variables = variables
-	
-	is_developer_mode = False
-	is_web_editor = True
-	
-	run_with_code([code])
+	run_transpiled_code()
 
 
-# Enkelt in console/repl mode
-def start_console(first):
+def console_mode(first):
 	global version
-	global is_developer_mode
 	global variables
 	global source_code
 	global final
+	global is_web_editor_or_console_mode
+
+	is_web_editor_or_console_mode = True
 	
 	if first:  # is first console run -> shows copyright & license info.
 		check_for_updates(version)
-		print('Enkelt ' + str(version) + ' © 2018-2019-2020 Edvard Busck-Nielsen' + ". GNU GPL v.3")
-		print('Tryck Ctrl+C för att avsluta')
+		print('Enkelt v' + str(version) + ' © 2018-2019-2020 Edvard Busck-Nielsen' + ". GNU GPL v.3")
+		print('Skriv "x" eller tryck Ctrl+C för att avsluta')
 	
-	code_line = input('Enkelt >> ')
-	if code_line != '':
-		test = main(code_line)
-		test = lex(test)
+	code_line = input('Enkelt >>> ')
 
-		# Makes sure that the line is a "normal" code line, AKA not the clear command and not a variable declaration.
-		if code_line.replace(' (', '(') != 'töm()' and test[0][0] != 'VAR':
-			console_line_runner(code_line)
+	if code_line != '' and code_line != 'x':
+		tmp_lexed_code_line_to_test_if_var = fix_up_code_line(code_line)
+		tmp_lexed_code_line_to_test_if_var = lex(tmp_lexed_code_line_to_test_if_var)
+
+		# Makes sure that the line is a "normal" code line, i.e. not the clear command and not a variable declaration.
+		if code_line.replace(' (', '(') != 'töm()' and tmp_lexed_code_line_to_test_if_var[0][0] != 'VAR':
+			prepare_and_run_code_lines_to_be_run([code_line])
 
 		# Clear command was issued
 		elif code_line.replace(' (', '(') == 'töm()':
-			if not os.name == 'nt':
-				os.system('clear')
-			else:
-				os.system('cls')
+			os.system(translate_clear())
 
 		# A variable was declared
 		else:
-			parse(test, 0)
+			parse(tmp_lexed_code_line_to_test_if_var, 0)
 			variables.append(''.join(source_code))
+
+	if code_line == 'x':
+		return
 
 	# Calling the console, recursively
 	source_code = []
 	final = []
-	start_console(False)
+	console_mode(False)
 
 
-def web_editor_runner(event):
+def web_editor_mode(event):
 	global variables
 	
 	data = ''
-	# These lines should be commented-out, they are only used in the web-version of Enkelt and are not Python code.
+	# These lines should be commented-out, they are only used in the web-version of Enkelt and are not normal Python code.
 	# data = document["inputCode"].value
 	# data = data.split('\n')
 	
 	variables = []
-	execute_run_with_code(data)
+	prepare_and_run_code_lines_to_be_run(data)
 
 
 # ----- SETUP -----
 
-# Global variable setup
 is_list = False
 is_if = False
 is_math = False
@@ -824,65 +813,61 @@ look_for_loop_ending = False
 needs_start_statuses = [False]
 is_file_open = False
 
-# --- SPECIAL --->
-is_web_editor = False
-# --- DO NOT CHANGE! --->
+is_web_editor_or_console_mode = False
 
 source_code = []
 indent_layers = []
-imported_modules = []
+imported_libraries = []
 user_functions = []
 
 # When user/dev tests
 is_developer_mode = False
 # When running automatic tests
 is_dev = False
-version = 3.0
+
+version = 3.1
 repo_location = 'https://raw.githubusercontent.com/Enkelt/Enkelt/'
-web_import_location = 'https://raw.githubusercontent.com/Enkelt/EnkeltBibliotek/master/bib/'
+web_import_location = 'https://raw.githubusercontent.com/Enkelt/EnkeltWeb/master/bibliotek/bib/'
 
 final = []
 variables = []
 
-tmp_variables = []
 enkelt_script_path = ''
 
 
-if is_web_editor is False:
-	# Gets an env. variable to check if it's a test run.
+if is_web_editor_or_console_mode is False:
+	# Gets an env. variable to check if it's a circle-ci test run.
 	is_dev = os.getenv('ENKELT_DEV', False)
 	
 	# ----- START -----
 	if not is_dev:
 		try:
-			# Makes sure that the user uses Python3
 			if sys.version_info[0] < 3:
 				raise Exception("Du måste använda Python 3 eller högre")
+
+			# Checks if code is being provided from an enkelt script or if it's a console/repl mode launch
+			if len(sys.argv) >= 2:
+				if '.e' in sys.argv[1]:
+					enkelt_script_path = sys.argv[1]
+
+				# Checks if enkelt is being run in developer mode (--d flag)
+				if len(sys.argv) >= 3:
+					if sys.argv[2] == '--d':
+						is_developer_mode = True
+
+				with open(enkelt_script_path, 'r+')as f:
+					tmp_code_to_run = f.readlines()
+
+				while '' in tmp_code_to_run:
+					tmp_code_to_run.pop(tmp_code_to_run.index(''))
+
+				prepare_and_run_code_lines_to_be_run(tmp_code_to_run)
+
+				check_for_updates(version)
 			else:
-				# Checks if enkelt code is being provided from an enkelt script
-				if len(sys.argv) >= 2:
-					if '.e' in sys.argv[1]:
-						enkelt_script_path = sys.argv[1]
-
-					# Checks if enkelt is being run in developer mode (--d flag)
-					if len(sys.argv) >= 3:
-						if sys.argv[2] == '--d':
-							is_developer_mode = True
-
-					# Opens and reads the provided enkelt script.
-					with open(enkelt_script_path, 'r+')as f:
-						tmp_code_to_run = f.readlines()
-						
-					while '' in tmp_code_to_run:
-						tmp_code_to_run.pop(tmp_code_to_run.index(''))
-					
-					run_with_code(tmp_code_to_run)
-
-					check_for_updates(version)
-				else:
-					# Starts console/repl mode
-					variables = []
-					final = []
-					start_console(True)
+				# Starts console/repl mode
+				variables = []
+				final = []
+				console_mode(True)
 		except Exception as e:
 			print(e)
