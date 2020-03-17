@@ -17,7 +17,7 @@ Dokumentation hittas på: [enkelt.io](https://enkelt.io).
 <br>
 Om du vill bidra till Enkelt är detta rätt plats att vara på! Om du vill lämna pull-request ber jag dig följa dessa riktlinjer/regler
 
-  * Använd Tabs.
+  * Använd 4 spaces.
 
   * Kör unittests (projektet använder Circle-CI men försök ändå att köra test själv).
 
