@@ -1,0 +1,3 @@
+def os__IMPORTED__system(cmd):
+    import os
+    os.system(cmd)

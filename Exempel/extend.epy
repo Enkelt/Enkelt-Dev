@@ -1,0 +1,7 @@
+def extend__IMPORTED__test(var1, var2):
+    return var1+var2
+
+
+def extend__IMPORTED__other(ett, två):
+    print("hej: " + str(ett))
+    print(type(två))
