@@ -1,10 +1,20 @@
-utöka extend
-utöka os
+klass Test {
+    def __init__($själv, $namn) {
+        $själv.$namn = $namn
+    }
+}
 
-skriv(extend.test(1, 2))
-extend.other("Name", 33)
+$mittTest = Test('name')
+skriv ($mittTest.$namn)
 
-$cmd = "echo \'test\""
-os.system($cmd)
-
-skriv ("text \\ other text")
+$var = in("Skriv ett nummer lägre en 5: ")
+försök {
+  om ($var < 5) {
+    skriv ("OK!")
+  } annars {
+    kasta("För stort!")
+  }
+}
+fånga $error {
+  skriv (typ($error))
+}
