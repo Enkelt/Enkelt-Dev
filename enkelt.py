@@ -706,8 +706,6 @@ def fix_up_code_line(statement):
 def fix_up_and_prepare_transpiled_code():
     global final
 
-    print(final)
-
     # Removes unnecessary tabs
     for line_index, line in enumerate(final):
         tmp_line = list(line)
