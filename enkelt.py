@@ -512,8 +512,6 @@ def parse(lexed, token_index):
     if len(lexed) - 1 >= token_index + 1 and is_comment is False:
         parse(lexed, token_index + 1)
 
-    return source_code
-
 
 def lex(line):
     if line[0] == '#':
@@ -707,6 +705,8 @@ def fix_up_code_line(statement):
 
 def fix_up_and_prepare_transpiled_code():
     global final
+
+    print(final)
 
     # Removes unnecessary tabs
     for line_index, line in enumerate(final):
