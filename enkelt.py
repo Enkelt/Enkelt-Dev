@@ -75,7 +75,7 @@ def enkelt_print(data):
     print(translate_output_to_swedish(data))
 
 
-def enkelt_input(prompt = ''):
+def enkelt_input(prompt=''):
     tmp = input(prompt)
 
     try:
