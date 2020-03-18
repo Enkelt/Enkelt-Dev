@@ -4,13 +4,13 @@ import enkelt
 
 
 class TestEnkelt(unittest.TestCase):
-	keywords = enkelt.functions_and_keywords()['keywords'].keys()
+	keywords = enkelt.functions_keywords_and_obj_notations()['keywords'].keys()
 	expected_lexer_keywords_output = [[['BOOL', 'Sant']], [['BOOL', 'Falskt']], [['KEYWORD', 'inom']], [['KEYWORD', 'bryt']], [['KEYWORD', 'fortsätt']], [['KEYWORD', 'returnera']], [['KEYWORD', 'inte']], [['KEYWORD', 'passera']], [['KEYWORD', 'matte_e']], [['KEYWORD', 'matte_pi']], [['KEYWORD', 'år']], [['KEYWORD', 'månad']], [['KEYWORD', 'dag']], [['KEYWORD', 'timme']], [['KEYWORD', 'minut']], [['KEYWORD', 'sekund']], [['KEYWORD', 'mikrosekund']], [['KEYWORD', 'annars']], [['KEYWORD', 'och']], [['KEYWORD', 'eller']], [['KEYWORD', 'som']], [['KEYWORD', 'klass']]]
 
 	operators = enkelt.operator_symbols()
 	expected_lexer_operators_output = [[['OPERATOR', '+']], [], [['OPERATOR', '*']], [['OPERATOR', '/']], [['OPERATOR', '%']], [['OPERATOR', '<']], [['OPERATOR', '>']], [['OPERATOR', '=']], [['OPERATOR', '!']], [['OPERATOR', '.']], [['OPERATOR', ',']], [['OPERATOR', ')']], [['OPERATOR', ':']], [['OPERATOR', ';']]]
 
-	functions = enkelt.functions_and_keywords()['functions'].keys()
+	functions = enkelt.functions_keywords_and_obj_notations()['functions'].keys()
 	sample_code_snippets = [
 		'',
 		'"text"',
@@ -80,7 +80,7 @@ class TestEnkelt(unittest.TestCase):
 					enkelt.lex(enkelt.fix_up_code_line(function + '(' + code_snippet + ')')),
 					self.sample_code_snippets_expected_lexer_output[index]
 				)
-			loop_counter = loop_counter + 1
+			loop_counter += 1
 
 		for x, keyword in enumerate(self.keywords):
 			self.assertEqual(enkelt.lex(enkelt.fix_up_code_line(keyword)), self.expected_lexer_keywords_output[x])

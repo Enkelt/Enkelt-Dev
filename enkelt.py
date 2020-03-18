@@ -75,15 +75,36 @@ def enkelt_print(data):
     print(translate_output_to_swedish(data))
 
 
+def enkelt_input(prompt = ''):
+    tmp = input(prompt)
+
+    try:
+        tmp = int(tmp)
+        return tmp
+    except ValueError:
+        try:
+            tmp = float(tmp)
+            return tmp
+        except ValueError:
+            return str(tmp)
+
+
 # ############ #
 # Main Methods #
 # ############ #
 
 def translate_output_to_swedish(data):
     data = str(data)
-    return data.replace("True", "Sant").replace("False", "Falskt").replace("<class \'float\'>", "decimaltal").replace(
-        "<class \'str\'>", "sträng").replace("<class \'int\'>", "heltal").replace("<class \'list\'>", "lista").replace(
-        "<class \'dict\'>", "lexikon").replace("<class \'bool\'>", "boolesk").replace("<class \'NoneType\'>", "inget")
+    return data.replace("True", "Sant").replace(
+        "False", "Falskt").replace(
+        "<class \'float\'>", "decimaltal").replace(
+        "<class \'str\'>", "sträng").replace(
+        "<class \'int\'>", "heltal").replace(
+        "<class \'list\'>", "lista").replace(
+        "<class \'dict\'>", "lexikon").replace(
+        "<class \'bool\'>", "boolesk").replace(
+        "<class \'NoneType\'>", "inget").replace(
+        "<class \'Exception\'>", "Errortyp")
 
 
 def check_for_updates(version_nr):
@@ -220,7 +241,7 @@ def get_errors():
     }
 
 
-def functions_and_keywords():
+def functions_keywords_and_obj_notations():
     return {
         'functions': {
             # Functions with no statuses in parse()
@@ -276,6 +297,7 @@ def functions_and_keywords():
             'element': 'elements',
             'numrera': 'enumerate',
             'töm': 'os.system("' + translate_clear() + '"',
+            'kasta': 'raise Exception',
             # Functions with statuses in parse()
             'om': 'if',
             'anom': 'elif',
@@ -305,9 +327,17 @@ def functions_and_keywords():
             'och': ' and ',
             'eller': ' or ',
             'som': ' as ',
-            'klass': 'class ',
         },
+        'obj_notations': {
+            'klass': 'class ',
+            'försök': 'try',
+            'fånga': 'except Exception as '
+        }
     }
+
+
+def get_obj_notations():
+    return ['klass', 'försök', 'fånga']
 
 
 def operator_symbols():
@@ -319,7 +349,7 @@ def forbidden_variable_names():
 
 
 def translate_function(func):
-    function_translations = functions_and_keywords()['functions']
+    function_translations = functions_keywords_and_obj_notations()['functions']
 
     return function_translations[func] if func in function_translations.keys() else 'error'
 
@@ -330,8 +360,14 @@ def transpile_function(func):
     source_code.append(translate_function(func) + '(')
 
 
+def translate_obj_notation(obj_notation):
+    obj_notation_translations = functions_keywords_and_obj_notations()['obj_notations']
+
+    return obj_notation_translations[obj_notation] if obj_notation in obj_notation_translations.keys() else 'error'
+
+
 def translate_keyword(keyword):
-    keyword_translations = functions_and_keywords()['keywords']
+    keyword_translations = functions_keywords_and_obj_notations()['keywords']
 
     return keyword_translations[keyword] if keyword in keyword_translations.keys() else 'error'
 
@@ -375,8 +411,9 @@ def parse(lexed, token_index):
         is_comment = True
     elif token_type == 'FUNCTION':
         # Specific functions & function cases that ex. required updating of statuses.
-        if token_val == 'skriv' and is_console_mode is False:
-            source_code.append('Enkelt.enkelt_print(')
+        if token_val == 'skriv' or token_val == 'in' and is_console_mode is False:
+            tmp = 'Enkelt.enkelt_'
+            source_code.append(tmp + 'print(' if token_val == 'skriv' else tmp + 'input(')
         elif token_val == 'matte':
             is_math = True
         elif token_val == 'om' or token_val == 'anom':
@@ -464,7 +501,10 @@ def parse(lexed, token_index):
         # Needed when functions are imported functions
         token_val = token_val.replace('.', '__IMPORTED__')
         source_code.append(token_val + '(')
-    elif token_type == 'CLASS':
+    elif token_type == 'OBJ_NOTATION':
+        source_code.append(translate_obj_notation(token_val))
+        needs_start_statuses.append(True)
+    elif token_type == 'OBJ_NOTATION_PARAM':
         source_code.append(' ' + token_val)
         needs_start_statuses.append(True)
 
@@ -483,12 +523,13 @@ def lex(line):
     global imported_libraries
 
     operators = operator_symbols()
+    obj_notations = get_obj_notations()
 
     tmp_data = ''
     is_string = False
     is_var = False
     is_function = False
-    is_class = False
+    is_obj_notation = False
     is_import = False
     is_extension_mode = False
     lexed_data = []
@@ -512,10 +553,10 @@ def lex(line):
             tmp_data = ''
             is_function = False
         elif char == '{' and is_var is False:
-            if is_class:
-                lexed_data.append(['CLASS', tmp_data])
+            if is_obj_notation:
+                lexed_data.append(['OBJ_NOTATION_PARAM', tmp_data])
                 tmp_data = ''
-                is_class = False
+                is_obj_notation = False
             lexed_data.append(['START', char])
         elif char == '}':
             lexed_data.append(['END', char])
@@ -614,29 +655,23 @@ def lex(line):
                                     lexed_data.append(['BOOL', tmp_data])
                                     tmp_data = ''
                                 else:
-                                    if translate_keyword(tmp_data) != 'error':
+                                    if tmp_data == 'matte_e' or translate_keyword(tmp_data) != 'error' or tmp_data == 'töm' and line[-3:] == 'töm':
                                         lexed_data.append(['KEYWORD', tmp_data])
-                                        tmp_data = ""
+                                        tmp_data = ''
                                     elif tmp_data == 'def':
                                         is_function = True
                                         tmp_data = ''
                                     elif tmp_data == 'var':
                                         is_var = True
                                         tmp_data = ''
-                                    elif tmp_data == 'importera':
+                                    elif tmp_data == 'importera' or tmp_data == 'utöka':
                                         is_import = True
+                                        is_extension_mode = True if (tmp_data == 'utöka') else False
                                         tmp_data = ''
-                                    elif tmp_data == 'utöka':
-                                        is_extension_mode = True
-                                        is_import = True
+                                    elif tmp_data in obj_notations:
+                                        lexed_data.append(['OBJ_NOTATION', tmp_data])
                                         tmp_data = ''
-                                    elif tmp_data == 'matte_e' or tmp_data == 'töm' and line[-3:] == 'töm':
-                                        lexed_data.append(['KEYWORD', tmp_data])
-                                        tmp_data = ''
-                                    elif tmp_data == 'klass':
-                                        lexed_data.append(['KEYWORD', tmp_data])
-                                        tmp_data = ''
-                                        is_class = True
+                                        is_obj_notation = True
 
     return lexed_data
 
@@ -653,12 +688,8 @@ def fix_up_code_line(statement):
     is_import = False
 
     for char in statement:
-        if char == ' ' and is_string:
-            current_line += char
-        elif char == ' ' and is_string is False and is_import is False:
+        if char == ' ' and is_string is False and is_import is False:
             continue
-        elif char == ' ' and is_string is False and is_import:
-            current_line += char
         elif char == '"' and is_string:
             is_string = False
             current_line += char
