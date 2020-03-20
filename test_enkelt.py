@@ -21,7 +21,8 @@ def default_get_sample_code(prefix, is_parser):
             line = line.strip()
             if line:
                 if is_parser is False:
-                    line = list(eval(line))
+                    import ast
+                    line = list(ast.literal_eval(line))
 
                 lines.append(line)
 
