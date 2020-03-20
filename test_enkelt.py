@@ -82,29 +82,6 @@ def standard_real_generator(is_parser):
     )
 
 
-def clear_files():
-    default_set_sample_code(
-        'non_real',
-        False,
-        []
-    )
-    default_set_sample_code(
-        'non_real',
-        True,
-        []
-    )
-    default_set_sample_code(
-        'real',
-        False,
-        []
-    )
-    default_set_sample_code(
-        'real',
-        True,
-        []
-    )
-
-
 def get_non_real_sample_code():
     return [
         '"text"',
@@ -151,22 +128,16 @@ def get_real_sample_code():
     ]
 
 
-def generate_real():
-    standard_real_generator(False)
-    standard_real_generator(True)
-
-
-def generate_non_real():
+def generator():
     standard_non_real_generator(False)
     standard_non_real_generator(True)
+    standard_real_generator(False)
+    standard_real_generator(True)
 
 
 functions = enkelt.functions_keywords_and_obj_notations()['functions'].keys()
 non_real_sample_code = get_non_real_sample_code()
 real_sample_code = get_real_sample_code()
-
-generate_non_real()
-generate_real()
 
 
 class TestEnkelt(unittest.TestCase):
@@ -341,6 +312,3 @@ class TestEnkelt(unittest.TestCase):
             enkelt.source_code = []
 
         loop_counter += 1
-
-
-clear_files()
