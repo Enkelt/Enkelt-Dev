@@ -104,7 +104,7 @@ def translate_output_to_swedish(data):
         "<class \'dict\'>", "lexikon").replace(
         "<class \'bool\'>", "boolesk").replace(
         "<class \'NoneType\'>", "inget").replace(
-        "<class \'Exception\'>", "Errortyp")
+        "<class \'Exception\'>", "Feltyp")
 
 
 def check_for_updates(version_nr):
@@ -216,7 +216,7 @@ def import_library_or_extension(library_name):
 
                 get_import(module_code, False, library_name)
             except HTTPError:
-                print('Error! Kunde inte importera ' + library_name)
+                print('Det inträffade ett fel!! Kunde inte importera ' + library_name)
 
 
 def translate_clear():
@@ -437,7 +437,7 @@ def parse(lexed, token_index):
         elif token_val == 'själv':
             source_code.append('self')
         else:
-            print('Error namnet ' + token_val + " är inte tillåtet som variabelnamn!")
+            print('Det inträffade ett fel! namnet ' + token_val + " är inte tillåtet som variabelnamn!")
     elif token_type == 'STRING':
         if is_file_open and len(token_val) <= 2:
             token_val = token_val.replace('l', 'r').replace('ö', 'w')
@@ -511,8 +511,6 @@ def parse(lexed, token_index):
     # Recursively calls parse() when there is more code to parse
     if len(lexed) - 1 >= token_index + 1 and is_comment is False:
         parse(lexed, token_index + 1)
-
-    return source_code
 
 
 def lex(line):
