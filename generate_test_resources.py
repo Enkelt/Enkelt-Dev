@@ -98,3 +98,10 @@ def generate_real_sample_code_all_functions_expected_parser_output():
     sample_code_manager.set_real_sample_code_in_all_functions_expected_parser_output(
         real_sample_code_all_functions_expected_parser_output
     )
+
+
+def clear_files():
+    sample_code_manager.set_non_real_sample_code_in_all_functions_expected_lexer_output([])
+    sample_code_manager.set_non_real_sample_code_in_all_functions_expected_parser_output([])
+    sample_code_manager.set_real_sample_code_in_all_functions_expected_lexer_output([])
+    sample_code_manager.set_real_sample_code_in_all_functions_expected_parser_output([])

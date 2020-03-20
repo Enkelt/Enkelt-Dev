@@ -98,7 +98,7 @@ class TestEnkelt(unittest.TestCase):
 			'dict': 'lexikon',
 			'bool': 'boolesk',
 			'NoneType': 'inget',
-			'Exception': 'Errortyp'
+			'Exception': 'Feltyp'
 		}
 
 		for english in data_types_to_be_translated.keys():
@@ -187,3 +187,5 @@ class TestEnkelt(unittest.TestCase):
 			enkelt.source_code = []
 
 		loop_counter += 1
+
+generate_test_resources.clear_files()
