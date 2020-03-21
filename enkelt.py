@@ -20,6 +20,8 @@
 import sys
 import re
 import os
+import collections
+import urllib.request
 
 
 # ####### #
@@ -94,8 +96,10 @@ def enkelt_input(prompt=''):
 # ############ #
 
 def translate_output_to_swedish(data):
+    if isinstance(data, collections.abc.KeysView):
+        data = list(data)
     data = str(data)
-    return data.replace("True", "Sant").replace(
+    data = data.replace("True", "Sant").replace(
         "False", "Falskt").replace(
         "<class \'float\'>", "decimaltal").replace(
         "<class \'str\'>", "sträng").replace(
@@ -106,9 +110,10 @@ def translate_output_to_swedish(data):
         "<class \'NoneType\'>", "inget").replace(
         "<class \'Exception\'>", "Feltyp")
 
+    return data
+
 
 def check_for_updates(version_nr):
-    import urllib.request
     import json
 
     global repo_location
@@ -177,7 +182,6 @@ def get_import(file_or_code, is_file, library_name):
 
 
 def import_library_or_extension(library_name):
-    import urllib.request
     from urllib.error import HTTPError
 
     global enkelt_script_path
@@ -247,8 +251,8 @@ def functions_keywords_and_obj_notations():
             # Functions with no statuses in parse()
             'skriv': 'print',
             'in': 'input',
-            'Text': 'str',
-            'Nummer': 'int',
+            'Sträng': 'str',
+            'Heltal': 'int',
             'Decimal': 'float',
             'Bool': 'bool',
             'längd': 'len',
@@ -298,12 +302,13 @@ def functions_keywords_and_obj_notations():
             'numrera': 'enumerate',
             'töm': 'os.system("' + translate_clear() + '"',
             'kasta': 'raise Exception',
+            'nycklar': 'keys',
             # Functions with statuses in parse()
             'om': 'if',
             'anom': 'elif',
             'öppna': 'with open',
             'för': 'for',
-            'medan': 'while'
+            'medan': 'while',
         },
         'keywords': {
             'Sant': 'True',
@@ -327,11 +332,13 @@ def functions_keywords_and_obj_notations():
             'och': ' and ',
             'eller': ' or ',
             'som': ' as ',
+            'global': 'global '
         },
         'obj_notations': {
             'klass': 'class ',
             'försök': 'try',
-            'fånga': 'except Exception as '
+            'fånga': 'except Exception as ',
+            'slutligen': 'finally'
         }
     }
 
@@ -414,8 +421,6 @@ def parse(lexed, token_index):
         if token_val == 'skriv' or token_val == 'in' and is_console_mode is False:
             tmp = 'Enkelt.enkelt_'
             source_code.append(tmp + 'print(' if token_val == 'skriv' else tmp + 'input(')
-        elif token_val == 'matte':
-            is_math = True
         elif token_val == 'om' or token_val == 'anom':
             source_code.append(translate_function(token_val) + ' ')
             is_if = True
@@ -638,8 +643,6 @@ def lex(line):
                             tmp_data = ''
                         else:
                             if char == '(' and translate_function(tmp_data) != 'error':
-                                if tmp_data == 'matte':
-                                    tmp_data = 'Nummer'
                                 lexed_data.append(['FUNCTION', tmp_data])
                                 tmp_data = ''
                             elif char == '(' and tmp_data in user_functions or char == '(' and translate_function(
