@@ -619,7 +619,7 @@ def lex(line):
                         elif char == '=' or char in operators:
                             is_var = False
                             lexed_data.append(['VAR', tmp_data])
-                            if char != ',':
+                            if char != ';':
                                 lexed_data.append(['OPERATOR', char])
                             else:
                                 lexed_data[-1][-1] = tmp_data + ' '

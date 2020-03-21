@@ -1,6 +1,6 @@
-$name = in("Name: ")
-skriv ($name, om ($name != "") annars "no name found")
-
-för ($i, inom området(0, 11)) {
-    skriv ($i)
+def test($param1, $param2) {
+    skriv ($param1)
+    skriv ($param2)
 }
+
+test("text", 2)
