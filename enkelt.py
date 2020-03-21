@@ -20,6 +20,8 @@
 import sys
 import re
 import os
+import collections
+import urllib.request
 
 
 # ####### #
@@ -43,7 +45,7 @@ class ErrorClass:
         return ''
 
     def get_error_message_data(self):
-        if self.error == "module 'final_transpiled' has no attribute '__Enkelt__'":
+        if self.error == "module 'final_transpiled' has no attribute '__enkelt__'":
             return 'IGNORED'
 
         from googletrans import Translator
@@ -94,8 +96,10 @@ def enkelt_input(prompt=''):
 # ############ #
 
 def translate_output_to_swedish(data):
+    if isinstance(data, collections.abc.KeysView):
+        data = list(data)
     data = str(data)
-    return data.replace("True", "Sant").replace(
+    data = data.replace("True", "Sant").replace(
         "False", "Falskt").replace(
         "<class \'float\'>", "decimaltal").replace(
         "<class \'str\'>", "sträng").replace(
@@ -106,9 +110,10 @@ def translate_output_to_swedish(data):
         "<class \'NoneType\'>", "inget").replace(
         "<class \'Exception\'>", "Feltyp")
 
+    return data
+
 
 def check_for_updates(version_nr):
-    import urllib.request
     import json
 
     global repo_location
@@ -124,6 +129,15 @@ def check_for_updates(version_nr):
             version_nr) + ' men du kan uppdatera till Enkelt version ' + str(data_store['version']))
 
 
+def get_functions_from_lexed_library_code(data, library_name):
+    for token_index, _ in enumerate(data):
+        if data[token_index][0] == 'USER_FUNCTION':
+            data[token_index][1] = library_name + '.' + data[token_index][1]
+            user_functions[-1] = library_name + '.' + user_functions[-1]
+
+    return data
+
+
 def transpile_library_code(library_code, library_name):
     global final
     global source_code
@@ -132,13 +146,9 @@ def transpile_library_code(library_code, library_name):
     for line in library_code:
         if line != '\n':
             data = fix_up_code_line(line)
-
             data = lex(data)
 
-            for token_index, _ in enumerate(data):
-                if data[token_index][0] == 'USER_FUNCTION':
-                    data[token_index][1] = library_name + '.' + data[token_index][1]
-                    user_functions[-1] = library_name + '.' + user_functions[-1]
+            data = get_functions_from_lexed_library_code(data, library_name)
 
             if is_extension:
                 source_code.append(line)
@@ -176,45 +186,46 @@ def get_import(file_or_code, is_file, library_name):
     transpile_library_code(library_code, library_name)
 
 
-def import_library_or_extension(library_name):
+def load_library_from_remote(url, library_name):
     import urllib.request
+
+    response = urllib.request.urlopen(url)
+    library_code = response.read().decode('utf-8')
+
+    library_code = library_code.split('\n')
+
+    get_import(library_code, False, library_name)
+
+
+def import_library(library_name):
     from urllib.error import HTTPError
 
     global enkelt_script_path
     global web_import_location
 
-    # Checks if the library/extension is user-made (i.e. local not remote).
+    # Checks if the library is user-made (i.e. local not remote).
     import_file = ''.join(enkelt_script_path.split('/')[:-1]) + '/' + library_name + '.e'
-    extension_file = import_file[:-2]+'.epy'
 
     if os.path.isfile(import_file):
         get_import(import_file, True, library_name)
 
-    elif os.path.isfile(extension_file):
-        get_import(extension_file, True, library_name)
+    # The library might be an extension (.epy file)
+    import_file += 'py'
+    if os.path.isfile(import_file):
+        get_import(import_file, True, library_name)
 
     else:
-        # The library/extension is remote (i.e. needs to be fetched)
+        # The library is remote (i.e. needs to be fetched)
         url = web_import_location + library_name + '.e'
 
         try:
-            response = urllib.request.urlopen(url)
-            module_code = response.read().decode('utf-8')
-
-            module_code = module_code.split('\n')
-
-            get_import(module_code, False, library_name)
-
+            load_library_from_remote(url, library_name)
         except HTTPError:
-            url = url[:-2] + '.epy'
+            # The library might be an extension (.epy file)
+            url += 'py'
 
             try:
-                response = urllib.request.urlopen(url)
-                module_code = response.read().decode('utf-8')
-
-                module_code = module_code.split('\n')
-
-                get_import(module_code, False, library_name)
+                load_library_from_remote(url, library_name)
             except HTTPError:
                 print('Det inträffade ett fel!! Kunde inte importera ' + library_name)
 
@@ -247,8 +258,8 @@ def functions_keywords_and_obj_notations():
             # Functions with no statuses in parse()
             'skriv': 'print',
             'in': 'input',
-            'Text': 'str',
-            'Nummer': 'int',
+            'Sträng': 'str',
+            'Heltal': 'int',
             'Decimal': 'float',
             'Bool': 'bool',
             'längd': 'len',
@@ -298,12 +309,13 @@ def functions_keywords_and_obj_notations():
             'numrera': 'enumerate',
             'töm': 'os.system("' + translate_clear() + '"',
             'kasta': 'raise Exception',
+            'nycklar': 'keys',
             # Functions with statuses in parse()
             'om': 'if',
             'anom': 'elif',
             'öppna': 'with open',
             'för': 'for',
-            'medan': 'while'
+            'medan': 'while',
         },
         'keywords': {
             'Sant': 'True',
@@ -327,11 +339,13 @@ def functions_keywords_and_obj_notations():
             'och': ' and ',
             'eller': ' or ',
             'som': ' as ',
+            'global': 'global '
         },
         'obj_notations': {
             'klass': 'class ',
             'försök': 'try',
-            'fånga': 'except Exception as '
+            'fånga': 'except Exception as ',
+            'slutligen': 'finally'
         }
     }
 
@@ -414,8 +428,6 @@ def parse(lexed, token_index):
         if token_val == 'skriv' or token_val == 'in' and is_console_mode is False:
             tmp = 'Enkelt.enkelt_'
             source_code.append(tmp + 'print(' if token_val == 'skriv' else tmp + 'input(')
-        elif token_val == 'matte':
-            is_math = True
         elif token_val == 'om' or token_val == 'anom':
             source_code.append(translate_function(token_val) + ' ')
             is_if = True
@@ -447,7 +459,7 @@ def parse(lexed, token_index):
     elif token_type == 'IMPORT' or token_type == 'EXTENSION':
         if token_type == 'EXTENSION':
             is_extension = True
-        import_library_or_extension(token_val)
+        import_library(token_val)
     elif token_type == 'OPERATOR':
         # Special operator cases
         if is_if and token_val == ')':
@@ -494,12 +506,12 @@ def parse(lexed, token_index):
             transpile_keyword(token_val)
     elif token_type == 'USER_FUNCTION':
         # Needed when functions are imported functions
-        token_val = token_val.replace('.', '__IMPORTED__')
+        token_val = token_val.replace('.', '__enkelt__')
         source_code.append('def ' + token_val + '(')
         needs_start_statuses.append(True)
     elif token_type == 'USER_FUNCTION_CALL':
         # Needed when functions are imported functions
-        token_val = token_val.replace('.', '__IMPORTED__')
+        token_val = token_val.replace('.', '__enkelt__')
         source_code.append(token_val + '(')
     elif token_type == 'OBJ_NOTATION':
         source_code.append(translate_obj_notation(token_val))
@@ -638,8 +650,6 @@ def lex(line):
                             tmp_data = ''
                         else:
                             if char == '(' and translate_function(tmp_data) != 'error':
-                                if tmp_data == 'matte':
-                                    tmp_data = 'Nummer'
                                 lexed_data.append(['FUNCTION', tmp_data])
                                 tmp_data = ''
                             elif char == '(' and tmp_data in user_functions or char == '(' and translate_function(
@@ -739,7 +749,7 @@ def run_transpiled_code():
 
     if is_console_mode is False:
         # Inserts necessary code to make importing a temporary python file work.
-        code_to_append = "import enkelt as Enkelt\ndef __Enkelt__():\n\tprint('', end='')\n"
+        code_to_append = "import enkelt as Enkelt\ndef __enkelt__():\n\tprint('', end='')\n"
         final.insert(0, code_to_append)
 
     code = fix_up_and_prepare_transpiled_code()
@@ -760,7 +770,7 @@ def run_transpiled_code():
             # This line will show an error;
             # it's importing a temporary file that get's created (and deleted) by this script.
             import final_transpiled
-            final_transpiled.__Enkelt__()
+            final_transpiled.__enkelt__()
         # The "fallback"/console execution process.
         else:
             exec(code)

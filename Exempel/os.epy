@@ -1,3 +1,7 @@
-def os__IMPORTED__system(cmd):
+def os__enkelt__system(cmd):
     import os
     os.system(cmd)
+
+
+def other_system(param):
+    print(str(param) + 'lol')
