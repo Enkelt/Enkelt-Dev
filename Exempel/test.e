@@ -1,3 +1,6 @@
-utöka os
+def test($param1, $param2) {
+    skriv ($param1)
+    skriv ($param2)
+}
 
-os.system('echo \"text\"')
+test("text", 2)

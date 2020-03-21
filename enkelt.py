@@ -320,7 +320,7 @@ def functions_keywords_and_obj_notations():
         'keywords': {
             'Sant': 'True',
             'Falskt': 'False',
-            'inom': ' in ',
+            'inom': 'in ',
             'bryt': 'break',
             'fortsätt': 'continue',
             'returnera': 'return ',
@@ -467,8 +467,6 @@ def parse(lexed, token_index):
             needs_start_statuses.append(True)
         elif is_math and token_val == ')':
             is_math = False
-        elif is_for and token_val == ';':
-            is_for = False
         elif look_for_loop_ending and token_val == ')':
             look_for_loop_ending = False
             needs_start_statuses.append(True)
@@ -621,7 +619,10 @@ def lex(line):
                         elif char == '=' or char in operators:
                             is_var = False
                             lexed_data.append(['VAR', tmp_data])
-                            lexed_data.append(['OPERATOR', char])
+                            if char != ';':
+                                lexed_data.append(['OPERATOR', char])
+                            else:
+                                lexed_data[-1][-1] = tmp_data + ' '
                             tmp_data = ''
                         elif char == '[':
                             is_var = False

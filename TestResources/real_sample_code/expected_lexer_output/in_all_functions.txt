@@ -3,7 +3,7 @@
 [['FUNCTION', 'om'], ['STRING', 'test'], ['OPERATOR', '='], ['OPERATOR', '='], ['VAR', 'var'], ['OPERATOR', ')'], ['START', '{'], ['END', '}']]
 [['FUNCTION', 'anom'], ['PNUMBER', '1'], ['OPERATOR', '>'], ['PNUMBER', '4'], ['OPERATOR', ')'], ['START', '{'], ['END', '}']]
 [['KEYWORD', 'annars'], ['START', '{'], ['END', '}']]
-[['FUNCTION', 'för'], ['VAR', 'i'], ['OPERATOR', ';'], ['KEYWORD', 'inom'], ['FUNCTION', 'området'], ['PNUMBER', '0'], ['OPERATOR', ','], ['PNUMBER', '11'], ['OPERATOR', ')'], ['START', '{'], ['END', '}']]
+[['FUNCTION', 'för'], ['VAR', 'i '], ['KEYWORD', 'inom'], ['FUNCTION', 'området'], ['PNUMBER', '0'], ['OPERATOR', ','], ['PNUMBER', '11'], ['OPERATOR', ')'], ['START', '{'], ['END', '}']]
 [['FUNCTION', 'medan'], ['VAR', 'var'], ['OPERATOR', '<'], ['OPERATOR', '='], ['FUNCTION', 'längd'], ['VAR', 'var_a'], ['OPERATOR', ')'], ['OPERATOR', ')'], ['START', '{'], ['END', '}']]
 [['USER_FUNCTION', 'minFunktion'], ['OPERATOR', ')'], ['START', '{'], ['END', '}']]
 [['USER_FUNCTION', 'en_funktion'], ['VAR', 'param'], ['OPERATOR', ')'], ['START', '{'], ['END', '}']]
