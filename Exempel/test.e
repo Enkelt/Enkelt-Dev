@@ -1,3 +1,6 @@
-utöka os
+$name = in("Name: ")
+skriv ($name, om ($name != "") annars "no name found")
 
-os.system('echo \"text\"')
+för ($i, inom området(0, 11)) {
+    skriv ($i)
+}
