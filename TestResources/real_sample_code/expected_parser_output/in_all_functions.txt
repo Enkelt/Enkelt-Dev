@@ -15,3 +15,5 @@ lista_1=[1,2,3]
 lista.append(4)
 lexikon=:"a":"alpha","b":True
 lexikon["c"]=4
+var=lambda a,b: a+b
+	var("hej","text")
