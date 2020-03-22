@@ -403,6 +403,7 @@ def parse(lexed, token_index):
     global needs_start_statuses
     global is_file_open
     global is_extension
+    global is_lambda
 
     forbidden = forbidden_variable_names()
 
@@ -470,13 +471,20 @@ def parse(lexed, token_index):
         elif look_for_loop_ending and token_val == ')':
             look_for_loop_ending = False
             needs_start_statuses.append(True)
+        elif token_val == '>' and lexed[token_index-1][1] == '=' and lexed[token_index+1][0] == 'USER_FUNCTION_CALL':
+            is_lambda = True
+            source_code.append('lambda ')
+        elif is_lambda and token_val == ')':
+            source_code.append(': ')
         # All other operators just gets appended to the source
         else:
             source_code.append(token_val)
     elif token_type == 'LIST_START' or token_type == 'LIST_END':
         source_code.append(token_val)
     elif token_type == 'START':
-        if needs_start is False:
+        if is_lambda:
+            source_code.append('')
+        elif needs_start is False:
             source_code.append(token_val)
         elif len(lexed) - 1 == token_index:
             source_code.append(':')
@@ -485,7 +493,9 @@ def parse(lexed, token_index):
         if needs_start:
             indent_layers.append("x")
     elif token_type == 'END':
-        if needs_start is False:
+        if is_lambda:
+            is_lambda = False
+        elif needs_start is False:
             source_code.append(token_val)
         else:
             needs_start_statuses.pop(-1)
@@ -507,7 +517,7 @@ def parse(lexed, token_index):
         token_val = token_val.replace('.', '__enkelt__')
         source_code.append('def ' + token_val + '(')
         needs_start_statuses.append(True)
-    elif token_type == 'USER_FUNCTION_CALL':
+    elif token_type == 'USER_FUNCTION_CALL' and is_lambda is False:
         # Needed when functions are imported functions
         token_val = token_val.replace('.', '__enkelt__')
         source_code.append(token_val + '(')
@@ -517,6 +527,8 @@ def parse(lexed, token_index):
     elif token_type == 'OBJ_NOTATION_PARAM':
         source_code.append(' ' + token_val)
         needs_start_statuses.append(True)
+    elif token_type == 'LAMBDA_CALL':
+        source_code.append(token_val)
 
     # Recursively calls parse() when there is more code to parse
     if len(lexed) - 1 >= token_index + 1 and is_comment is False:
@@ -566,7 +578,7 @@ def lex(line):
                 tmp_data = ''
                 is_obj_notation = False
             lexed_data.append(['START', char])
-        elif char == '}':
+        elif char == '}' and is_var is False:
             lexed_data.append(['END', char])
         elif char == '#' and is_string is False:
             break
@@ -610,7 +622,7 @@ def lex(line):
                         is_var = True
                         tmp_data = ''
                     elif is_var:
-                        if char != ' ' and char != '=' and char not in operators and char != '[' and char != ']' and char != '{' and char != '}':
+                        if char != ' ' and char != '=' and char not in operators and char != '[' and char != ']' and char != '{' and char != '}' and char != '(':
                             tmp_data += char
                             if len(line) - 1 == chr_index:
                                 is_var = False
@@ -634,10 +646,15 @@ def lex(line):
                             lexed_data.append(['VAR', tmp_data])
                             lexed_data.append(['LIST_END', '['])
                             tmp_data = ''
-                        elif char == '{':
+                        elif char == '{' or char == '}':
                             is_var = False
                             lexed_data.append(['VAR', tmp_data])
-                            lexed_data.append(['START', char])
+                            lexed_data.append(['START' if char == '{' else 'END', char])
+                            tmp_data = ''
+                        elif char == '(':
+                            is_var = False
+                            lexed_data.append(['VAR', tmp_data])
+                            lexed_data.append(['LAMBDA_CALL', char])
                             tmp_data = ''
                     elif char in operators and tmp_data not in imported_libraries:
                         lexed_data.append(['OPERATOR', char])
@@ -669,9 +686,6 @@ def lex(line):
                                         tmp_data = ''
                                     elif tmp_data == 'def':
                                         is_function = True
-                                        tmp_data = ''
-                                    elif tmp_data == 'var':
-                                        is_var = True
                                         tmp_data = ''
                                     elif tmp_data == 'importera' or tmp_data == 'utöka':
                                         is_import = True
@@ -889,6 +903,7 @@ look_for_loop_ending = False
 needs_start_statuses = [False]
 is_file_open = False
 is_extension = False
+is_lambda = False
 
 is_console_mode = False
 
