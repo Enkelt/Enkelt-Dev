@@ -482,16 +482,15 @@ def parse(lexed, token_index):
     elif token_type == 'LIST_START' or token_type == 'LIST_END':
         source_code.append(token_val)
     elif token_type == 'START':
-        if is_lambda:
-            source_code.append('')
-        elif needs_start is False:
-            source_code.append(token_val)
-        elif len(lexed) - 1 == token_index:
-            source_code.append(':')
-        else:
-            source_code.append(':' + '\n')
-        if needs_start:
-            indent_layers.append("x")
+        if is_lambda is False:
+            if needs_start is False:
+                source_code.append(token_val)
+            elif len(lexed) - 1 == token_index:
+                source_code.append(':')
+            else:
+                source_code.append(':' + '\n')
+            if needs_start:
+                indent_layers.append("x")
     elif token_type == 'END':
         if is_lambda:
             is_lambda = False

@@ -125,7 +125,9 @@ def get_real_sample_code():
         '$lista_1 = [1, 2, 3]',
         '$lista.till(4)',
         '$lexikon = {"a": "alpha", "b": Sant}',
-        '$lexikon["c"] = 4'
+        '$lexikon["c"] = 4',
+        '$var => ($a, $b) {$a + $b}',
+        '$var("hej", "text")',
     ]
 
 

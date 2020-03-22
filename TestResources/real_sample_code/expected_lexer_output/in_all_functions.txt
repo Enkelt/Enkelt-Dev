@@ -15,3 +15,5 @@
 [['VAR', 'lista'], ['OPERATOR', '.'], ['FUNCTION', 'till'], ['PNUMBER', '4'], ['OPERATOR', ')']]
 [['VAR', 'lexikon'], ['OPERATOR', '='], ['START', '{'], ['STRING', 'a'], ['OPERATOR', ':'], ['STRING', 'alpha'], ['OPERATOR', ','], ['STRING', 'b'], ['OPERATOR', ':'], ['BOOL', 'Sant'], ['END', '}']]
 [['VAR', 'lexikon'], ['LIST_START', '['], ['STRING', 'c'], ['LIST_END', ']'], ['OPERATOR', '='], ['PNUMBER', '4']]
+[['VAR', 'var'], ['OPERATOR', '='], ['OPERATOR', '>'], ['USER_FUNCTION_CALL', ''], ['VAR', 'a'], ['OPERATOR', ','], ['VAR', 'b'], ['OPERATOR', ')'], ['START', '{'], ['VAR', 'a'], ['OPERATOR', '+'], ['VAR', 'b'], ['END', '}']]
+[['VAR', 'var'], ['LAMBDA_CALL', '('], ['STRING', 'hej'], ['OPERATOR', ','], ['STRING', 'text'], ['OPERATOR', ')']]
