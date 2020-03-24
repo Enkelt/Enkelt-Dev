@@ -14,9 +14,9 @@ Dokumentation hittas på: [enkelt.io](https://enkelt.io).
 
 Om du vill bidra kan du läsa `CONTRIBUTING.md`.
 
+### Personer som arbetar/arbetat på Enkelt
 <details>
-<summary><h3>Personer som jobbar på Enkelt</h3></summary>
-
+ <summary></summary>
 (lägg till ditt namn om du jobbar på enkelt)
 
   * Edvard Busck-Nielsen
