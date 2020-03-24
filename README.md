@@ -12,23 +12,7 @@ Enkelt är just nu i mitten av en total omskriving och bl.a. därför sker utvec
 
 Dokumentation hittas på: [enkelt.io](https://enkelt.io).
 
-<details>
-<summary><h3>Vill du bidra?</h3></summary>
-<br>
-Om du vill bidra till Enkelt är detta rätt plats att vara på! Om du vill lämna pull-request ber jag dig följa dessa riktlinjer/regler
-
-  * Använd 4 spaces.
-
-  * Kör unittests (projektet använder Circle-CI men försök ändå att köra test själv).
-
-  * Använd Python3.
-
-  * Gör alltid en ny branch med ett beskrivande men kort namn.
-
-  * Uppdatera gärna denna fil med viktig information om det behövs.
-
-  * Använd ' inte " i koden.
-</details>
+Om du vill bidra kan du läsa `CONTRIBUTING.md`.
 
 <details>
 <summary><h3>Personer som jobbar på Enkelt</h3></summary>
