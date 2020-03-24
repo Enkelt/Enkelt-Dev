@@ -1,4 +1,3 @@
-# Contributor Covenant Code of Conduct
 # Uppförandekod för bidragsgivare
 
 ## Vårt löfte
