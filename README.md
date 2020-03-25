@@ -15,14 +15,11 @@ __Vi leter efter bidragsgivare!__
 Om du vill bidra kan du läsa `CONTRIBUTING.md` för mer information.
 
 ### Personer som arbetar/arbetat på Enkelt
-<details>
- <summary></summary>
-(lägg till ditt namn om du jobbar på enkelt)
+(lägg till ditt namn om du jobbar/jobbat på enkelt)
 
-  * Edvard Busck-Nielsen
+* Edvard Busck-Nielsen
 
-  * Morgan Williams
-</details>
+* Morgan Williams
 
 <br>
 <br>
