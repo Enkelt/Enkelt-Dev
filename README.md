@@ -22,7 +22,6 @@ Om du vill bidra kan du läsa `CONTRIBUTING.md` för mer information.
 * Morgan Williams
 
 <br>
-<br>
 
 ## Teknisk information
 - Licens: GNU GPLv3
