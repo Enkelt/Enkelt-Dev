@@ -6,6 +6,7 @@
 
 Enkelt är världens första svenskspråkiga programmeringsspråk, och det perfekta valet för programmeringsundervisning på svenska.
 
+
 ## Information om Enkelt-Dev
 Här sker Enkelts utveckling, om du letar efter själva projektet hittar du det [här](https://github.com/Enkelt/Enkelt).
 
@@ -14,14 +15,14 @@ Dokumentation hittas på: [enkelt.io](https://enkelt.io).
 __Vi leter efter bidragsgivare!__
 Om du vill bidra kan du läsa `CONTRIBUTING.md` för mer information.
 
-### Personer som arbetar/arbetat på Enkelt
+
+## Personer som arbetar/arbetat på Enkelt
 (lägg till ditt namn om du jobbar/jobbat på enkelt)
 
 * Edvard Busck-Nielsen (Upprätthållare)
 
 * Morgan Williams
 
-<br>
 
 ## Teknisk information
 - Licens: GNU GPLv3
