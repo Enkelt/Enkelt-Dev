@@ -17,7 +17,7 @@ Om du vill bidra kan du läsa `CONTRIBUTING.md` för mer information.
 ### Personer som arbetar/arbetat på Enkelt
 (lägg till ditt namn om du jobbar/jobbat på enkelt)
 
-* Edvard Busck-Nielsen
+* Edvard Busck-Nielsen (Upprätthållare)
 
 * Morgan Williams
 
