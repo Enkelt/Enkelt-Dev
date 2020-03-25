@@ -22,3 +22,13 @@ Du kan sedan koppla ihop din pull-request med problemrapporten genom att i commi
 
 * Följ PEP8-standarden, t.ex. så skrivs variabler och funktions namn med `små_bokstäver_och_med_understräck` läs mer här: https://www.python.org/dev/peps/pep-0008/
 det enklaste är att installera någonslags automatisk lösning till din textredigerare/IDE.
+
+## Arbetsprocess
+
+1. Klona projektet
+2. Gör en ny _issue_ eller välj en som redan finns genom att välja dig själv som _assignee_.
+3. Gör din ändring/dina ändringar
+4. Gör en ny branch med modellen `feature/[nam-på-din-ändring]`, `fix/[namn-på-din-ändring]`, eller `other/namn-på-din-ändring`
+5. Commit, push
+6. Gör en pull request på GitHub till _master_-grenen och i beskrivningen skriv `Closes #[id till issue]`.
+7. Vänta på merge och/eller kommentarer.
