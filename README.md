@@ -4,15 +4,15 @@
 
 [![CircleCI](https://circleci.com/gh/Enkelt/Enkelt-Dev.svg?style=svg)](https://circleci.com/gh/Enkelt/Enkelt-Dev)
 
-Enkelt är världens första svenska programmeringsspråk
+Enkelt är världens första svenskspråkiga programmeringsspråk, och det perfekta valet för programmeringsundervisning på svenska.
 
 ## Information om Enkelt-Dev
-Enkelt-Dev är var Enkelt utvecklas.
-Enkelt är just nu i mitten av en total omskriving och bl.a. därför sker utveckling i enskild repo från den officiella Enkelt repon.
+Här sker Enkelts utveckling, om du letar efter själva projektet hittar du det [https://github.com/Enkelt/Enkelt](här).
 
 Dokumentation hittas på: [enkelt.io](https://enkelt.io).
 
-Om du vill bidra kan du läsa `CONTRIBUTING.md`.
+__Vi leter efter bidragsgivare!__
+Om du vill bidra kan du läsa `CONTRIBUTING.md` för mer information.
 
 ### Personer som arbetar/arbetat på Enkelt
 <details>
@@ -26,4 +26,8 @@ Om du vill bidra kan du läsa `CONTRIBUTING.md`.
 
 <br>
 <br>
-Enkelt använder GNU GPLv3 licensen
+
+## Teknisk information
+- Licens: GNU GPLv3
+- Språk: Python (3)
+- CI/CD: Circle-CI
