@@ -7,7 +7,7 @@
 Enkelt är världens första svenskspråkiga programmeringsspråk, och det perfekta valet för programmeringsundervisning på svenska.
 
 ## Information om Enkelt-Dev
-Här sker Enkelts utveckling, om du letar efter själva projektet hittar du det [https://github.com/Enkelt/Enkelt](här).
+Här sker Enkelts utveckling, om du letar efter själva projektet hittar du det [här](https://github.com/Enkelt/Enkelt).
 
 Dokumentation hittas på: [enkelt.io](https://enkelt.io).
 
