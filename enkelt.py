@@ -495,7 +495,6 @@ def parse(lexed, token_index):
             if token_val == 'för':
                 is_for = True
         elif token_val == 'töm':
-            source_code.append('import os\n')
             source_code.append(translate_function(token_val))
         # Every other function get's transpiled in the same way.
         else:
