@@ -22,7 +22,11 @@ import re
 import os
 import collections
 import urllib.request
+
+# For the standard library
 import math
+import time
+import datetime
 
 
 # ####### #
@@ -95,6 +99,26 @@ class StandardLibrary:
         def pi():
             return math.pi
 
+    class tid:
+        @staticmethod
+        def epok():
+            return time.time()
+
+        @staticmethod
+        def tid():
+            return time.ctime()
+
+        @staticmethod
+        def datum():
+            return datetime.date()
+
+        @staticmethod
+        def nu():
+            return datetime.datetime.now()
+
+        @staticmethod
+        def idag():
+            return datetime.date.today()
 
 class ErrorClass:
     def __init__(self, error_msg):
@@ -349,14 +373,9 @@ def functions_keywords_and_obj_notations():
             'dela': 'split',
             'foga': 'join',
             'typ': 'type',
-            'veckodag': 'weekday',
             'läs': 'read',
             'överför': 'write',
-            'epok': '__import__("time").time',
-            'tid': '__import__("time").ctime',
-            'datum': '__import__("datetime").date',
-            'nu': '__import__("datetime").datetime.now',
-            'idag': '__import__("datetime").date.today',
+            'veckodag': 'weekday',
             'värden': 'values',
             'element': 'elements',
             'numrera': 'enumerate',
@@ -379,6 +398,9 @@ def functions_keywords_and_obj_notations():
             'returnera': 'return ',
             'inte': 'not',
             'passera': 'pass',
+            'annars': 'else',
+            'och': ' and ',
+            'eller': ' or ',
             'år': 'year',
             'månad': 'month',
             'dag': 'day',
@@ -386,9 +408,6 @@ def functions_keywords_and_obj_notations():
             'minut': 'minute',
             'sekund': 'second',
             'mikrosekund': 'microsecond',
-            'annars': 'else',
-            'och': ' and ',
-            'eller': ' or ',
             'som': ' as ',
             'global': 'global '
         },
@@ -410,7 +429,7 @@ def operator_symbols():
 
 
 def forbidden_variable_names():
-    return ['in', 'str', 'int', 'list', 'num', 'matte_e', 'matte_pi', 'själv']
+    return ['in', 'själv']
 
 
 def translate_function(func):
@@ -974,7 +993,7 @@ is_console_mode = False
 source_code = []
 indent_layers = []
 imported_libraries = []
-standard_library = ['matte']
+standard_library = ['matte', 'tid']
 user_functions = []
 
 # When user/dev tests
