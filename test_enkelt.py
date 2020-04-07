@@ -55,10 +55,11 @@ def standard_non_real_generator(is_parser):
     sample_code_all_functions_expected_output = ''
 
     for function in functions:
-        for sample in non_real_sample_code:
-            sample_code_all_functions_expected_output += standard_get_expected_output(
-                is_parser, function + '(' + sample + ')'
-            )
+        if function != 'töm':
+            for sample in non_real_sample_code:
+                sample_code_all_functions_expected_output += standard_get_expected_output(
+                    is_parser, function + '(' + sample + ')'
+                )
 
     default_set_sample_code(
         'non_real',
@@ -253,14 +254,15 @@ class TestEnkelt(unittest.TestCase):
         loop_counter = 0
 
         for function in self.functions:
-            for x, sample in enumerate(self.non_real_sample_code):
-                index = self.expected_output_index_calculator(loop_counter, x)
+            if function != 'töm':
+                for x, sample in enumerate(self.non_real_sample_code):
+                    index = self.expected_output_index_calculator(loop_counter, x)
 
-                self.assertEqual(
-                    get_enkelt_lex(function + '(' + sample + ')'),
-                    self.non_real_sample_code_in_all_functions_expected_lexer_output[index]
-                )
-            loop_counter += 1
+                    self.assertEqual(
+                        get_enkelt_lex(function + '(' + sample + ')'),
+                        self.non_real_sample_code_in_all_functions_expected_lexer_output[index]
+                    )
+                loop_counter += 1
 
         # ################## #
         #  REAL SAMPLE CODE  #
@@ -283,19 +285,20 @@ class TestEnkelt(unittest.TestCase):
         loop_counter = 0
 
         for function in self.functions:
-            for x, sample in enumerate(self.non_real_sample_code):
-                index = self.expected_output_index_calculator(loop_counter, x)
+            if function != 'töm':
+                for x, sample in enumerate(self.non_real_sample_code):
+                    index = self.expected_output_index_calculator(loop_counter, x)
 
-                enkelt.parse(get_enkelt_lex(function + '(' + sample + ')'), 0)
+                    enkelt.parse(get_enkelt_lex(function + '(' + sample + ')'), 0)
 
-                self.assertEqual(
-                    ''.join(enkelt.source_code),
-                    self.non_real_sample_code_in_all_functions_expected_parser_output[index]
-                )
+                    self.assertEqual(
+                        ''.join(enkelt.source_code),
+                        self.non_real_sample_code_in_all_functions_expected_parser_output[index]
+                    )
 
-                enkelt.source_code = []
+                    enkelt.source_code = []
 
-            loop_counter += 1
+                loop_counter += 1
 
         # ################## #
         #  REAL SAMPLE CODE  #

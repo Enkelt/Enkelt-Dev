@@ -1,2 +1,1 @@
-$var => ($a, $b) {$a + $b}
-skriv ($var("hej", "text"))
+skriv (matte.potens(4, 3))

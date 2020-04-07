@@ -16,4 +16,4 @@ lista.append(4)
 lexikon=:"a":"alpha","b":True
 lexikon["c"]=4
 var=lambda a,b: a+b
-	var("hej","text")
+var("hej","text")
