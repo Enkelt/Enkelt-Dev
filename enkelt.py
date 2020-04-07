@@ -1,6 +1,6 @@
 # coding=utf-8
 
-# Enkelt 3.1
+# Enkelt 3.2
 # Copyright 2018, 2019, 2020 Edvard Busck-Nielsen, 2019 Morgan Willliams.
 # This file is part of Enkelt.
 #
@@ -214,8 +214,8 @@ def import_library(library_name):
     if os.path.isfile(import_file):
         get_import(import_file, True, library_name)
 
+    # The library might be remote (i.e. needs to be fetched)
     else:
-        # The library is remote (i.e. needs to be fetched)
         url = web_import_location + library_name + '.e'
 
         try:
@@ -282,26 +282,12 @@ def functions_keywords_and_obj_notations():
             'dela': 'split',
             'foga': 'join',
             'typ': 'type',
-            'sin': '__import__("math").sin',
-            'cos': '__import__("math").cos',
-            'tan': '__import__("math").tan',
-            'potens': '__import__("math").pow',
-            'asin': '__import__("math").asin',
-            'atan': '__import__("math").atan',
-            'acos': '__import__("math").acos',
-            'tak': '__import__("math").ceil',
-            'golv': '__import__("math").floor',
-            'log': '__import__("math").log',
-            'kvadratrot': '__import__("math").sqrt',
-            'grader': '__import__("math").degrees',
-            'radianer': '__import__("math").radians',
-            'fakultet': '__import__("math").factorial',
-            'datum': '__import__("datetime").date',
             'veckodag': 'weekday',
             'läs': 'read',
             'överför': 'write',
             'epok': '__import__("time").time',
             'tid': '__import__("time").ctime',
+            'datum': '__import__("datetime").date',
             'nu': '__import__("datetime").datetime.now',
             'idag': '__import__("datetime").date.today',
             'värden': 'values',
@@ -326,8 +312,6 @@ def functions_keywords_and_obj_notations():
             'returnera': 'return ',
             'inte': 'not',
             'passera': 'pass',
-            'matte_e': '__import__("math").e',
-            'matte_pi': '__import__("math").pi',
             'år': 'year',
             'månad': 'month',
             'dag': 'day',
@@ -892,7 +876,7 @@ def console_mode(first):
     console_mode(False)
 
 
-# ----- SETUP -----
+# ----- SETUP GLOBAL VARIABLES -----
 
 is_list = False
 is_if = False
@@ -916,7 +900,7 @@ is_developer_mode = False
 # Gets an env. variable to check if it's a circle-ci test run.
 is_dev = os.getenv('ENKELT_DEV', False)
 
-version = 3.1
+version = 3.2
 repo_location = 'https://raw.githubusercontent.com/Enkelt/Enkelt/'
 web_import_location = 'https://raw.githubusercontent.com/Enkelt/EnkeltWeb/master/bibliotek/bib/'
 
