@@ -22,11 +22,78 @@ import re
 import os
 import collections
 import urllib.request
+import math
 
 
 # ####### #
 # CLASSES #
 # ####### #
+
+class StandardLibrary:
+    class matte:
+        @staticmethod
+        def tak(val):
+            return math.ceil(val)
+
+        @staticmethod
+        def golv(val):
+            return math.floor(val)
+
+        @staticmethod
+        def fakultet(val):
+            return math.factorial(val)
+
+        @staticmethod
+        def sin(val):
+            return math.sin(val)
+
+        @staticmethod
+        def cos(val):
+            return math.cos(val)
+
+        @staticmethod
+        def tan(val):
+            return math.tan(val)
+
+        @staticmethod
+        def asin(val):
+            return math.asin(val)
+
+        @staticmethod
+        def acos(val):
+            return math.acos(val)
+
+        @staticmethod
+        def atan(val):
+            return math.atan(val)
+
+        @staticmethod
+        def potens(val, pow_to):
+            return math.pow(val, pow_to)
+
+        @staticmethod
+        def kvadratrot(val):
+            return math.sqrt(val)
+
+        @staticmethod
+        def log(val):
+            return math.log(val)
+
+        @staticmethod
+        def grader(val):
+            return math.degrees(val)
+
+        @staticmethod
+        def radianer(val):
+            return math.radians(val)
+
+        @staticmethod
+        def e():
+            return math.e
+
+        @staticmethod
+        def pi():
+            return math.pi
 
 
 class ErrorClass:
@@ -389,6 +456,8 @@ def parse(lexed, token_index):
     global is_extension
     global is_lambda
 
+    global standard_library
+
     forbidden = forbidden_variable_names()
 
     global is_console_mode
@@ -425,6 +494,9 @@ def parse(lexed, token_index):
             look_for_loop_ending = True
             if token_val == 'för':
                 is_for = True
+        elif token_val == 'töm':
+            source_code.append('import os\n')
+            source_code.append(translate_function(token_val))
         # Every other function get's transpiled in the same way.
         else:
             transpile_function(token_val)
@@ -501,8 +573,16 @@ def parse(lexed, token_index):
         source_code.append('def ' + token_val + '(')
         needs_start_statuses.append(True)
     elif token_type == 'USER_FUNCTION_CALL' and is_lambda is False:
-        # Needed when functions are imported functions
-        token_val = token_val.replace('.', '__enkelt__')
+        if '.' in token_val:
+            if token_val.split('.')[0] in standard_library:
+                # The function is part of the standard library
+                library = token_val.split('.')[0]
+                rest = ''.join(token_val.split('.')[1:])
+
+                token_val = 'Enkelt.StandardLibrary.' + library + '.' + rest
+            else:
+                # Function is an imported functions
+                token_val = token_val.replace('.', '__enkelt__')
         source_code.append(token_val + '(')
     elif token_type == 'OBJ_NOTATION':
         source_code.append(translate_obj_notation(token_val))
@@ -524,6 +604,7 @@ def lex(line):
 
     global user_functions
     global imported_libraries
+    global standard_library
 
     operators = operator_symbols()
     obj_notations = get_obj_notations()
@@ -639,11 +720,11 @@ def lex(line):
                             lexed_data.append(['VAR', tmp_data])
                             lexed_data.append(['LAMBDA_CALL', char])
                             tmp_data = ''
-                    elif char in operators and tmp_data not in imported_libraries:
+                    elif char in operators and tmp_data not in imported_libraries and tmp_data not in standard_library:
                         lexed_data.append(['OPERATOR', char])
-                    elif char in imported_libraries and char != '.':
+                    elif char in imported_libraries or char in standard_library and char != '.':
                         lexed_data.append(['OPERATOR', char])
-                    elif char in imported_libraries and char == '.':
+                    elif char in imported_libraries or char in standard_library and char == '.':
                         tmp_data += char
                     else:
                         if tmp_data == 'Sant' or tmp_data == 'Falskt':
@@ -664,7 +745,7 @@ def lex(line):
                                     lexed_data.append(['BOOL', tmp_data])
                                     tmp_data = ''
                                 else:
-                                    if tmp_data == 'matte_e' or translate_keyword(tmp_data) != 'error' or tmp_data == 'töm' and line[-3:] == 'töm':
+                                    if translate_keyword(tmp_data) != 'error':
                                         lexed_data.append(['KEYWORD', tmp_data])
                                         tmp_data = ''
                                     elif tmp_data == 'def':
@@ -747,7 +828,7 @@ def run_transpiled_code():
 
     if is_console_mode is False:
         # Inserts necessary code to make importing a temporary python file work.
-        code_to_append = "import enkelt as Enkelt\ndef __enkelt__():\n\tprint('', end='')\n"
+        code_to_append = """import enkelt as Enkelt\ndef __enkelt__():\n\tprint('', end='')\n"""
         final.insert(0, code_to_append)
 
     code = fix_up_and_prepare_transpiled_code()
@@ -775,7 +856,8 @@ def run_transpiled_code():
     except Exception as err:
         if is_developer_mode:
             print('--DEV: run_final_transpiled_code, error')
-            print(err)
+            if str(err) != 'module \'final_transpiled\' has no attribute \'__enkelt__\'':
+                print(err)
 
         # Print out error(s) if any
         error = ErrorClass(str(err).replace('(<string>, ', '('))
@@ -893,6 +975,7 @@ is_console_mode = False
 source_code = []
 indent_layers = []
 imported_libraries = []
+standard_library = ['matte']
 user_functions = []
 
 # When user/dev tests
