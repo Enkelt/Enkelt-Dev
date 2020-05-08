@@ -197,7 +197,7 @@ def translate_output_to_swedish(data):
         '<class \'str\'>', 'sträng').replace(
         '<class \'int\'>', 'heltal').replace(
         '<class \'list\'>', 'lista').replace(
-        '<class \'dict\'>', 'exikon').replace(
+        '<class \'dict\'>', 'lexikon').replace(
         '<class \'bool\'>', 'boolesk').replace(
         '<class \'NoneType\'>', 'inget').replace(
         '<class \'Exception\'>', 'Feltyp').replace(
