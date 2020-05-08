@@ -109,8 +109,8 @@ class StandardLibrary:
             return time.ctime()
 
         @staticmethod
-        def datum():
-            return datetime.date()
+        def datum(year, month, day):
+            return datetime.date(year, month, day)
 
         @staticmethod
         def nu():
@@ -119,6 +119,7 @@ class StandardLibrary:
         @staticmethod
         def idag():
             return datetime.date.today()
+
 
 class ErrorClass:
     def __init__(self, error_msg):
@@ -191,15 +192,17 @@ def translate_output_to_swedish(data):
         data = list(data)
     data = str(data)
     data = data.replace("True", "Sant").replace(
-        "False", "Falskt").replace(
-        "<class \'float\'>", "decimaltal").replace(
-        "<class \'str\'>", "sträng").replace(
-        "<class \'int\'>", "heltal").replace(
-        "<class \'list\'>", "lista").replace(
-        "<class \'dict\'>", "lexikon").replace(
-        "<class \'bool\'>", "boolesk").replace(
-        "<class \'NoneType\'>", "inget").replace(
-        "<class \'Exception\'>", "Feltyp")
+        'False', 'Falskt').replace(
+        '<class \'float\'>', 'decimaltal').replace(
+        '<class \'str\'>', 'sträng').replace(
+        '<class \'int\'>', 'heltal').replace(
+        '<class \'list\'>', 'lista').replace(
+        '<class \'dict\'>', 'exikon').replace(
+        '<class \'bool\'>', 'boolesk').replace(
+        '<class \'NoneType\'>', 'inget').replace(
+        '<class \'Exception\'>', 'Feltyp').replace(
+        '<class \'datetime.date\'>', 'datum').replace(
+        '<class \'datetime.datetime\'>', 'datum & tid')
 
     return data
 
@@ -278,8 +281,6 @@ def get_import(file_or_code, is_file, library_name):
 
 
 def load_library_from_remote(url, library_name):
-    import urllib.request
-
     response = urllib.request.urlopen(url)
     library_code = response.read().decode('utf-8')
 
@@ -367,6 +368,8 @@ def functions_keywords_and_obj_notations():
             'runda': 'round',
             'versal': 'upper',
             'gemen': 'lower',
+            'ärversal': 'isupper',
+            'ärgemen': 'islower',
             'ersätt': 'replace',
             'infoga': 'insert',
             'index': 'index',
@@ -873,8 +876,8 @@ def run_transpiled_code():
             exec(code)
     except Exception as err:
         if is_developer_mode:
-            print('--DEV: run_final_transpiled_code, error')
             if str(err) != 'module \'final_transpiled\' has no attribute \'__enkelt__\'':
+                print('--DEV: run_final_transpiled_code, error')
                 print(err)
 
         # Print out error(s) if any
