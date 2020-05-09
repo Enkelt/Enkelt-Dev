@@ -1,6 +1,6 @@
 # coding=utf-8
 
-# Enkelt 3.2
+# Enkelt 4.0
 # Copyright 2018, 2019, 2020 Edvard Busck-Nielsen, 2019 Morgan Willliams.
 # This file is part of Enkelt.
 #
