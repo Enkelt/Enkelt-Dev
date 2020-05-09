@@ -202,7 +202,8 @@ def translate_output_to_swedish(data):
         '<class \'NoneType\'>', 'inget').replace(
         '<class \'Exception\'>', 'Feltyp').replace(
         '<class \'datetime.date\'>', 'datum').replace(
-        '<class \'datetime.datetime\'>', 'datum & tid')
+        '<class \'datetime.datetime\'>', 'datum & tid').replace(
+        '<class \'range\'>', 'område')
 
     return data
 
@@ -300,8 +301,9 @@ def import_library(library_name):
 
     if os.path.isfile(import_file):
         get_import(import_file, True, library_name)
+        return
 
-    # The library might be an extension (.epy file)
+    # The library might be a local extension (.epy file)
     import_file += 'py'
     if os.path.isfile(import_file):
         get_import(import_file, True, library_name)
@@ -313,7 +315,7 @@ def import_library(library_name):
         try:
             load_library_from_remote(url, library_name)
         except HTTPError:
-            # The library might be an extension (.epy file)
+            # The library might be a remote extension (.epy file)
             url += 'py'
 
             try:
@@ -362,7 +364,6 @@ def functions_keywords_and_obj_notations():
             'slumpval': '__import__("random").choice',
             'blanda': '__import__("random").shuffle',
             'området': 'range',
-            'abs': 'abs',
             'lista': 'list',
             'ärnum': 'isdigit',
             'runda': 'round',
@@ -411,7 +412,6 @@ def functions_keywords_and_obj_notations():
             'minut': 'minute',
             'sekund': 'second',
             'mikrosekund': 'microsecond',
-            'som': ' as ',
             'global': 'global '
         },
         'obj_notations': {
