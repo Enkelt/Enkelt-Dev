@@ -1002,7 +1002,7 @@ standard_library = ['matte', 'tid']
 user_functions = []
 
 # When user/dev tests
-is_developer_mode = True
+is_developer_mode = False
 # Gets an env. variable to check if it's a circle-ci test run.
 is_dev = os.getenv('ENKELT_DEV', False)
 
