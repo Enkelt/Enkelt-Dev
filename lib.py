@@ -1,7 +1,7 @@
 # coding=utf-8
 
 # Enkeltlib 1.1
-# Copyright 2018, 2019 Edvard Busck-Nielsen, 2019 Morgan Willliams
+# Copyright 2018, 2019 Edvard Busck-Nielsen
 # This file is part of Enkelt.
 #
 #     Enkelt is free software: you can redistribute it and/or modify
