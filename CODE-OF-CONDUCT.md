@@ -28,6 +28,6 @@ Projektet kan också representeras utför internet.
 
 ## Tillämning
 
-Raportering gällande brott mot denna uppförandekod kan skickas till <mailto:kontat@enkelt.io>.
+Raportering gällande brott mot denna uppförandekod kan skickas till <mailto:kontakt@enkelt.io>.
 
 Upprätthållare och bidragsgivare som inte följt/följer denna kod kan temporärt eller permanent avstängas från projektet.
