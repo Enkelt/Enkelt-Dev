@@ -60,17 +60,17 @@ def update(enkelt_module):
 		try:
 			response = urllib.request.urlopen(web_path)
 			web_module_code = response.read().decode('utf-8')
-			
+
 			with open(local_path, 'r') as f:
 				local_module_code = f.read()
 				f.close()
-			
+
 			if local_module_code != web_module_code:
-				
+
 				with open(local_path, 'w') as f:
 					f.write(web_module_code)
 					f.close()
-					
+
 					print('Modulen', enkelt_module, 'uppdaterades.')
 			else:
 				print('Redan uppdaterad.')
