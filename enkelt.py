@@ -476,7 +476,7 @@ def parse(lexed, token_index):
     global needs_start_statuses
     global is_file_open
     global is_extension
-    global is_lambda
+    global lambda_num
 
     global standard_library
 
@@ -551,9 +551,11 @@ def parse(lexed, token_index):
             look_for_loop_ending = False
             needs_start_statuses.append(True)
         elif token_val == '>' and lexed[token_index-1][1] == '=' and lexed[token_index+1][0] == 'USER_FUNCTION_CALL':
-            is_lambda = True
+            lambda_num += 1
+            if lexed[token_index-2][0] != 'VAR':
+                source_code = source_code[:-1]
             source_code.append('lambda ')
-        elif is_lambda and token_val == ')':
+        elif lambda_num and token_val == ')':
             source_code.append(': ')
         # All other operators just gets appended to the source
         else:
@@ -561,7 +563,7 @@ def parse(lexed, token_index):
     elif token_type == 'LIST_START' or token_type == 'LIST_END':
         source_code.append(token_val)
     elif token_type == 'START':
-        if is_lambda is False:
+        if not lambda_num:
             if needs_start is False:
                 source_code.append(token_val)
             elif len(lexed) - 1 == token_index:
@@ -571,8 +573,8 @@ def parse(lexed, token_index):
             if needs_start:
                 indent_layers.append("x")
     elif token_type == 'END':
-        if is_lambda:
-            is_lambda = False
+        if lambda_num:
+            lambda_num -= 1
         elif needs_start is False:
             source_code.append(token_val)
         else:
@@ -595,7 +597,7 @@ def parse(lexed, token_index):
         token_val = token_val.replace('.', '__enkelt__')
         source_code.append('def ' + token_val + '(')
         needs_start_statuses.append(True)
-    elif token_type == 'USER_FUNCTION_CALL' and is_lambda is False:
+    elif token_type == 'USER_FUNCTION_CALL' and not lambda_num:
         if '.' in token_val:
             if token_val.split('.')[0] in standard_library:
                 # The function is part of the standard library
@@ -991,7 +993,7 @@ look_for_loop_ending = False
 needs_start_statuses = [False]
 is_file_open = False
 is_extension = False
-is_lambda = False
+lambda_num = 0
 
 is_console_mode = False
 
