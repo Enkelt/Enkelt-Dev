@@ -20,7 +20,7 @@ Om du vill bidra till Enkelt är detta rätt plats att vara på! Om du vill läm
 *   För varje bidrag du gör ska du först göra en problemraport på det här projektet och så kan du välja dig själv som "assignee" så vet andra att arbete är på gång.
 Du kan sedan koppla ihop din pull-request med problemrapporten genom att i commit-meddelande skriva `Closes #[problemraportens id]`
 
-*   Följ PEP8-standarden, t.ex. så skrivs variabler och funktions namn med `små_bokstäver_och_med_understräck` läs mer här: https://www.python.org/dev/peps/pep-0008/
+*   Följ PEP8-standarden, t.ex. så skrivs variabler och funktions namn med `små_bokstäver_och_med_understräck` läs mer här: <https://www.python.org/dev/peps/pep-0008/>
 det enklaste är att installera någonslags automatisk lösning till din textredigerare/IDE.
 
 ## Arbetsprocess
