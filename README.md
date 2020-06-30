@@ -27,7 +27,11 @@ Om du vill bidra kan du läsa `CONTRIBUTING.md` för mer information.
 
 ## Kom igång
 -   Klona projektet
+
 -   Du kan använda dig av Exempel/test.e -filen för att testa olika saker
+
 -   Kör Enkelt så här: `python3 enkelt.py Exempel/test.e`
+
 -   För att få mera information om vad som händer i bakgrunden kan du använda dig av `--d` flaggan när du kör enkelt:
+
     -   `python3 enkelt.py Exemple/test.e --d`
