@@ -31,22 +31,21 @@ def show_help_message(sys_args):
 def install(enkelt_module):
 	local_path = 'bib/' + enkelt_module + '.e'
 	web_path = web_import_location + enkelt_module + '.e'
-	
+
 	if os.path.isfile(local_path):
 		print('Modulen ', enkelt_module, ' är redan installerad.')
 		ans = input('Vill du uppdatera den? (J/n) ')
 		if ans.lower() == 'j' or ans == '':
 			update(enkelt_module)
-	
 	else:
 		try:
 			response = urllib.request.urlopen(web_path)
 			module_code = response.read().decode('utf-8')
-			
+
 			with open(local_path, 'w') as f:
 				f.write(module_code)
 				f.close()
-			
+
 			if os.path.isfile(local_path):
 				print('Modulen ', enkelt_module, ' installerad.')
 		except Exception:
@@ -56,7 +55,7 @@ def install(enkelt_module):
 def update(enkelt_module):
 	local_path = 'bib/' + enkelt_module + '.e'
 	web_path = web_import_location + enkelt_module + '.e'
-	
+
 	if os.path.isfile(local_path):
 		try:
 			response = urllib.request.urlopen(web_path)
