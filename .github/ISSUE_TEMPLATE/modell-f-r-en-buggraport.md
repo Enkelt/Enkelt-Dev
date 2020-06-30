@@ -12,17 +12,17 @@ En klar och koncis beskrivning av buggen.
 
 **För reproducering**
 Hur uppstår buggen
-1. Gå till [x]
-2. Skriv ...
-3. Välj ...
+1.  Gå till ...
+2.  Skriv ...
+3.  Välj ...
 
 **Förväntat uppförande**
 En tydlig beskriving på vad som borde ha hänt.
 
-** Systeminformation **
-- Operativsystem
-- Version
-- Modell
+**Systeminformation**
+-   Operativsystem
+-   Version
+-   Modell
 
 **Extra**
 Annan information
