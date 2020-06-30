@@ -26,7 +26,7 @@ def show_help_message(sys_args):
 	if len(sys_args) > 1:
 		print('\nOgiltigt argument:', sys_args[1])
 	print('Prova hjälpkommandot:\npython3 lib.py hjälp\n')
-	
+
 
 def install(enkelt_module):
 	local_path = 'bib/' + enkelt_module + '.e'
