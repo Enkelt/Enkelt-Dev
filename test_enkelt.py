@@ -16,7 +16,7 @@ def get_all_functions_sample_code_file_name(prefix, is_parser):
 
 def default_get_sample_code(prefix, is_parser):
     lines = []
-    with open(get_all_functions_sample_code_file_name(prefix, is_parser)) as f:
+    with open(get_all_functions_sample_code_file_name(prefix, is_parser), encoding='utf-8') as f:
         for line in f.readlines():
             line = line.strip()
             if line:

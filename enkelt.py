@@ -35,90 +35,34 @@ import datetime
 
 class StandardLibrary:
     class matte:
-        @staticmethod
-        def tak(val):
-            return math.ceil(val)
+        tak = math.ceil
+        golv = math.floor
+        fakultet = math.factorial
+        sin = math.sin
+        cos = math.cos
+        tan = math.tan
+        asin = math.asin
+        acos = math.acos
+        atan = math.atan
+        potens = math.pow
+        kvadratrot = math.sqrt
+        log = math.log
+        grader = math.degrees
+        radianer = math.radians
+        abs = abs
 
         @staticmethod
-        def golv(val):
-            return math.floor(val)
+        def e(): return math.e
 
         @staticmethod
-        def fakultet(val):
-            return math.factorial(val)
-
-        @staticmethod
-        def sin(val):
-            return math.sin(val)
-
-        @staticmethod
-        def cos(val):
-            return math.cos(val)
-
-        @staticmethod
-        def tan(val):
-            return math.tan(val)
-
-        @staticmethod
-        def asin(val):
-            return math.asin(val)
-
-        @staticmethod
-        def acos(val):
-            return math.acos(val)
-
-        @staticmethod
-        def atan(val):
-            return math.atan(val)
-
-        @staticmethod
-        def potens(val, pow_to):
-            return math.pow(val, pow_to)
-
-        @staticmethod
-        def kvadratrot(val):
-            return math.sqrt(val)
-
-        @staticmethod
-        def log(val):
-            return math.log(val)
-
-        @staticmethod
-        def grader(val):
-            return math.degrees(val)
-
-        @staticmethod
-        def radianer(val):
-            return math.radians(val)
-
-        @staticmethod
-        def e():
-            return math.e
-
-        @staticmethod
-        def pi():
-            return math.pi
+        def pi(): return math.pi
 
     class tid:
-        @staticmethod
-        def epok():
-            return time.time()
-
-        @staticmethod
-        def tid():
-            return time.ctime()
-
-        @staticmethod
-        def datum(year, month, day):
-            return datetime.date(year, month, day)
-
-        @staticmethod
-        def nu():
-            return datetime.datetime.now()
-
-        @staticmethod
-        def idag():
-            return datetime.date.today()
+        epok = time.time
+        tid = time.ctime
+        datum = datetime.date
+        nu = datetime.datetime.now
+        idag = datetime.date.today
 
 
 class ErrorClass:
@@ -489,8 +433,6 @@ def parse(lexed, token_index):
     token_type = str(lexed[token_index][0])
     token_val = lexed[token_index][1]
 
-    needs_start = False
-
     needs_start = needs_start_statuses[-1]
 
     if indent_layers and token_index == 0:
@@ -711,7 +653,7 @@ def lex(line):
                         is_var = True
                         tmp_data = ''
                     elif is_var:
-                        if char not in [' ', '=', '[', ']', '{', '}', '('] and char not in operators:
+                        if char not in operators + list(' =[]{}('):
                             tmp_data += char
                             if len(line) - 1 == chr_index:
                                 is_var = False
@@ -791,7 +733,10 @@ def lex(line):
 def fix_up_code_line(statement):
     global is_extension
 
-    statement = statement.replace('\n', '').replace("'", '"').replace('\\"', '|-ENKELT_ESCAPED_QUOTE-|').replace('\\', '|-ENKELT_ESCAPED_BACKSLASH-|')
+    statement = statement.replace('\n', '')\
+                         .replace("'", '"')\
+                         .replace('\\"', '|-ENKELT_ESCAPED_QUOTE-|')\
+                         .replace('\\', '|-ENKELT_ESCAPED_BACKSLASH-|')
     if is_extension is False:
         statement = statement.replace('\t', '')
 
@@ -836,7 +781,9 @@ def fix_up_and_prepare_transpiled_code():
     final = list(''.join(final).replace('= =', '==').replace('! =', '==').replace('+ =', '+='))
 
     # Fixes escaped (\) characters
-    final = list(''.join(final).replace('|-ENKELT_ESCAPED_QUOTE-|', '\\"').replace('|-ENKELT_ESCAPED_BACKSLASH-|', '\\'))
+    final = list(
+        ''.join(final).replace('|-ENKELT_ESCAPED_QUOTE-|', '\\"').replace('|-ENKELT_ESCAPED_BACKSLASH-|', '\\')
+    )
 
     # Remove empty lines from final
     final = list(re.sub(r'\n\s*\n', '\n\n', ''.join(final)))
