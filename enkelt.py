@@ -432,8 +432,6 @@ def parse(lexed, token_index):
     token_type = str(lexed[token_index][0])
     token_val = lexed[token_index][1]
 
-    needs_start = False
-
     needs_start = needs_start_statuses[-1]
 
     if indent_layers and token_index == 0:
