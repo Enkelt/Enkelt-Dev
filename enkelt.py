@@ -449,7 +449,7 @@ def parse(lexed, token_index):
         # Specific functions & function cases that ex. required updating of statuses.
         if token_val == 'skriv' or token_val == 'in':
             tmp = ''
-            if is_console_mode is False:
+            if not is_console_mode:
                 tmp = 'Enkelt.enkelt_'
             source_code.append(tmp + 'print(' if token_val == 'skriv' else tmp + 'input(')
         elif token_val == 'om' or token_val == 'anom':
@@ -510,7 +510,7 @@ def parse(lexed, token_index):
         source_code.append(token_val)
     elif token_type == 'START':
         if not lambda_num:
-            if needs_start is False:
+            if not needs_start:
                 source_code.append(token_val)
             elif len(lexed) - 1 == token_index:
                 source_code.append(':')
@@ -521,7 +521,7 @@ def parse(lexed, token_index):
     elif token_type == 'END':
         if lambda_num:
             lambda_num -= 1
-        elif needs_start is False:
+        elif not needs_start:
             source_code.append(token_val)
         else:
             needs_start_statuses.pop(-1)
@@ -565,7 +565,7 @@ def parse(lexed, token_index):
         source_code.append(token_val)
 
     # Recursively calls parse() when there is more code to parse
-    if len(lexed) - 1 >= token_index + 1 and is_comment is False:
+    if len(lexed) - 1 >= token_index + 1 and not is_comment:
         parse(lexed, token_index + 1)
 
 
@@ -591,12 +591,21 @@ def lex(line):
     last_action = ''
     might_be_negative_num = False
     data_index = -1
+    op_dict = {
+        '=': 'OPERATOR',
+        '[': 'LIST_START',
+        ']': 'LIST_END',
+        '{': 'START',
+        '}': 'END',
+        '(': 'LAMBDA_CALL'
+    }
+    op_dict.update({key:'OPERATOR' for key in operators})
 
     for chr_index, char in enumerate(line):
         if is_import and char != ' ':
             tmp_data += char
         if is_import and chr_index == len(line) - 1:
-            lexed_data.append(['IMPORT' if is_extension_mode is False else 'EXTENSION', tmp_data])
+            lexed_data.append(['IMPORT' if not is_extension_mode else 'EXTENSION', tmp_data])
             is_import = False
             is_extension_mode = False
             tmp_data = ''
@@ -607,17 +616,17 @@ def lex(line):
             user_functions.append(tmp_data)
             tmp_data = ''
             is_function = False
-        elif char == '{' and is_var is False:
+        elif char == '{' and not is_var:
             if is_obj_notation:
                 lexed_data.append(['OBJ_NOTATION_PARAM', tmp_data])
                 tmp_data = ''
                 is_obj_notation = False
             lexed_data.append(['START', char])
-        elif char == '}' and is_var is False:
+        elif char == '}' and not is_var:
             lexed_data.append(['END', char])
-        elif char == '#' and is_string is False:
+        elif char == '#' and not is_string:
             break
-        elif char.isdigit() and is_string is False and is_var is False:
+        elif char.isdigit() and not is_string and not is_var:
             if might_be_negative_num or last_action == 'NNUMBER':
                 if last_action == 'NNUMBER':
                     lexed_data[data_index - 1] = ['NNUMBER', lexed_data[data_index - 1][1] + char]
@@ -634,11 +643,11 @@ def lex(line):
                     data_index += 1
 
                 last_action = 'PNUMBER'
-        elif char == '-' and is_string is False and is_var is False:
+        elif char == '-' and not is_string and not is_var:
             might_be_negative_num = True
         else:
             last_action = ''
-            if char == '"' and is_string is False:
+            if char == '"' and not is_string:
                 is_string = True
                 tmp_data = ''
             elif char == '"' and is_string:
@@ -648,49 +657,29 @@ def lex(line):
             elif is_string:
                 tmp_data += char
             else:
-                if char == '[' and is_var is False:
+                if char == '[' and not is_var:
                     lexed_data.append(['LIST_START', '['])
-                elif char == ']' and is_var is False:
+                elif char == ']' and not is_var:
                     lexed_data.append(['LIST_END', ']'])
                 else:
                     if char == '$':
                         is_var = True
                         tmp_data = ''
                     elif is_var:
-                        if char not in operators + list(' =[]{}('):
+                        if char in operators + list(' =[]{}('):
+                            is_var = False
+                            lexed_data.append(['VAR', tmp_data])
+                            if char != ';':
+                                lexed_data.append([op_dict[char], char])
+                            else:
+                                lexed_data[-1][-1] = tmp_data + ' '
+                            tmp_data = ''
+                        else:
                             tmp_data += char
                             if len(line) - 1 == chr_index:
                                 is_var = False
                                 lexed_data.append(['VAR', tmp_data])
                                 tmp_data = ''
-                        elif char == '=' or char in operators:
-                            is_var = False
-                            lexed_data.append(['VAR', tmp_data])
-                            if char != ';':
-                                lexed_data.append(['OPERATOR', char])
-                            else:
-                                lexed_data[-1][-1] = tmp_data + ' '
-                            tmp_data = ''
-                        elif char == '[':
-                            is_var = False
-                            lexed_data.append(['VAR', tmp_data])
-                            lexed_data.append(['LIST_START', '['])
-                            tmp_data = ''
-                        elif char == ']':
-                            is_var = False
-                            lexed_data.append(['VAR', tmp_data])
-                            lexed_data.append(['LIST_END', '['])
-                            tmp_data = ''
-                        elif char == '{' or char == '}':
-                            is_var = False
-                            lexed_data.append(['VAR', tmp_data])
-                            lexed_data.append(['START' if char == '{' else 'END', char])
-                            tmp_data = ''
-                        elif char == '(':
-                            is_var = False
-                            lexed_data.append(['VAR', tmp_data])
-                            lexed_data.append(['LAMBDA_CALL', char])
-                            tmp_data = ''
                     elif char in operators and tmp_data not in imported_libraries and tmp_data not in standard_library:
                         lexed_data.append(['OPERATOR', char])
                     elif char in imported_libraries or char in standard_library and char != '.':
@@ -710,7 +699,7 @@ def lex(line):
                                 lexed_data.append(['USER_FUNCTION_CALL', tmp_data])
                                 tmp_data = ''
                             else:
-                                if is_import is False:
+                                if not is_import:
                                     tmp_data += char
                                 if tmp_data == 'Sant' or tmp_data == 'Falskt':
                                     lexed_data.append(['BOOL', tmp_data])
@@ -741,7 +730,7 @@ def fix_up_code_line(statement):
                          .replace("'", '"')\
                          .replace('\\"', '|-ENKELT_ESCAPED_QUOTE-|')\
                          .replace('\\', '|-ENKELT_ESCAPED_BACKSLASH-|')
-    if is_extension is False:
+    if not is_extension:
         statement = statement.replace('\t', '')
 
     current_line = ''
@@ -769,7 +758,7 @@ def fix_up_and_prepare_transpiled_code():
         tmp_line = list(line)
         chars_started = False
         for char_index, char in enumerate(tmp_line):
-            if char != '\t' and char != '\n' and chars_started is False:
+            if char != '\t' and char != '\n' and not chars_started:
                 chars_started = True
             elif chars_started and char == '\t' and char_index > 0:
                 tmp_line[char_index] = ' '
@@ -797,7 +786,7 @@ def run_transpiled_code():
     global is_developer_mode
     global is_console_mode
 
-    if is_console_mode is False:
+    if not is_console_mode:
         # Inserts necessary code to make importing a temporary python file work.
         code_to_append = """import enkelt as Enkelt\ndef __enkelt__():\n\tprint('', end='')\n"""
         final.insert(0, code_to_append)
@@ -808,7 +797,7 @@ def run_transpiled_code():
         print('--DEV: run_transpiled_code, final code')
         print(code)
 
-    if is_console_mode is False:
+    if not is_console_mode:
         # Writes the transpiled code to a file temporarily.
         with open('final_transpiled.py', 'w+', encoding='utf-8') as transpiled_f:
             transpiled_f.writelines(code)
@@ -816,7 +805,7 @@ def run_transpiled_code():
     # Executes the code transpiled to python and catches Exceptions
     try:
         # The "main" way of executing the transpiled code
-        if is_console_mode is False:
+        if not is_console_mode:
             # This line will show an error;
             # it's importing a temporary file that get's created (and deleted) by this script.
             import final_transpiled
@@ -835,7 +824,7 @@ def run_transpiled_code():
         if error.get_error_message_data() != 'IGNORED':
             print(error.get_error_message_data())
 
-    if is_console_mode is False:
+    if not is_console_mode:
         # Removes the temporary python file.
         with open('final_transpiled.py', 'w+', encoding='utf-8') as transpiled_f:
             transpiled_f.writelines('')
