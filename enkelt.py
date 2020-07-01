@@ -749,16 +749,11 @@ def fix_up_code_line(statement):
     is_import = False
 
     for char in statement:
-        if char == ' ' and is_string is False and is_import is False:
+        if char == ' ' and not is_string and not is_import:
             continue
-        elif char == '"' and is_string:
-            is_string = False
-            current_line += char
-        elif char == '"' and is_string is False:
-            is_string = True
-            current_line += char
-        else:
-            current_line += char
+        elif char == '"':
+            is_string = not is_string
+        current_line += char
 
         if current_line == 'importera':
             is_import = True
