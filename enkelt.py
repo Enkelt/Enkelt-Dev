@@ -629,7 +629,7 @@ def lex(line):
                     data_index += 1
 
                 last_action = 'PNUMBER'
-        elif char == '-' and is_string is False:
+        elif char == '-' and is_string is False and is_var is False:
             might_be_negative_num = True
         else:
             last_action = ''
