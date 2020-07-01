@@ -686,7 +686,7 @@ def lex(line):
                     data_index += 1
 
                 last_action = 'PNUMBER'
-        elif char == '-' and is_string is False:
+        elif char == '-' and is_string is False and is_var is False:
             might_be_negative_num = True
         else:
             last_action = ''
@@ -709,7 +709,7 @@ def lex(line):
                         is_var = True
                         tmp_data = ''
                     elif is_var:
-                        if char != ' ' and char != '=' and char not in operators and char != '[' and char != ']' and char != '{' and char != '}' and char != '(':
+                        if char not in [' ', '=', '[', ']', '{', '}', '('] and char not in operators:
                             tmp_data += char
                             if len(line) - 1 == chr_index:
                                 is_var = False
