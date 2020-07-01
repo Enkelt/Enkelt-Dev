@@ -49,6 +49,7 @@ class StandardLibrary:
         log = math.log
         grader = math.degrees
         radianer = math.radians
+        abs = abs
 
         @staticmethod
         def e(): return math.e
