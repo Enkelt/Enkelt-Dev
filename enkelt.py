@@ -654,7 +654,7 @@ def lex(line):
                         is_var = True
                         tmp_data = ''
                     elif is_var:
-                        if char != ' ' and char != '=' and char not in operators and char != '[' and char != ']' and char != '{' and char != '}' and char != '(':
+                        if char not in operators + list(' =[]{}('):
                             tmp_data += char
                             if len(line) - 1 == chr_index:
                                 is_var = False
@@ -734,7 +734,10 @@ def lex(line):
 def fix_up_code_line(statement):
     global is_extension
 
-    statement = statement.replace('\n', '').replace("'", '"').replace('\\"', '|-ENKELT_ESCAPED_QUOTE-|').replace('\\', '|-ENKELT_ESCAPED_BACKSLASH-|')
+    statement = statement.replace('\n', '')\
+                         .replace("'", '"')\
+                         .replace('\\"', '|-ENKELT_ESCAPED_QUOTE-|')\
+                         .replace('\\', '|-ENKELT_ESCAPED_BACKSLASH-|')
     if is_extension is False:
         statement = statement.replace('\t', '')
 
@@ -779,7 +782,9 @@ def fix_up_and_prepare_transpiled_code():
     final = list(''.join(final).replace('= =', '==').replace('! =', '==').replace('+ =', '+='))
 
     # Fixes escaped (\) characters
-    final = list(''.join(final).replace('|-ENKELT_ESCAPED_QUOTE-|', '\\"').replace('|-ENKELT_ESCAPED_BACKSLASH-|', '\\'))
+    final = list(
+        ''.join(final).replace('|-ENKELT_ESCAPED_QUOTE-|', '\\"').replace('|-ENKELT_ESCAPED_BACKSLASH-|', '\\')
+    )
 
     # Remove empty lines from final
     final = list(re.sub(r'\n\s*\n', '\n\n', ''.join(final)))
