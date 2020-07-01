@@ -318,3 +318,8 @@ class TestEnkelt(unittest.TestCase):
             enkelt.source_code = []
 
         loop_counter += 1
+
+
+if __name__ == '__main__':
+    unittest.main()
+    
