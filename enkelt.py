@@ -134,20 +134,24 @@ def enkelt_input(prompt=''):
 def translate_output_to_swedish(data):
     if isinstance(data, collections.abc.KeysView):
         data = list(data)
+    replace_dict = {
+        'True': 'Sant',
+        'False': 'Falskt',
+        '<class \'float\'>': 'decimaltal',
+        '<class \'str\'>': 'sträng',
+        '<class \'int\'>': 'heltal',
+        '<class \'list\'>': 'lista',
+        '<class \'dict\'>': 'lexikon',
+        '<class \'bool\'>': 'boolesk',
+        '<class \'NoneType\'>': 'inget',
+        '<class \'Exception\'>': 'Feltyp',
+        '<class \'datetime.date\'>': 'datum',
+        '<class \'datetime.datetime\'>': 'datum & tid',
+        '<class \'range\'>': 'område'
+    }
     data = str(data)
-    data = data.replace("True", "Sant").replace(
-        'False', 'Falskt').replace(
-        '<class \'float\'>', 'decimaltal').replace(
-        '<class \'str\'>', 'sträng').replace(
-        '<class \'int\'>', 'heltal').replace(
-        '<class \'list\'>', 'lista').replace(
-        '<class \'dict\'>', 'lexikon').replace(
-        '<class \'bool\'>', 'boolesk').replace(
-        '<class \'NoneType\'>', 'inget').replace(
-        '<class \'Exception\'>', 'Feltyp').replace(
-        '<class \'datetime.date\'>', 'datum').replace(
-        '<class \'datetime.datetime\'>', 'datum & tid').replace(
-        '<class \'range\'>', 'område')
+    for key in replace_dict:
+        data = data.replace(key, replace_dict[key])
 
     return data
 
