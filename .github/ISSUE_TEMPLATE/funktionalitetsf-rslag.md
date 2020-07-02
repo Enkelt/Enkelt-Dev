@@ -1,7 +1,7 @@
 ---
 name: Funktionalitetsförslag
 about: Förlag för nya funktioner
-title: "[FUNKTIONALITET]"
+title: 'Förslag:'
 labels: fråga, förbättring
 assignees: ''
 

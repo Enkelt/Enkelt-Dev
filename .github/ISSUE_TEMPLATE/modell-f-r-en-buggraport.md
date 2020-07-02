@@ -1,7 +1,7 @@
 ---
 name: Modell för en buggraport
 about: Har du hittat en bugg i Enkelt?
-title: "[BUGG]"
+title: 'Bugg:'
 labels: bugg
 assignees: ''
 
