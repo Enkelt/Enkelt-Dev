@@ -134,6 +134,7 @@ def enkelt_input(prompt=''):
 def translate_output_to_swedish(data):
     if isinstance(data, collections.abc.KeysView):
         data = list(data)
+
     replace_dict = {
         "True": 'Sant',
         "False": 'Falskt',
@@ -149,6 +150,7 @@ def translate_output_to_swedish(data):
         "<class 'datetime.datetime'>": 'datum & tid',
         "<class 'range'>": 'område'
     }
+
     data = str(data)
     for key in replace_dict:
         data = data.replace(key, replace_dict[key])
@@ -348,11 +350,8 @@ def functions_keywords_and_obj_notations():
             'bryt': 'break',
             'fortsätt': 'continue',
             'returnera': 'return ',
-            'inte': 'not',
             'passera': 'pass',
             'annars': 'else',
-            'och': ' and ',
-            'eller': ' or ',
             'år': 'year',
             'månad': 'month',
             'dag': 'day',
@@ -375,8 +374,19 @@ def get_obj_notations():
     return ['klass', 'försök', 'fånga']
 
 
+def translate_operator(operator):
+    operator_translations = {
+        '&': ' and ',
+        '|': ' or ',
+        '!': 'not ',
+        'not': '!',  # this is needed for != expressions
+    }
+
+    return operator_translations[operator]
+
+
 def operator_symbols():
-    return ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':', ';']
+    return ['+', '-', '*', '/', '%', '<', '>', '=', '!', '.', ',', ')', ':', ';', '&', '|']
 
 
 def forbidden_variable_names():
@@ -503,6 +513,15 @@ def parse(lexed, token_index):
             source_code.append('lambda ')
         elif lambda_num and token_val == ')':
             source_code.append(': ')
+        elif token_val in ['&', '|', '!']:
+            to_translate = token_val
+
+            # Checks if the ! is part of a != expression
+            if token_val == '!' and token_index+1 < len(lexed):
+                if lexed[token_index+1][1] == '=':
+                    to_translate = 'not'
+
+            source_code.append(translate_operator(to_translate))
         # All other operators just gets appended to the source
         else:
             source_code.append(token_val)
