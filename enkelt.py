@@ -351,7 +351,6 @@ def functions_keywords_and_obj_notations():
             'fortsätt': 'continue',
             'returnera': 'return ',
             'passera': 'pass',
-            'annars': 'else',
             'år': 'year',
             'månad': 'month',
             'dag': 'day',
@@ -359,7 +358,9 @@ def functions_keywords_and_obj_notations():
             'minut': 'minute',
             'sekund': 'second',
             'mikrosekund': 'microsecond',
-            'global': 'global '
+            'global': 'global ',
+            'om': ' if ',
+            'annars': ' else '
         },
         'obj_notations': {
             'klass': 'class ',
