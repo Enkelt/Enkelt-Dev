@@ -18,9 +18,9 @@
 #     along with Enkelt.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import sys
-import os
-import collections
+from sys import argv, version_info
+from os import system, getcwd, path, name
+from collections import abc
 import urllib.request
 
 # ############################################### #
@@ -51,7 +51,7 @@ def enkelt_input(prompt=''):
 # ################################################################## #
 
 def translate_output_to_swedish(data):
-	if isinstance(data, collections.abc.KeysView):
+	if isinstance(data, abc.KeysView):
 		data = list(data)
 
 	replace_dict = {
@@ -78,24 +78,45 @@ def translate_output_to_swedish(data):
 	return data
 
 
-def translate_error_to_swedish(error_to_translate):
-	error_translations = {
-		'SyntaxError': 'Syntaxfel',
-		'IndexError': 'Indexfel',
-		'TypeError': 'Typfel',
-		'ValueError': 'Värdefel',
-		'NameError': 'Namnfel',
-		'ZeroDivisionError': 'Nolldelningsfel',
-		'AttributeError': 'Attributfel'
+def translate_error(error_msg):
+	error_msg = error_msg.args[0]
+
+	translations = {
+		'unmatched': 'Syntaxfel, ' + error_msg[-3:] + ' saknas!',
+		'division by zero': 'Nolldelningsfel!',
+		'index': 'Indexfel!',
+		'key': 'Nyckelfel!',
+		'lookup': 'Sökfel!',
+		'attribute': 'Attribut/Parameterfel!',
+		'unexpected EOF': 'Oväntat programslut!',
+		'result too large': 'Resultatet för stort!',
+		'import': 'Importeringsfel!',
+		'module': 'Modulfel',
+		'syntax': 'Syntaxfel',
+		'KeyboardInterrupt': 'Avbruten!',
+		'memory': 'Minnefel!',
+		'name': 'Namnfel!',
+		'recursion': 'Rekursionsfel',
+		'argument': 'Argumentfel!',
+		'type': 'Typfel!',
+		'referenced before': 'Referensfel!',
+		'unicode': 'Unicode-fel!',
+		'value': 'Värdefel!',
+		'file': 'Filfel!',
+		'timeout': 'Avbrottsfel!',
+		'warning': 'Varning!',
 	}
 
-	en_error_msg = str(error_to_translate)
-	_, _, traceback = sys.exc_info()
-	raw_line_nr = traceback.tb_lineno
+	sv_error_message = ''
 
+	for key in translations.keys():
+		if key in error_msg:
+			sv_error_message = translations[key]
 
+	if not sv_error_message:
+		sv_error_message = 'Fel! ENG: ' + error_msg
 
-	return error_to_translate
+	return sv_error_message
 
 
 # ############ #
@@ -158,7 +179,7 @@ def translate_function(func):
 	function_translations = functions_and_keywords()['functions']
 
 	translation = function_translations[func] if func in function_translations.keys() else func
-	if 'os.system("c' not in translation:
+	if 'system("c' not in translation:
 		translation += '('
 
 	return translation
@@ -230,12 +251,12 @@ def import_library(library_name):
 	# Checks if the library is user-made (i.e. local not remote).
 	import_file = ''.join(source_file_name.split('/')[:-1]) + '/' + library_name + '.e'
 
-	if os.path.isfile(import_file):
+	if path.isfile(import_file):
 		maybe_load_from_file_then_transpile(import_file, True, library_name)
 	else:
 		# The library might be a local extension (.epy file)
 		import_file += 'py'
-		if os.path.isfile(import_file):
+		if path.isfile(import_file):
 			is_extension = True
 			maybe_load_from_file_then_transpile(import_file, True, library_name)
 
@@ -376,6 +397,12 @@ def lexer(raw):
 
 			elif char == '(':
 				if tmp:
+					if len(tmp) > 3:
+						if tmp[:3] == 'def':
+							tokens.append(['FUNC_DEF', tmp[3:]])
+							tmp = ''
+							continue
+
 					tokens.append(['FUNC', tmp])
 					tmp = ''
 			elif char == '=':
@@ -456,7 +483,7 @@ def build(tokens):
 
 	parsed = '\n' + ''.join(additional_library_code) + parsed
 
-	boilerplate = "import os\nimport enkelt5 as Enkelt\ndef __enkelt__():\n\tprint('', end='')\n"
+	boilerplate = "from os import system\nimport enkelt5 as Enkelt\ndef __enkelt__():\n\tprint('', end='')\n"
 	parsed = boilerplate + parsed
 
 	fixed_code = ''
@@ -512,7 +539,7 @@ def startup(file_name):
 
 
 def translate_clear():
-	if os.name == 'nt':
+	if name == 'nt':
 		return 'cls'
 	return 'clear'
 
@@ -555,7 +582,7 @@ def functions_and_keywords():
 			'värden': 'values',
 			'element': 'elements',
 			'numrera': 'enumerate',
-			'töm': 'os.system("' + translate_clear() + '"',
+			'töm': 'system("' + translate_clear() + '"',
 			'kasta': 'raise Exception',
 			'nycklar': 'keys',
 		},
@@ -648,21 +675,21 @@ is_dev = False
 # Start
 if __name__ == '__main__':
 	try:
-		if sys.version_info[0] < 3:
+		if version_info[0] < 3:
 			raise Exception("Du måste använda Python 3 eller högre")
 
-		if len(sys.argv) > 1:
-			if len(sys.argv) > 2:
-				flag = sys.argv[2]
+		if len(argv) > 1:
+			if len(argv) > 2:
+				flag = argv[2]
 				if flag == '--d':
 					is_dev = True
 
-			source_file_name = sys.argv[1]
-			if os.path.isfile(os.getcwd() + '/' + source_file_name):
+			source_file_name = argv[1]
+			if path.isfile(getcwd() + '/' + source_file_name):
 				startup(source_file_name)
 			else:
 				print('Filen kunde inte hittas!')
 		else:
 			print('Ingen fil specifierad!')
 	except Exception as e:
-		print(translate_error_to_swedish(e))
+		print(translate_error(e))

@@ -1,1 +1,1 @@
-skriv (other)
+töm()
