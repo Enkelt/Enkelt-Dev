@@ -106,6 +106,10 @@ def translate_error(error_msg):
 		'file': 'Filfel!',
 		'timeout': 'Avbrottsfel!',
 		'warning': 'Varning!',
+		'indent': 'Indragsfel!',
+		'\'break\' outside loop': 'Brytningsfel: Bryt utanför loop!',
+		'invalid mode': 'Ogiltigt filläge!',
+		'concaten': 'Sammanfogningsfel!',
 	}
 
 	sv_error_message = ''
@@ -450,15 +454,8 @@ def fix_up_code_line(statement):
 		.replace('\\"', '|-ENKELT_ESCAPED_QUOTE-|') \
 		.replace('\\', '|-ENKELT_ESCAPED_BACKSLASH-|')
 
-	current_line = ''
+	current_line = statement
 	is_string = False
-
-	for char in statement:
-		if char == ' ' and not is_string:
-			continue
-		elif char == '"':
-			is_string = not is_string
-		current_line += char
 
 	return current_line
 
@@ -470,7 +467,7 @@ def build(tokens):
 
 	parsed = '\n' + ''.join(additional_library_code) + parsed
 
-	boilerplate = "from os import system\nimport enkelt5 as Enkelt\ndef __enkelt__():\n\tprint('', end='')\n"
+	boilerplate = "from os import system\nimport enkelt as Enkelt\ndef __enkelt__():\n\tprint('', end='')\n"
 	parsed = boilerplate + parsed
 
 	fixed_code = ''

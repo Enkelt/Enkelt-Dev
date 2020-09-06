@@ -86,7 +86,9 @@ class TestEnkelt(unittest.TestCase):
 			self.assertEqual('clear', enkelt.translate_clear())
 
 	def test_lexer(self):
-
+		sample_code = {
+			''
+		}
 
 
 if __name__ == '__main__':
