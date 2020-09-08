@@ -19,14 +19,29 @@
 
 
 from sys import argv, version_info
-from os import system, getcwd, path, name
+from os import system, getcwd, path, name, getenv
 from collections import abc
 import urllib.request
+import datetime
+import time
+import math
+
+
+# ####### #
+# CLASSES #
+# ####### #
+
+class StandardLibrary:
+	class tid:
+		epok = time.time
+		tid = time.ctime
+		datum = datetime.date
+		nu = datetime.datetime.now
+		idag = datetime.date.today
 
 # ############################################### #
 # Modules Used When Executing The Transpiled Code #
 # ############################################### #
-
 
 def enkelt_print(data):
 	print(translate_output_to_swedish(data))
@@ -236,6 +251,10 @@ def import_library(library_name):
 	global source_file_name
 	global is_extension
 	global additional_library_code
+	global built_in_libraries
+
+	if library_name in built_in_libraries:
+		return
 
 	web_import_location = 'https://raw.githubusercontent.com/Enkelt/EnkeltWeb/master/bibliotek/bib/'
 
@@ -468,6 +487,29 @@ def build(tokens):
 	parsed = '\n' + ''.join(additional_library_code) + parsed
 
 	boilerplate = "from os import system\nimport enkelt as Enkelt\ndef __enkelt__():\n\tprint('', end='')\n"
+	boilerplate += '\nclass matte:'
+	boilerplate += '\n\ttak = math.ceil'
+	boilerplate += '\n\tgolv = math.floor'
+	boilerplate += '\n\tfakultet = math.factorial'
+	boilerplate += '\n\tsin = math.sin'
+	boilerplate += '\n\tcos = math.cos'
+	boilerplate += '\n\ttan = math.tan'
+	boilerplate += '\n\tasin = math.asin'
+	boilerplate += '\n\tacos = math.acos'
+	boilerplate += '\n\tatan = math.atan'
+	boilerplate += '\n\tpotens = math.pow'
+	boilerplate += '\n\tkvadratrot = math.sqrt'
+	boilerplate += '\n\tlog = math.log'
+	boilerplate += '\n\tgrader = math.degrees'
+	boilerplate += '\n\tradianer = math.radians'
+	boilerplate += '\n\tabs = abs'
+
+	boilerplate += '\n\t@staticmethod'
+	boilerplate += '\n\t\tdef e():'
+	boilerplate += '\n\t\treturn math.e'
+
+	boilerplate += '\n\t@staticmethod'
+	boilerplate += '\n\t\tdef pi(): return math.pi'
 	parsed = boilerplate + parsed
 
 	fixed_code = ''
@@ -646,6 +688,7 @@ special_keywords = {
 	}
 }
 operators = [':', ')', '!', '+', '-', '*', '/', '%', '.', ',', '[', ']', '&']
+built_in_libraries = ['matte', 'tid']
 
 source_file_name = ''
 
@@ -655,25 +698,27 @@ additional_library_code = []
 version_nr = 5.0
 
 is_dev = False
+is_running_tests = getenv('ENKELT_DEV_TEST_RUN', False)
 
 # Start
 if __name__ == '__main__':
-	try:
-		if version_info[0] < 3:
-			raise Exception("Du måste använda Python 3 eller högre")
+	if not is_running_tests:
+		try:
+			if version_info[0] < 3:
+				raise Exception("Du måste använda Python 3 eller högre")
 
-		if len(argv) > 1:
-			if len(argv) > 2:
-				flag = argv[2]
-				if flag == '--d':
-					is_dev = True
+			if len(argv) > 1:
+				if len(argv) > 2:
+					flag = argv[2]
+					if flag == '--d':
+						is_dev = True
 
-			source_file_name = argv[1]
-			if path.isfile(getcwd() + '/' + source_file_name):
-				startup(source_file_name)
+				source_file_name = argv[1]
+				if path.isfile(getcwd() + '/' + source_file_name):
+					startup(source_file_name)
+				else:
+					print('Filen kunde inte hittas!')
 			else:
-				print('Filen kunde inte hittas!')
-		else:
-			print('Ingen fil specifierad!')
-	except Exception as e:
-		print(translate_error(e))
+				print('Ingen fil specifierad!')
+		except Exception as e:
+			print(translate_error(e))

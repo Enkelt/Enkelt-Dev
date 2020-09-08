@@ -663,25 +663,25 @@ keys("text"+"text")
 keys(var+"text")
 keys(funktion())
 keys(funktion("text",False,1,["text",1]))
-if "text"
-if "text text"
-if "text """
-if "text |-ENKELT_ESCAPED_BACKSLASH-| text"
-if 23
-if 10+5
-if 10-1
-if 10*5
-if 10/5
-if 10%5
-if True
-if False
-if ["text",1,True]
-if ["text",1,True,["text",1,True]]
-if var
-if "text"+"text"
-if var+"text"
-if funktion()
-if funktion("text",False,1,["text",1])
+if ("text")
+if ("text text")
+if ("text """)
+if ("text |-ENKELT_ESCAPED_BACKSLASH-| text")
+if (23)
+if (10+5)
+if (10-1)
+if (10*5)
+if (10/5)
+if (10%5)
+if (True)
+if (False)
+if (["text",1,True])
+if (["text",1,True,["text",1,True]])
+if (var)
+if ("text"+"text")
+if (var+"text")
+if (funktion())
+if (funktion("text",False,1,["text",1]))
 elif "text"
 elif "text text"
 elif "text """
