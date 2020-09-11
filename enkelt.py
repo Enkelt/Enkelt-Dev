@@ -130,7 +130,7 @@ def translate_error(error_msg):
 
 	sv_error_message = ''
 
-	for key in translations.keys():
+	for key in translations:
 		if key in error_msg:
 			sv_error_message = translations[key]
 
@@ -174,9 +174,8 @@ def transpile_var(var):
 def maybe_place_space_before(parsed, token_val):
 	prefix = ' '
 
-	if parsed:
-		if parsed[-1] in ['\n', '\t', '(', ' ', '.']:
-			prefix = ''
+	if parsed and parsed[-1] in ['\n', '\t', '(', ' ', '.']:
+		prefix = ''
 	parsed += prefix + token_val + ' '
 
 	return parsed
@@ -212,9 +211,8 @@ def transpile_library_code(library_code, library_name):
 
 	class_boilerplate_for_library = 'class ' + library_name + ':\n'
 	for line in source_code:
-		if line:
-			if line[-1] != '\n':
-				class_boilerplate_for_library += '\n'
+		if line and line[-1] != '\n':
+			class_boilerplate_for_library += '\n'
 
 		class_boilerplate_for_library += '\t' + line
 
@@ -307,9 +305,8 @@ def parser(tokens):
 		if token_type in ['FORMAT', 'ASSIGN', 'NUM']:
 			parsed += token_val
 		elif token_type == 'OP':
-			if token_val in ['.', ')', ',', ':'] and parsed:
-				if parsed[-1] == ' ':
-					parsed = parsed[:-1]
+			if token_val in ['.', ')', ',', ':'] and parsed and parsed[-1] == ' ':
+				parsed = parsed[:-1]
 
 			parsed += token_val
 
@@ -340,10 +337,10 @@ def parser(tokens):
 		elif token_type == 'KEY':
 			parsed += '\'' + token_val + '\''
 
-		if len(parsed) > 3:
-			if parsed[-1] == ' ' and parsed[-2] == '=' and parsed[-3] == ' ' and parsed[-4] == '=':
-				parsed = parsed[:-4]
-				parsed += ' == '
+		if (len(parsed) > 3 and parsed[-1] == ' ' and parsed[-2] == '='
+		    and parsed[-3] == ' ' and parsed[-4] == '='):
+			parsed = parsed[:-4]
+			parsed += ' == '
 
 	return parsed
 
@@ -360,20 +357,17 @@ def lex_var_keyword(tokens, tmp):
 	if tmp:
 		if tmp in keywords:
 			tokens.append(['KEYWORD', tmp])
-			tmp = ''
 		elif tmp in special_keywords.keys():
 			tokens.append([special_keywords[tmp]['type'], tmp])
 			collect = special_keywords[tmp]['collect']
 			collect_ends = special_keywords[tmp]['collect_ends']
 			include_collect_end = special_keywords[tmp]['include_collect_end']
-			tmp = ''
 		else:
 			tokens.append(['VAR', tmp])
 
 			if tmp not in variables:
 				variables.append(tmp)
-			tmp = ''
-
+		tmp = ''
 	return tokens, tmp, collect, collect_ends, include_collect_end
 
 
@@ -411,11 +405,10 @@ def lexer(raw):
 
 			elif char == '(':
 				if tmp:
-					if len(tmp) > 3:
-						if tmp[:3] == 'def':
-							tokens.append(['FUNC_DEF', tmp[3:]])
-							tmp = ''
-							continue
+					if len(tmp) > 3 and tmp[:3] == 'def':
+						tokens.append(['FUNC_DEF', tmp[3:]])
+						tmp = ''
+						continue
 
 					tokens.append(['FUNC', tmp])
 					tmp = ''
@@ -443,10 +436,9 @@ def lexer(raw):
 				is_dict.pop(0)
 				tokens.append(['OP', char])
 			elif char.isdigit() and not tmp:
-				if tokens:
-					if tokens[-1][0] == 'NUM':
-						tokens[-1][1] += char
-						continue
+				if tokens and tokens[-1][0] == 'NUM':
+					tokens[-1][1] += char
+					continue
 				tokens.append(['NUM', char])
 			elif char == '&':
 				is_collector = True
@@ -473,14 +465,11 @@ def lexer(raw):
 
 
 def fix_up_code_line(statement):
-	statement = statement.replace("'", '"') \
-		.replace('\\"', '|-ENKELT_ESCAPED_QUOTE-|') \
-		.replace('\\', '|-ENKELT_ESCAPED_BACKSLASH-|')
-
-	current_line = statement
 	is_string = False
 
-	return current_line
+	return statement.replace("'", '"') \
+		.replace('\\"', '|-ENKELT_ESCAPED_QUOTE-|') \
+		.replace('\\', '|-ENKELT_ESCAPED_BACKSLASH-|')
 
 
 def build(tokens):
@@ -494,10 +483,9 @@ def build(tokens):
 
 	parsed = parser(tokens)
 
-	if is_console and len(tokens) > 2:
-		if tokens[1][0] == 'VAR':
-			console_mode_variable_source_code_to_ignore.append(parsed)
-			console_mode_variable_source_code.append(parsed)
+	if is_console and len(tokens) > 2 and tokens[1][0] == 'VAR':
+		console_mode_variable_source_code_to_ignore.append(parsed)
+		console_mode_variable_source_code.append(parsed)
 
 	parsed = '\n' + ''.join(additional_library_code) + parsed
 
@@ -754,26 +742,25 @@ is_dev = False
 is_running_tests = getenv('ENKELT_DEV_TEST_RUN', False)
 
 # Start
-if __name__ == '__main__':
-	if not is_running_tests:
-		try:
-			if version_info[0] < 3:
-				raise Exception("Du måste använda Python 3 eller högre")
+if __name__ == '__main__' and not is_running_tests:
+	try:
+		if version_info[0] < 3:
+			raise Exception("Du måste använda Python 3 eller högre")
 
-			if len(argv) > 1:
-				if len(argv) > 2:
-					flag = argv[2]
-					if flag == '--d':
-						is_dev = True
+		if len(argv) > 1:
+			if len(argv) > 2:
+				flag = argv[2]
+				if flag == '--d':
+					is_dev = True
 
-				source_file_name = argv[1]
-				if path.isfile(getcwd() + '/' + source_file_name):
-					startup(source_file_name)
-				else:
-					print('Filen kunde inte hittas!')
+			source_file_name = argv[1]
+			if path.isfile(getcwd() + '/' + source_file_name):
+				startup(source_file_name)
 			else:
-				start_console(True)
-		except Exception as e:
-			print(translate_error(e))
-			if is_console:
-				start_console(False)
+				print('Filen kunde inte hittas!')
+		else:
+			start_console(True)
+	except Exception as e:
+		print(translate_error(e))
+		if is_console:
+			start_console(False)
