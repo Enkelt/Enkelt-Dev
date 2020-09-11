@@ -76,9 +76,9 @@ class TestEnkelt(unittest.TestCase):
 			'för_var': ['VAR', 'för_var'],
 		}
 
-		for var_keyword in test_data.keys():
+		for var_keyword, value in test_data.items():
 			tokens, _, _, _, _ = enkelt.lex_var_keyword([], var_keyword)
-			self.assertEqual(test_data[var_keyword], tokens[-1])
+			self.assertEqual(value, tokens[-1])
 
 	def fix_up_code_line(self):
 		self.assertEqual('" |-ENKELT_ESCAPED_QUOTE-| |-ENKELT_ESCAPED_QUOTE-|', enkelt.fix_up_code_line('\' \\", \\'))
