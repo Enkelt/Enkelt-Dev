@@ -484,14 +484,19 @@ def fix_up_code_line(statement):
 
 
 def build(tokens):
+
+	print(tokens)
 	global additional_library_code
 	global is_console
 	global console_mode_variable_source_code
+
+	console_mode_variable_source_code_to_ignore = []
 
 	parsed = parser(tokens)
 
 	if is_console and len(tokens) > 2:
 		if tokens[1][0] == 'VAR':
+			console_mode_variable_source_code_to_ignore.append(parsed)
 			console_mode_variable_source_code.append(parsed)
 
 	parsed = '\n' + ''.join(additional_library_code) + parsed
@@ -525,9 +530,10 @@ def build(tokens):
 	boilerplate += '\t\t\tfrom math import pi\n'
 	boilerplate += '\t\t\treturn pi\n'
 
-	if len(console_mode_variable_source_code) > 0:
-		for variable_source_code in console_mode_variable_source_code:
-			boilerplate += '\t\t' + variable_source_code
+	for variable_source_code in console_mode_variable_source_code:
+		if variable_source_code not in console_mode_variable_source_code_to_ignore:
+			variable_source_code = variable_source_code.replace('\n', '')
+			boilerplate += '\t' + variable_source_code + '\n'
 
 	fixed_code = boilerplate
 
