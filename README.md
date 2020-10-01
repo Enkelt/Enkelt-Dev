@@ -17,8 +17,8 @@ Om du vill bidra kan du läsa `CONTRIBUTING.md` för mer information.
 (lägg till ditt namn om du jobbar/jobbat på enkelt)
 
 -   Edvard Busck-Nielsen (Upprätthållare)
--   Morgan Williams
--   Bangyen Pham
+-   Morgan Williams (2019)
+-   Bangyen Pham (2020)
 
 ## Teknisk information
 -   Licens: GNU GPLv3
