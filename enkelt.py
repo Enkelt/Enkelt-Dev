@@ -470,9 +470,21 @@ def lexer(raw):
 	return tokens
 
 
-def fix_up_code_line(statement):
-	print([statement])
+def add_part(parts, is_string, code):
+	parts.append({
+		'is_string': is_string,
+		'code': code
+	})
 
+	is_string = True
+
+	if code[-1] == '\n':
+		is_string = False
+
+	return parts, '', is_string
+
+
+def fix_up_code_line(statement):
 	statement = statement.replace("'", '"') \
 		.replace('\\"', '|-ENKELT_ESCAPED_QUOTE-|') \
 		.replace('\\', '|-ENKELT_ESCAPED_BACKSLASH-|')
@@ -487,38 +499,16 @@ def fix_up_code_line(statement):
 		tmp += char
 
 		if char == '"' and is_string:
-			parts.append({
-				'is_string': True,
-				'code': tmp
-			})
-			tmp = ''
+			parts, tmp, is_string = add_part(parts, True, tmp)
 			is_string = False
-		elif char == '"':
-			parts.append({
-				'is_string': False,
-				'code': tmp
-			})
-			tmp = ''
-			is_string = True
-		elif char == '\n' and not is_string:
-			parts.append({
-				'is_string': False,
-				'code': tmp
-			})
-			tmp = ''
-			is_string = False
-
-	print(parts)
+		elif char in ['"', '\n']:
+			parts, tmp, is_string = add_part(parts, False, tmp)
 
 	statement = ''
-
 	for part in parts:
 		if not part['is_string']:
 			part['code'] = part['code'].replace('    ', '\t').replace('  ', '\t').replace(' (', '(')
-
 		statement += part['code']
-
-	print([statement])
 
 	return statement
 
