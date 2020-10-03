@@ -1,4 +1,3 @@
-text = "Hello, World!"
-skriv (text + ' yee!\nya')
-om Sant:
-  skriv(1)
+klass my_lib:
+	def min_lib_funk():
+		enkelt_print("hej"

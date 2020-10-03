@@ -205,7 +205,7 @@ def transpile_library_code(library_code, library_name):
 	source_code = library_code
 
 	if not is_extension:
-		source_code = lexer(library_code)
+		source_code = lexer([line + '\n' for line in library_code.split('\n')])
 		source_code = parser(source_code)
 		source_code = source_code.split('\n')
 
