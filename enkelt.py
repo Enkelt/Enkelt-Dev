@@ -313,7 +313,8 @@ def parser(tokens):
 			if token_val in [',', '=', '%']:
 				parsed += ' '
 		elif token_type == 'STR':
-			token_val = token_val.replace('|-ENKELT_ESCAPED_BACKSLASH-|', '\\').replace('|-ENKELT_ESCAPED_QUOTE-|', '\\"')
+			token_val = token_val.replace('|-ENKELT_ESCAPED_BACKSLASH-|', '\\').replace('|-ENKELT_ESCAPED_QUOTE-|',
+																						'\\"')
 			parsed += '"' + token_val + '"'
 		elif token_type == 'IMPORT':
 			import_library(token_val)
@@ -338,7 +339,7 @@ def parser(tokens):
 			parsed += '\'' + token_val + '\''
 
 		if (len(parsed) > 3 and parsed[-1] == ' ' and parsed[-2] == '='
-		    and parsed[-3] == ' ' and parsed[-4] == '='):
+				and parsed[-3] == ' ' and parsed[-4] == '='):
 			parsed = parsed[:-4]
 			parsed += ' == '
 
@@ -473,8 +474,6 @@ def fix_up_code_line(statement):
 
 
 def build(tokens):
-
-	print(tokens)
 	global additional_library_code
 	global is_console
 	global console_mode_variable_source_code
@@ -533,9 +532,6 @@ def build(tokens):
 		if line:
 			line = '\t' + line
 		fixed_code += line
-	print('---')
-	print(fixed_code)
-	print('---')
 
 	if is_dev:
 		print('--DEV: FINAL TRANSPILED CODE')
@@ -745,7 +741,8 @@ is_running_tests = getenv('ENKELT_DEV_TEST_RUN', False)
 if __name__ == '__main__' and not is_running_tests:
 	try:
 		if version_info[0] < 3:
-			raise Exception("Du måste använda Python 3 eller högre")
+			print("Du måste använda Python 3 eller högre")
+			exit()
 
 		if len(argv) > 1:
 			if len(argv) > 2:
