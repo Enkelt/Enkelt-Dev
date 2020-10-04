@@ -1,3 +1,3 @@
-klass my_lib:
-	def min_lib_funk():
-		enkelt_print("hej"
+skriv("Hej, världen!")
+namn = in("Namn: ")
+skriv("Hej " + namn + "!")
