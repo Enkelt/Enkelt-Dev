@@ -600,7 +600,8 @@ def build(tokens):
 
 def transpile(source_lines):
 	source_lines.insert(0, '\n')
-	source_lines.append('\n')
+	print(source_lines)
+	source_lines[-1] += '\n'
 
 	tokens_list = lexer(source_lines)
 
