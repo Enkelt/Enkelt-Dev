@@ -9,30 +9,6 @@ sample_code_for_testing_parsed = 'enkelt_print("Hej, Världen!")\nenkelt_print("
 class TestEnkelt(unittest.TestCase):
 	maxDiff = None
 
-	def test_translate_output_to_swedish(self):
-		to_test = {
-			"True": 'Sant',
-			"False": 'Falskt',
-			"None": 'Inget',
-			"<class 'float'>": 'Decimaltal',
-			"<class 'str'>": 'Sträng',
-			"<class 'int'>": 'Heltal',
-			"<class 'list'>": 'Lista',
-			"<class 'dict'>": 'Lexikon',
-			"<class 'dict_keys'>": 'Lexikonnycklar',
-			"<class 'bool'>": 'Boolesk',
-			"<class 'NoneType'>": 'Inget',
-			"<class 'Exception'>": 'Feltyp',
-			"<class 'datetime.date'>": 'Datum',
-			"<class 'datetime.datetime'>": 'Datum & tid',
-			"<class 'range'>": 'Område'
-		}
-
-		for datatype in to_test:
-			self.assertEqual(to_test[datatype], enkelt.translate_output_to_swedish(datatype))
-
-		self.assertEqual('Sant', enkelt.translate_output_to_swedish('True'))
-
 	def test_maybe_place_space_before(self):
 		# With space
 		expectation = [char for char in 'a suffix ']
