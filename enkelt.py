@@ -482,107 +482,105 @@ def build(tokens):
 
 	parsed = '\n' + ''.join(additional_library_code) + parsed
 
-	fixed_code = \
-		('from os import system\nfrom collections import abc\n'
-		 '\n\ndef __enkelt__():\n\tprint('', end='')\n'
+	boilerplate = \
+		(
+			'from os import system\nfrom collections import abc\n'
+			'\n\ndef __enkelt__():\n\tprint(\'\', end=\'\')\n'
+			'\n\tclass tid:\n'
+			'\t\timport time\n'
+			'\t\timport datetime\n\n'
+			'\t\tepok = time.time\n'
+			'\t\ttid = time.ctime\n'
+			'\t\tdatum = datetime.date\n'
+			'\t\tnu = datetime.datetime.now\n'
+			'\t\tidag = datetime.date.today\n'
 
-		'\n\tclass tid:\n'
-		'\t\timport time\n'
-		'\t\timport datetime\n\n'
-		'\t\tepok = time.time\n'
-		'\t\ttid = time.ctime\n'
-		'\t\tdatum = datetime.date\n'
-		'\t\tnu = datetime.datetime.now\n'
-		'\t\tidag = datetime.date.today\n'
+			'\n\tdef translate_output_to_swedish(data):\n'
+			'\t\tif isinstance(data, abc.KeysView):\n'
+			'\t\t\tdata = list(data)\n'
+			'\t\treplace_dict = {\n'
+			'\t\t\t"True": \'Sant\',\n'
+			'\t\t\t"False": \'Falskt\',\n'
+			'\t\t\t"None": \'Inget\',\n'
+			'\t\t\t"<class \'float\'>": \'Decimaltal\',\n'
+			'\t\t\t"<class \'str\'>": \'Sträng\',\n'
+			'\t\t\t"<class \'int\'>": \'Heltal\',\n'
+			'\t\t\t"<class \'list\'>": \'Lista\',\n'
+			'\t\t\t"<class \'dict\'>": \'Lexikon\',\n'
+			'\t\t\t"<class \'dict_keys\'>": \'Lexikonnycklar\',\n'
+			'\t\t\t"<class \'bool\'>": \'Boolesk\',\n'
+			'\t\t\t"<class \'IngetType\'>": \'Inget\',\n'
+			'\t\t\t"<class \'Exception\'>": \'Feltyp\',\n'
+			'\t\t\t"<class \'datetime.date\'>": \'Datum\',\n'
+			'\t\t\t"<class \'datetime.datetime\'>": \'Datum & tid\',\n'
+			'\t\t\t"<class \'range\'>": \'Område\'\n'
+			'\t\t}\n'
+			'\t\tdata = str(data)\n'
+			'\t\tfor key in replace_dict:\n'
+			'\t\t\tdata = data.replace(key, replace_dict[key])\n'
+			'\t\treturn data\n'
 
-		'\n\tdef translate_output_to_swedish(data):\n'
-		'\t\tif isinstance(data, abc.KeysView):\n'
-		'\t\t\tdata = list(data)\n'
-		'\t\treplace_dict = {\n'
-		'\t\t\t"True": \'Sant\',\n'
-		'\t\t\t"False": \'Falskt\',\n'
-		'\t\t\t"None": \'Inget\',\n'
-		'\t\t\t"<class \'float\'>": \'Decimaltal\',\n'
-		'\t\t\t"<class \'str\'>": \'Sträng\',\n'
-		'\t\t\t"<class \'int\'>": \'Heltal\',\n'
-		'\t\t\t"<class \'list\'>": \'Lista\',\n'
-		'\t\t\t"<class \'dict\'>": \'Lexikon\',\n'
-		'\t\t\t"<class \'dict_keys\'>": \'Lexikonnycklar\',\n'
-		'\t\t\t"<class \'bool\'>": \'Boolesk\',\n'
-		'\t\t\t"<class \'IngetType\'>": \'Inget\',\n'
-		'\t\t\t"<class \'Exception\'>": \'Feltyp\',\n'
-		'\t\t\t"<class \'datetime.date\'>": \'Datum\',\n'
-		'\t\t\t"<class \'datetime.datetime\'>": \'Datum & tid\',\n'
-		'\t\t\t"<class \'range\'>": \'Område\'\n'
-		'\t\t}\n'
-		'\t\tdata = str(data)\n'
-		'\t\tfor key in replace_dict:\n'
-		'\t\t\tdata = data.replace(key, replace_dict[key])\n'
-		'\t\treturn data\n'
+			'\n\tdef enkelt_print(data):\n'
+			'\t\tprint(translate_output_to_swedish(data))\n'
 
-		'\n\tdef enkelt_print(data):\n'
-		'\t\tprint(translate_output_to_swedish(data))\n'
+			'\n\tdef enkelt_input(prompt=\'\'):\n'
+			'\t\ttmp = input(prompt)\n'
+			'\t\ttry:\n'
+			'\t\t\ttmp = int(tmp)\n'
+			'\t\t\treturn tmp\n'
+			'\t\texcept ValueError:\n'
+			'\t\t\ttry:\n'
+			'\t\t\t\ttmp = float(tmp)\n'
+			'\t\t\t\treturn tmp\n'
+			'\t\t\texcept ValueError:\n'
+			'\t\t\t\treturn str(tmp)\n'
 
-		'\n\tdef enkelt_input(prompt=\'\'):\n'
-		'\t\ttmp = input(prompt)\n'
-		'\t\ttry:\n'
-		'\t\t\ttmp = int(tmp)\n'
-		'\t\t\treturn tmp\n'
-		'\t\texcept ValueError:\n'
-		'\t\t\ttry:\n'
-		'\t\t\t\ttmp = float(tmp)\n'
-		'\t\t\t\treturn tmp\n'
-		'\t\t\texcept ValueError:\n'
-		'\t\t\t\treturn str(tmp)\n'
+			'\n\tclass matte:\n'
+			'\t\timport math\n'
+			'\t\ttak = math.ceil\n'
+			'\t\tgolv = math.floor\n'
+			'\t\tfakultet = math.factorial\n'
+			'\t\tsin = math.sin\n'
+			'\t\tcos = math.cos\n'
+			'\t\ttan = math.tan\n'
+			'\t\tasin = math.asin\n'
+			'\t\tacos = math.acos\n'
+			'\t\tatan = math.atan\n'
+			'\t\tpotens = math.pow\n'
+			'\t\tkvadratrot = math.sqrt\n'
+			'\t\tlog = math.log\n'
+			'\t\tgrader = math.degrees\n'
+			'\t\tradianer = math.radians\n'
+			'\t\tabs = abs\n'
 
-		'\n\tclass matte:\n'
-		'\t\timport math\n'
-		'\t\ttak = math.ceil\n'
-		'\t\tgolv = math.floor\n'
-		'\t\tfakultet = math.factorial\n'
-		'\t\tsin = math.sin\n'
-		'\t\tcos = math.cos\n'
-		'\t\ttan = math.tan\n'
-		'\t\tasin = math.asin\n'
-		'\t\tacos = math.acos\n'
-		'\t\tatan = math.atan\n'
-		'\t\tpotens = math.pow\n'
-		'\t\tkvadratrot = math.sqrt\n'
-		'\t\tlog = math.log\n'
-		'\t\tgrader = math.degrees\n'
-		'\t\tradianer = math.radians\n'
-		'\t\tabs = abs\n'
+			'\n\t\t@staticmethod\n'
+			'\t\tdef e():\n'
+			'\t\t\treturn math.e\n'
 
-		'\n\t\t@staticmethod\n'
-		'\t\tdef e():\n'
-		'\t\t\treturn math.e\n'
-
-		'\n\t\t@staticmethod\n'
-		'\t\tdef pi():\n'
-		'\t\t\treturn math.pi')
+			'\n\t\t@staticmethod\n'
+			'\t\tdef pi():\n'
+			'\t\t\treturn math.pi'
+		)
 
 	for variable_source_code in console_mode_variable_source_code:
 		if variable_source_code not in console_mode_variable_source_code_to_ignore:
 			variable_source_code = variable_source_code.replace('\n', '')
-			fixed_code += '\t' + variable_source_code + '\n'
+			boilerplate += '\t' + variable_source_code + '\n'
 
 	lines = parsed.split('\n')
 
 	for line_index, line in enumerate(lines):
-		line += '\n'
-
-		if line:
-			line = '\t' + line
-		fixed_code += line
+		line = '\t' + line + '\n'
+		boilerplate += line
 
 	if is_dev:
 		print('--DEV: FINAL TRANSPILED CODE')
-		print(fixed_code)
+		print(boilerplate)
 
 	if not is_console:
 		with open('final_transpiled.py', 'w+', encoding='utf-8') as f:
 			f.write('')
-			f.write(fixed_code)
+			f.write(boilerplate)
 
 		# final_transpiled is a module generated by this script, line 454 will always show an error.
 		import final_transpiled
@@ -592,8 +590,8 @@ def build(tokens):
 		if not is_dev:
 			remove('final_transpiled.py')
 	else:
-		fixed_code += '__enkelt__()'
-		exec(fixed_code)
+		boilerplate += '__enkelt__()'
+		exec(boilerplate)
 
 
 def transpile(source_lines):
